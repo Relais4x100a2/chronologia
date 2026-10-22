@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Conflit de date</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B2320;background:#EEF0EC}
+a{color:#16615D}a:hover{color:#0E4441}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid #16615D;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: #EEF0EC; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1B2320">
+
+  <header style="height: 64px; box-sizing: border-box; padding: 0 24px; display: flex; align-items: center; gap: 20px; background: #FFFFFF; border-bottom: 1px solid #D5DAD5">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6661">Événement E1 · file de décisions</div>
+      <div style="font-size: 17px; font-weight: 600">Baptême de Jean Martin · 4 sources · conflit de date</div>
+    </div>
+    <span style="font-size: 12px; padding: 4px 8px; border-radius: 3px; background: #F6E7C8; color: #7A4E0A; font-weight: 500">intersection vide</span>
+    <div style="flex-grow: 1"></div>
+    <div role="group" aria-label="Échelle" style="display: flex; border: 1px solid #C5CCC6; border-radius: 6px; overflow: hidden; font-size: 13px">
+      <button type="button" aria-pressed="true" style="height: 36px; padding: 0 14px; border: 0; background: #1B2320; color: #FFFFFF">Jour</button>
+      <button type="button" aria-pressed="false" style="height: 36px; padding: 0 14px; border: 0; background: #FFFFFF; color: #1B2320">Mois</button>
+      <button type="button" aria-pressed="false" style="height: 36px; padding: 0 14px; border: 0; background: #FFFFFF; color: #1B2320">Année</button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 16px 24px">
+
+    <section aria-label="Frise des sources" style="background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 16px 20px 18px 20px; display: flex; flex-direction: column; gap: 0">
+
+      <div style="display: flex; align-items: flex-end; height: 28px">
+        <div style="width: 330px; flex-shrink: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Source · date telle qu'écrite</div>
+        <div style="position: relative; width: 900px; height: 28px">
+          <sc-for list="{{ticks}}" as="t" hint-placeholder-count="11">
+            <span style="position: absolute; left: {{t.x}}px; bottom: 4px; width: 45px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B6661">{{t.label}}</span>
+          </sc-for>
+        </div>
+        <div style="padding-left: 16px; font-size: 11px; color: #5B6661">mars 1712</div>
+      </div>
+
+      <div style="display: flex; align-items: center; height: 64px; border-top: 1px solid #EEF0EC">
+        <div style="width: 330px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding-right: 16px; box-sizing: border-box">
+          <span style="font-size: 14px; font-weight: 600">Registre original + double du greffe</span>
+          <span style="font-size: 12.5px; color: #3E4944">2 sources concordantes · « le trois mars » · <a href="#">déplier</a></span>
+        </div>
+        <div style="position: relative; width: 900px; height: 64px; background: repeating-linear-gradient(90deg, transparent 0 44px, #F1F3F0 44px 45px)">
+          <div style="position: absolute; left: 90px; top: 18px; width: 45px; height: 28px; border-radius: 3px; background: #16615D"></div>
+          <div style="position: absolute; left: 118px; top: 8px; min-width: 22px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 9px; background: #FFFFFF; border: 1px solid #16615D; font-size: 11px; font-weight: 600; color: #0E4441; text-align: center; line-height: 16px">×2</div>
+        </div>
+        <div style="padding-left: 16px; font-size: 12px; color: #3E4944">originaux · A</div>
+      </div>
+
+      <div style="display: flex; align-items: center; height: 64px; border-top: 1px solid #EEF0EC">
+        <div style="width: 330px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding-right: 16px; box-sizing: border-box">
+          <span style="font-size: 14px; font-weight: 600">Extrait baptistaire, contrat de 1735</span>
+          <span style="font-size: 12.5px; color: #3E4944">copie, 23 ans après · « le treize mars »</span>
+        </div>
+        <div style="position: relative; width: 900px; height: 64px; background: repeating-linear-gradient(90deg, transparent 0 44px, #F1F3F0 44px 45px)">
+          <div style="position: absolute; left: 540px; top: 18px; width: 45px; height: 28px; box-sizing: border-box; border-radius: 3px; border: 2px solid #9A6A1C; background: repeating-linear-gradient(135deg, #F6E7C8 0 5px, #E2C48C 5px 8px)"></div>
+        </div>
+        <div style="padding-left: 16px; font-size: 12px; color: #3E4944">copie · B</div>
+      </div>
+
+      <div style="display: flex; align-items: center; height: 64px; border-top: 1px solid #EEF0EC">
+        <div style="width: 330px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding-right: 16px; box-sizing: border-box">
+          <span style="font-size: 14px; font-weight: 600">Déposition, procès de 1752</span>
+          <span style="font-size: 12.5px; color: #3E4944">40 ans après · « il y a environ quarante ans »</span>
+        </div>
+        <div style="position: relative; width: 900px; height: 64px">
+          <div style="position: absolute; left: 0; right: 0; top: 22px; height: 20px; border-radius: 3px; background: linear-gradient(90deg, rgba(90,63,143,0.05), rgba(90,63,143,0.22) 30%, rgba(90,63,143,0.22) 70%, rgba(90,63,143,0.05))"></div>
+          <span style="position: absolute; left: 4px; top: 22px; font-size: 14px; line-height: 20px; color: #5A3F8F">◀</span>
+          <span style="position: absolute; right: 4px; top: 22px; font-size: 14px; line-height: 20px; color: #5A3F8F">▶</span>
+          <span style="position: absolute; left: 330px; top: 24px; font-size: 12px; color: #4A3278">vers 1707 – 1717 · déborde l'échelle</span>
+        </div>
+        <div style="padding-left: 16px; font-size: 12px; color: #3E4944">témoignage · C</div>
+      </div>
+
+      <div style="display: flex; align-items: center; height: 80px; border-top: 2px solid #1B2320; margin-top: 4px">
+        <div style="width: 330px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding-right: 16px; box-sizing: border-box">
+          <span style="font-size: 14px; font-weight: 600">Événement calculé</span>
+          <span style="font-size: 12.5px; color: #3E4944">cœur = intersection · halo = union</span>
+        </div>
+        <div style="position: relative; width: 900px; height: 80px">
+          <div style="position: absolute; left: 82px; top: 22px; width: 61px; height: 28px; border-radius: 14px; background: #CFE3DF"></div>
+          <div style="position: absolute; left: 532px; top: 22px; width: 61px; height: 28px; border-radius: 14px; background: #CFE3DF"></div>
+          <div style="position: absolute; left: 150px; width: 376px; top: 35px; border-top: 2px dashed #C98A1B"></div>
+          <div style="position: absolute; left: 150px; top: 28px; width: 2px; height: 16px; background: #C98A1B"></div>
+          <div style="position: absolute; left: 524px; top: 28px; width: 2px; height: 16px; background: #C98A1B"></div>
+          <span style="position: absolute; left: 238px; top: 52px; font-size: 12.5px; font-weight: 600; color: #7A4E0A">10 jours · aucune date commune</span>
+        </div>
+        <div style="padding-left: 16px"><span style="font-size: 12px; padding: 3px 7px; border-radius: 3px; background: #F6E7C8; color: #7A4E0A; font-weight: 500">conflit</span></div>
+      </div>
+    </section>
+
+    <div style="flex-grow: 1; min-height: 0; display: flex; gap: 16px">
+
+      <section aria-label="Hypothèses vérifiées" style="flex-grow: 1; min-width: 0; background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px">
+        <h2 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Hypothèses vérifiées par la machine</h2>
+        <sc-for list="{{hyps}}" as="h" hint-placeholder-count="4">
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 10px 0; border-top: 1px solid #EEF0EC">
+            <span style="width: 86px; flex-shrink: 0; text-align: center; font-size: 12px; font-weight: 500; padding: 3px 0; border-radius: 3px; background: {{h.bg}}; color: {{h.fg}}">{{h.verdict}}</span>
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 14px; font-weight: 600">{{h.title}}</span>
+              <span style="font-size: 13px; color: #3E4944">{{h.detail}}</span>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section aria-label="Décision" style="width: 520px; flex-shrink: 0; background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Décision</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" aria-pressed="true" style="height: 36px; padding: 0 12px; border: 1px solid #16615D; background: #DCEBE8; border-radius: 18px; font-size: 13px; color: #0E4441">✓ Original préféré à la copie</button>
+          <button type="button" aria-pressed="true" style="height: 36px; padding: 0 12px; border: 1px solid #16615D; background: #DCEBE8; border-radius: 18px; font-size: 13px; color: #0E4441">✓ Sources contemporaines concordantes</button>
+          <button type="button" aria-pressed="false" style="height: 36px; padding: 0 12px; border: 1px solid #C5CCC6; background: #FFFFFF; border-radius: 18px; font-size: 13px; color: #1B2320">Erreur de copie probable</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <button type="button" style="height: 48px; border: 0; border-radius: 6px; background: #16615D; color: #FFFFFF; font-size: 14px; font-weight: 600">Retenir le 3 mars</button>
+          <button type="button" style="height: 48px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; color: #1B2320; font-size: 14px">Retenir le 13 mars</button>
+          <button type="button" style="height: 48px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; color: #1B2320; font-size: 14px">Garder l'incertitude (3 – 13 mars)</button>
+          <button type="button" style="height: 48px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; color: #1B2320; font-size: 14px">Pas le même baptême</button>
+        </div>
+        <p style="margin: 0; margin-top: auto; font-size: 13px; color: #5B6661">Chaque choix crée une conclusion signée. La source écartée reste affichée, en grisé, et l'événement porte la mention « 1 source divergente ».</p>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ticks = [];
+    for (let d = 1; d <= 21; d += 2) ticks.push({ x: (d - 1) * 45, label: String(d) });
+    const grey = { bg: '#E3E7E2', fg: '#3E4944' };
+    const hyps = [
+      Object.assign({ verdict: 'écartée', title: 'Décalage de calendrier julien / grégorien', detail: 'Écart attendu en 1712 : 11 jours. Écart observé : 10 jours.' }, grey),
+      Object.assign({ verdict: 'écartée', title: 'Date de naissance prise pour le baptême', detail: 'Les deux textes disent « baptisé ».' }, grey),
+      { verdict: 'plausible', bg: '#DCEBE8', fg: '#0E4441', title: 'Erreur de copie : « trois » lu « treize »', detail: 'Copie faite 23 ans après ; les deux mots sont proches à l’écrit.' },
+      { verdict: 'neutre', bg: '#ECE5F6', fg: '#4A3278', title: 'Biais de mémoire (déposition de 1752)', detail: 'Témoignage 40 ans après, formule arrondie « environ quarante ans » : compatible avec les deux dates, n’arbitre pas.' }
+    ];
+    return { ticks: ticks, hyps: hyps };
+  }
+}
+</script>
+</body>
+</html>

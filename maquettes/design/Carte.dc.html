@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Conflit de lieu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B2320;background:#EEF0EC}
+a{color:#16615D}a:hover{color:#0E4441}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid #16615D;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: #EEF0EC; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1B2320">
+
+  <header style="height: 64px; box-sizing: border-box; padding: 0 24px; display: flex; align-items: center; gap: 20px; background: #FFFFFF; border-bottom: 1px solid #D5DAD5">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6661">Événement E0 · file de décisions</div>
+      <div style="font-size: 17px; font-weight: 600">Mariage de Pierre Martin et Marie Dubois · 3 sources · conflit de lieu</div>
+    </div>
+    <span style="font-size: 12px; padding: 4px 8px; border-radius: 3px; background: #F6E7C8; color: #7A4E0A; font-weight: 500">dépend de la date</span>
+    <div style="flex-grow: 1"></div>
+    <span style="font-size: 13px; color: #5B6661">Lieux et paroisses fictifs</span>
+  </header>
+
+  <div style="flex-grow: 1; min-height: 0; display: flex; gap: 16px; padding: 16px 24px">
+
+    <aside aria-label="Sources" style="width: 300px; flex-shrink: 0; background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden">
+      <div style="padding: 14px 16px 8px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Sources · survoler pour afficher</div>
+      <button type="button" style="text-align: left; border: 0; background: #FFFFFF; padding: 12px 16px; display: flex; gap: 12px; color: #1B2320">
+        <svg width="28" height="14" aria-hidden="true" style="flex-shrink: 0; margin-top: 4px"><line x1="0" y1="7" x2="28" y2="7" stroke="#16615D" stroke-width="2.5" stroke-dasharray="6 4"></line></svg>
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span style="font-size: 14px; font-weight: 600">Import GeneWeb</span>
+          <span style="font-size: 12.5px; color: #3E4944">« Saint‑Aubin‑les‑Essarts, 76 » · désignation moderne, projetée sur la paroisse de 1706</span>
+        </span>
+      </button>
+      <button type="button" aria-current="true" style="text-align: left; border: 0; border-top: 1px solid #EEF0EC; background: #EAF3F1; box-shadow: inset 3px 0 0 #16615D; padding: 12px 16px; display: flex; gap: 12px; color: #1B2320">
+        <svg width="28" height="14" aria-hidden="true" style="flex-shrink: 0; margin-top: 4px"><line x1="0" y1="7" x2="28" y2="7" stroke="#16615D" stroke-width="2.5" stroke-dasharray="1.5 4" stroke-linecap="round" opacity="0.7"></line></svg>
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span style="font-size: 14px; font-weight: 600">Déposition, procès de 1740</span>
+          <span style="font-size: 12.5px; color: #3E4944">« marié en la chapelle de la Croix‑Blanche il y a environ trente‑cinq ans » · témoignage</span>
+        </span>
+      </button>
+      <button type="button" style="text-align: left; border: 0; border-top: 1px solid #EEF0EC; background: #FFFFFF; padding: 12px 16px; display: flex; gap: 12px; color: #5B6661">
+        <svg width="28" height="14" aria-hidden="true" style="flex-shrink: 0; margin-top: 4px"><line x1="0" y1="7" x2="28" y2="7" stroke="#9AA39E" stroke-width="2"></line></svg>
+        <span style="display: flex; flex-direction: column; gap: 3px">
+          <span style="font-size: 14px; font-weight: 600; text-decoration: line-through">Contrat de mariage, 1704</span>
+          <span style="font-size: 12.5px">« demeurant en la paroisse de Saint‑Aubin » · domicile, pas lieu du mariage : hors calcul</span>
+        </span>
+      </button>
+      <div style="margin-top: auto; padding: 14px 16px; border-top: 1px solid #E3E7E2; display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; color: #3E4944">
+        <span style="display: flex; align-items: center; gap: 8px"><span style="width: 18px; height: 12px; background: #CFE3DF; border-radius: 2px"></span>Halo : union des lieux possibles</span>
+        <span style="display: flex; align-items: center; gap: 8px"><span style="width: 18px; height: 12px; background: #16615D; border-radius: 2px"></span>Cœur : zone commune (absente ici)</span>
+        <span style="display: flex; align-items: center; gap: 8px"><svg width="18" height="12" aria-hidden="true"><line x1="0" y1="6" x2="18" y2="6" stroke="#C98A1B" stroke-width="2" stroke-dasharray="4 3"></line></svg>Distance sans zone commune</span>
+        <span style="display: flex; align-items: center; gap: 8px"><svg width="18" height="12" aria-hidden="true"><rect x="1" y="1" width="16" height="10" fill="none" stroke="#7D8781" stroke-width="1.2" stroke-dasharray="3 2"></rect></svg>Fantôme : territoire après un changement</span>
+      </div>
+    </aside>
+
+    <main style="width: 760px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0">
+      <div style="position: relative; width: 760px; height: 500px; border: 1px solid #D5DAD5; border-radius: 6px 6px 0 0; overflow: hidden; background: #F7F8F6">
+        <svg width="760" height="500" viewBox="0 0 760 500" role="img" aria-label="Carte au 1706 : paroisse de Saint-Aubin, chapelle de la Croix-Blanche hors de la paroisse, à 1,3 km">
+          <defs>
+            <radialGradient id="flou" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#16615D" stop-opacity="0.35"></stop>
+              <stop offset="70%" stop-color="#16615D" stop-opacity="0.15"></stop>
+              <stop offset="100%" stop-color="#16615D" stop-opacity="0"></stop>
+            </radialGradient>
+          </defs>
+          <path d="M0,390 C150,370 260,430 380,410 S600,340 760,360" fill="none" stroke="#DCE4E8" stroke-width="7"></path>
+          <path d="M120,0 C140,80 110,160 150,230" fill="none" stroke="#E6E9E6" stroke-width="3"></path>
+          <polygon points="440,110 700,80 735,300 580,395 470,330 455,250" fill="none" stroke="#C5CCC6" stroke-width="1.2"></polygon>
+          <text x="600" y="130" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#7D8781">Les Essarts · paroisse</text>
+          <polygon points="90,130 380,100 455,250 420,400 160,440 70,300" fill="#CFE3DF" fill-opacity="0.85" stroke="#16615D" stroke-width="2.5" stroke-dasharray="7 5"></polygon>
+          <text x="170" y="270" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="600" fill="#0E4441">Saint‑Aubin · paroisse en 1706</text>
+          <polygon points="455,250 545,215 585,305 490,335 470,330" fill="none" stroke="#7D8781" stroke-width="1.4" stroke-dasharray="4 3"></polygon>
+          <text x="560" y="355" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#5B6661">hameau de la Croix‑Blanche</text>
+          <text x="560" y="371" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#5B6661">rattaché à Saint‑Aubin en 1709</text>
+          <circle cx="525" cy="275" r="30" fill="url(#flou)"></circle>
+          <circle cx="525" cy="275" r="30" fill="none" stroke="#16615D" stroke-width="2" stroke-dasharray="1.5 4" stroke-linecap="round" opacity="0.7"></circle>
+          <circle cx="525" cy="275" r="5" fill="#1B2320"></circle>
+          <text x="470" y="232" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#1B2320">chapelle</text>
+          <line x1="452" y1="258" x2="496" y2="272" stroke="#C98A1B" stroke-width="2.5" stroke-dasharray="5 4"></line>
+          <rect x="300" y="300" width="146" height="40" rx="4" fill="#FFFFFF" stroke="#E8CF9C"></rect>
+          <text x="312" y="317" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="#7A4E0A">1,3 km</text>
+          <text x="312" y="332" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="#7A4E0A">aucune zone commune</text>
+          <line x1="24" y1="470" x2="104" y2="470" stroke="#5B6661" stroke-width="2"></line>
+          <text x="24" y="462" font-family="IBM Plex Mono, monospace" font-size="11" fill="#5B6661">1 km</text>
+        </svg>
+        <div style="position: absolute; left: 14px; top: 14px; padding: 8px 12px; border-radius: 6px; background: #274B7A; color: #FFFFFF; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 15px; font-weight: 600">Carte au 1706</span>
+          <span style="font-size: 12px; opacity: 0.9">territoires tels qu'ils étaient à cette date</span>
+        </div>
+        <div role="group" aria-label="Fond de carte" style="position: absolute; right: 14px; top: 14px; display: flex; border: 1px solid #C5CCC6; border-radius: 6px; overflow: hidden; font-size: 12.5px; background: #FFFFFF">
+          <button type="button" aria-pressed="true" style="height: 34px; padding: 0 10px; border: 0; background: #1B2320; color: #FFFFFF">Moderne atténué</button>
+          <button type="button" aria-pressed="false" style="height: 34px; padding: 0 10px; border: 0; background: #FFFFFF; color: #1B2320">Cassini</button>
+          <button type="button" aria-pressed="false" style="height: 34px; padding: 0 10px; border: 0; background: #FFFFFF; color: #1B2320">Aucun</button>
+          <button type="button" style="height: 34px; padding: 0 10px; border: 0; border-left: 1px solid #C5CCC6; background: #FFFFFF; color: #1B2320">Rideau</button>
+        </div>
+      </div>
+
+      <div style="position: relative; width: 760px; box-sizing: border-box; background: #FFFFFF; border: 1px solid #D5DAD5; border-top: 0; border-radius: 0 0 6px 6px; padding: 12px 0 12px 0">
+        <div style="position: relative; height: 170px">
+          <div style="position: absolute; left: 334px; top: -12px; width: 2px; height: 150px; background: #274B7A"></div>
+          <div style="position: absolute; left: 306px; top: 136px; width: 58px; height: 26px; border-radius: 13px; background: #274B7A; color: #FFFFFF; font-size: 13px; font-weight: 600; text-align: center; line-height: 26px">1706</div>
+
+          <span style="position: absolute; left: 12px; top: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Date de l'événement</span>
+          <div style="position: absolute; left: 152px; width: 304px; top: 24px; height: 22px; border-radius: 11px; background: linear-gradient(90deg, rgba(22,97,93,0.08), rgba(22,97,93,0.35) 25%, rgba(22,97,93,0.35) 75%, rgba(22,97,93,0.08))"></div>
+          <span style="position: absolute; left: 470px; top: 27px; font-size: 12px; color: #3E4944">vers 1700 – 1710 · 2 sources</span>
+
+          <span style="position: absolute; left: 12px; top: 58px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Géographie</span>
+          <div style="position: absolute; left: 0; width: 426px; top: 78px; height: 22px; background: #E3E7E2"></div>
+          <div style="position: absolute; left: 426px; width: 334px; top: 78px; height: 22px; background: #C9D0CB"></div>
+          <span style="position: absolute; left: 12px; top: 81px; font-size: 12px; color: #1B2320">Croix‑Blanche dans Les Essarts</span>
+          <span style="position: absolute; left: 470px; top: 81px; font-size: 12px; color: #1B2320">Croix‑Blanche dans Saint‑Aubin</span>
+          <div style="position: absolute; left: 418px; top: 81px; width: 16px; height: 16px; background: #1B2320; transform: rotate(45deg)"></div>
+          <span style="position: absolute; left: 408px; top: 104px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; color: #1B2320">1709</span>
+
+          <sc-for list="{{ticks}}" as="t" hint-placeholder-count="6">
+            <span style="position: absolute; left: {{t.x}}px; top: 122px; width: 40px; margin-left: -20px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B6661">{{t.label}}</span>
+          </sc-for>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 4px 12px 0 12px">
+          <button type="button" style="height: 32px; padding: 0 10px; border: 1px solid #C5CCC6; border-radius: 5px; background: #FFFFFF; font-size: 12.5px; color: #1B2320">‹ Changement précédent</button>
+          <button type="button" style="height: 32px; padding: 0 10px; border: 1px solid #C5CCC6; border-radius: 5px; background: #FFFFFF; font-size: 12.5px; color: #1B2320">Changement suivant : 1709 ›</button>
+          <span style="margin-left: auto; font-size: 12px; color: #5B6661">Glissez le curseur : la carte suit la date.</span>
+        </div>
+      </div>
+    </main>
+
+    <section aria-label="Analyse et décision" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Selon la date</h2>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span style="width: 10px; height: 10px; border-radius: 5px; background: #C98A1B"></span>Avant 1709 : conflit, 1,3 km</div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span style="width: 10px; height: 10px; border-radius: 5px; background: #16615D"></span>Après 1709 : précisions compatibles</div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px">
+        <h2 style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Hypothèses vérifiées</h2>
+        <sc-for list="{{hyps}}" as="h" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 3px; padding: 8px 0; border-top: 1px solid #EEF0EC">
+            <span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 11px; font-weight: 500; padding: 2px 6px; border-radius: 3px; background: {{h.bg}}; color: {{h.fg}}">{{h.verdict}}</span><span style="font-size: 13.5px; font-weight: 600">{{h.title}}</span></span>
+            <span style="font-size: 12.5px; color: #3E4944">{{h.detail}}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; margin-top: auto">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Décision</h2>
+        <button type="button" style="min-height: 44px; padding: 6px 12px; border: 0; border-radius: 6px; background: #16615D; color: #FFFFFF; font-size: 13.5px; font-weight: 600; text-align: left">Retenir la chapelle et dater après 1709</button>
+        <button type="button" style="min-height: 44px; padding: 6px 12px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; color: #1B2320; font-size: 13.5px; text-align: left">Retenir la paroisse, écarter la chapelle</button>
+        <button type="button" style="min-height: 44px; padding: 6px 12px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; color: #1B2320; font-size: 13.5px; text-align: left">Garder l'enveloppe (lieu incertain)</button>
+        <button type="button" style="min-height: 44px; padding: 6px 12px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; color: #1B2320; font-size: 13.5px; text-align: left">Pas le même mariage</button>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const px = (y) => Math.round((y - 1695) * 30.4);
+    const ticks = [1695, 1700, 1705, 1710, 1715, 1720].map((y) => ({ x: Math.max(20, Math.min(740, px(y))), label: String(y) }));
+    const grey = { bg: '#E3E7E2', fg: '#3E4944' };
+    const hyps = [
+      { verdict: 'appliquée', bg: '#DCEBE8', fg: '#0E4441', title: 'Désignation moderne', detail: 'La commune de 1973 couvre deux paroisses : remplacée par la paroisse valable à la date.' },
+      { verdict: 'appliquée', bg: '#DCEBE8', fg: '#0E4441', title: 'Domicile pris pour le lieu', detail: 'Le contrat donne le domicile des époux : exclu du calcul.' },
+      { verdict: 'décisive', bg: '#F6E7C8', fg: '#7A4E0A', title: 'Changement de territoire', detail: 'Le hameau change de paroisse en 1709, dans l’intervalle de dates possible.' },
+      Object.assign({ verdict: 'écartée', title: 'Homonymie', detail: 'Aucune autre chapelle de ce nom à moins de 30 km.' }, grey)
+    ];
+    return { ticks: ticks, hyps: hyps };
+  }
+}
+</script>
+</body>
+</html>

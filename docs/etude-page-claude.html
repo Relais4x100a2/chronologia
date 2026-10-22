@@ -1,0 +1,1943 @@
+<title>Schéma Événement–Masque–Factoïde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --ink:#1b2230; --muted:#5a6475; --line:#d9dde4;
+  --accent:#23406e;
+  --src:#8a5a14; --src-bg:#f6ecdc;
+  --evt:#16676b; --evt-bg:#dff0ef;
+  --int:#5a4796; --int-bg:#ebe7f6;
+  --ref:#6b7383; --ref-bg:#eceef2;
+  --code-bg:#eef0f4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#12161d; --surface:#1a2029; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2c3440;
+    --accent:#8fb0e6;
+    --src:#e0b066; --src-bg:#2f2515;
+    --evt:#6fcfc9; --evt-bg:#143032;
+    --int:#b3a4f0; --int-bg:#262040;
+    --ref:#a6aebb; --ref-bg:#232a35;
+    --code-bg:#20262f;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#12161d; --surface:#1a2029; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2c3440;
+  --accent:#8fb0e6;
+  --src:#e0b066; --src-bg:#2f2515;
+  --evt:#6fcfc9; --evt-bg:#143032;
+  --int:#b3a4f0; --int-bg:#262040;
+  --ref:#a6aebb; --ref-bg:#232a35;
+  --code-bg:#20262f;
+}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:24px;font-weight:600;margin-bottom:14px}
+h3{font-size:17px;font-weight:600}
+p{margin:0 0 10px;max-width:68ch}
+.eyebrow{font:500 12px/1 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.lede{color:var(--muted);font-size:16px;margin-top:12px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:.88em}
+code{background:var(--code-bg);padding:1px 5px;border-radius:3px}
+.chain{margin-top:18px;font:500 13px/1.8 "IBM Plex Mono",ui-monospace,monospace;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;white-space:nowrap}
+
+/* layers */
+.layers{display:grid;gap:10px}
+.layer{border-radius:6px;padding:14px 16px;display:grid;grid-template-columns:200px 1fr;gap:6px 18px;align-items:start}
+.layer.src{background:var(--src-bg)} .layer.evt{background:var(--evt-bg)} .layer.int{background:var(--int-bg)} .layer.ref{background:var(--ref-bg)}
+.layer .name{font:600 15px/1.3 "IBM Plex Sans Condensed",sans-serif}
+.layer.src .name{color:var(--src)} .layer.evt .name{color:var(--evt)} .layer.int .name{color:var(--int)} .layer.ref .name{color:var(--ref)}
+.layer .ents{display:flex;flex-wrap:wrap;gap:6px}
+.layer .ents span{font:500 12px/1 "IBM Plex Mono",monospace;background:var(--surface);border:1px solid var(--line);padding:5px 7px;border-radius:3px}
+.layer .desc{grid-column:2;color:var(--muted);font-size:13.5px;margin:0}
+@media (max-width:640px){.layer{grid-template-columns:1fr}.layer .desc{grid-column:1}}
+
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto}
+.diagram pre{margin:0;min-width:760px}
+.note{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* dictionary */
+.dict{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.ent{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.ent header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ent .en{font:600 14px/1.2 "IBM Plex Mono",monospace}
+.chip{font:500 10.5px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;border-radius:3px;white-space:nowrap}
+.chip.src{color:var(--src);background:var(--src-bg)} .chip.evt{color:var(--evt);background:var(--evt-bg)} .chip.int{color:var(--int);background:var(--int-bg)} .chip.ref{color:var(--ref);background:var(--ref-bg)}
+.ent p{font-size:13.5px;margin:0;color:var(--muted)}
+.ent ul{margin:0;padding:0;list-style:none;font:12.5px/1.65 "IBM Plex Mono",monospace}
+.ent li b{font-weight:500;color:var(--ink)}
+.ent li span{color:var(--muted)}
+
+/* rules */
+.rules{display:grid;gap:10px;counter-reset:r}
+.rule{display:grid;grid-template-columns:44px 1fr;gap:4px 12px;padding:12px 0;border-top:1px solid var(--line)}
+.rule .n{font:600 13px/1.5 "IBM Plex Mono",monospace;color:var(--accent)}
+.rule h3{margin-bottom:4px}
+.rule p{margin:0;font-size:14px;color:var(--muted)}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font:600 12px/1.3 "IBM Plex Sans Condensed",sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg)}
+td:first-child{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.quote{font-family:"IBM Plex Sans",serif;font-style:italic;background:var(--surface);border-left:3px solid var(--src);padding:12px 16px;border-radius:0 6px 6px 0;max-width:72ch;margin-bottom:14px}
+.quote .cote{display:block;font:500 12px/1.4 "IBM Plex Mono",monospace;font-style:normal;color:var(--muted);margin-top:8px}
+.ex td:first-child{white-space:normal}
+.pill{display:inline-block;font:500 11px/1 "IBM Plex Mono",monospace;padding:3px 6px;border-radius:3px;margin:1px 0}
+.pill.ok{background:var(--evt-bg);color:var(--evt)} .pill.mid{background:var(--src-bg);color:var(--src)} .pill.no{background:var(--ref-bg);color:var(--ref);text-decoration:line-through}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+
+/* v0.2 additions */
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.toc a{font:500 12.5px/1 "IBM Plex Mono",monospace;color:var(--accent);text-decoration:none;border:1px solid var(--line);background:var(--surface);padding:8px 10px;border-radius:4px}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);outline:none}
+.part{font:600 12px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.sub{font:600 18px/1.3 "IBM Plex Sans Condensed",sans-serif;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.refs{display:grid;gap:10px}
+.ref{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;grid-template-columns:34px 1fr;gap:4px 12px}
+.ref.new{border-color:var(--src)}
+.ref .n{font:600 13px/1.5 "IBM Plex Mono",monospace;color:var(--accent)}
+.ref .t{font-weight:600;font-size:14.5px;line-height:1.45}
+.ref .t i{font-weight:400}
+.ref .nat{font:500 11px/1 "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:6px 0 8px}
+.ref dl{margin:0;display:grid;grid-template-columns:78px 1fr;gap:4px 10px;font-size:13.5px}
+.ref dt{font:500 11.5px/1.7 "IBM Plex Mono",monospace;color:var(--muted)}
+.ref dd{margin:0}
+@media (max-width:560px){.ref dl{grid-template-columns:1fr}.ref dt{margin-top:4px}}
+pre.code{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font:12.5px/1.6 "IBM Plex Mono",ui-monospace,monospace;margin:0 0 14px;color:var(--ink)}
+pre.code .c{color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.box h3{margin-bottom:8px}
+.box ul{margin:0;padding-left:18px;font-size:14px}
+.box li{margin-bottom:6px}
+.box.plus{border-top:3px solid var(--evt)} .box.minus{border-top:3px solid var(--src)}
+.verdict{background:var(--int-bg);border-radius:6px;padding:14px 16px;margin-top:12px}
+.verdict h3{color:var(--int);margin-bottom:6px}
+.steps{display:grid;gap:0;counter-reset:s}
+.step{display:grid;grid-template-columns:44px 1fr;gap:4px 12px;padding:12px 0;border-top:1px solid var(--line)}
+.step .n{font:600 13px/1.5 "IBM Plex Mono",monospace;color:var(--evt)}
+.step h3{margin-bottom:4px}
+.step p{margin:0;font-size:14px;color:var(--muted)}
+.gap td:nth-child(3){color:var(--muted)}
+.badge{display:inline-block;font:500 10.5px/1 "IBM Plex Mono",monospace;padding:3px 5px;border-radius:3px;background:var(--src-bg);color:var(--src);vertical-align:2px;margin-left:6px}
+
+.doc{max-width:900px;margin:0 auto}
+.doc h1{margin-bottom:10px}
+.doc h2{margin:48px 0 14px;padding-top:14px;border-top:2px solid var(--ink)}
+.doc h3{font-size:19px;margin:30px 0 10px}
+.doc h4{font-size:16px;margin:24px 0 8px;font-family:"IBM Plex Sans Condensed",sans-serif}
+.doc p,.doc li{max-width:72ch}
+.doc ul,.doc ol{padding-left:22px;margin:0 0 14px}
+.doc li{margin-bottom:6px}
+.doc blockquote{margin:0 0 16px;background:var(--surface);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 6px 6px 0}
+.doc blockquote p{margin:0 0 6px}
+.doc hr{border:0;border-top:1px solid var(--line);margin:36px 0}
+.doc .tbl{margin:0 0 16px}
+.doc table{min-width:640px}
+.doc td:first-child{white-space:normal}
+.doc pre.code code{background:none;padding:0;font-size:12.5px}
+.doc a{color:var(--accent)}
+.doc strong{font-weight:600}
+</style>
+<main class="doc">
+<h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
+<p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
+Version 0.7.1, 28 septembre 2026, préparée pour Guillaume Cayeux</p>
+<blockquote>
+<p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
+PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
+À gauche, ce qui est écrit (couche Source, immuable). À droite, ce que l'on conclut (couche Interprétation, révisable). Chaque flèche est une identification révisable, qui porte un degré de confiance et une conclusion.</p>
+</blockquote>
+<h2 id="journal-des-versions">Journal des versions</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Changements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.1</td>
+<td>Modèle en trois couches (Source, Événement, Interprétation). Pivot sur l'événement.</td>
+</tr>
+<tr>
+<td>0.2</td>
+<td>Ajout de NOM, LOT_IMPORT et R9. Stratégie d'import GeneWeb. Analyse d'OCaml.</td>
+</tr>
+<tr>
+<td>0.3</td>
+<td><strong>Modèle symétrique.</strong> L'événement passe dans la couche Interprétation ; le factoïde devient l'événement tel que la source le décrit, et porte les participations. Les chaînes de source brutes sont rattachées aux sources canoniques par le même mécanisme. Une structure d'identification commune sert aux trois agrégations. Ajouts : règles R10 à R12, choix d'implémentation (PostgreSQL, réification, projection en graphe), principes de l'interface de validation.</td>
+</tr>
+<tr>
+<td>0.4</td>
+<td><strong>Lieux en quatrième agrégation</strong> : le lieu écrit (MENTION_LIEU) est rattaché au lieu du répertoire par une IDENT_LIEU ; la couche Source ne contient plus aucune résolution (R13). <strong>Granularité tranchée</strong> : un factoïde par acte, ou par épisode pour les sources narratives (R14).</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td><strong>Lieu historique et site topographique distingués.</strong> Le SITE (coordonnées physiques immuables) devient un référentiel ; le LIEU_HISTORIQUE (territoire ou institution datés) se décompose en noms, emprises, appartenances et localisations, chacun avec sa période de validité. Plusieurs hiérarchies territoriales coexistent. Règles R15 à R17. Section 4.8.</td>
+</tr>
+<tr>
+<td>0.5.1</td>
+<td>Ajustements PostGIS : site typé en point avec rayon d'incertitude, emprise approximative par point et rayon (zone tampon calculée à l'affichage), index spatiaux. Cas des paroisses partagées entre deux juridictions.</td>
+</tr>
+<tr>
+<td>0.6</td>
+<td><strong>Saisie assistée par modèles de langage</strong> (section 7) : circuit dépôt, lecture à voix haute, extraction, validation ; modèles spécialisés derrière une passerelle ; déploiement hybride (serveur local, services en ligne, petits modèles en local). Ajouts au modèle : zone de brouillon, ancrage au mot, contributeur « agent », confiance d'extraction, indicateur lu ou déduit. Règles R18 à R21.</td>
+</tr>
+<tr>
+<td>0.7</td>
+<td><strong>Conclusions à effets multiples</strong> (CONCLUSION_EFFET) et <strong>contraintes temporelles</strong> (CONTRAINTE_TEMPORELLE) : une même décision peut valider un lieu et resserrer la date d'un événement. État « incertitude assumée », distinct du conflit. Sources hors calcul : jamais effacées. Calculs métriques en Lambert‑93. Règles R22 à R24. Écrans de la maquette et règles d'interface consignés (6.1 à 6.6).</td>
+</tr>
+<tr>
+<td>0.7.1</td>
+<td>Consolidation du dossier. Question ouverte ajoutée en 9.2 (point 6) : faut-il une notion d'organisation ? Aucun changement de modèle ni de règle.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="sommaire">Sommaire</h2>
+<ol>
+<li><a href="#1-objectif-et-contexte">Objectif et contexte</a></li>
+<li><a href="#2-corpus-de-référence">Corpus de référence</a></li>
+<li><a href="#3-synthèse-des-concepts-clés">Synthèse des concepts clés</a></li>
+<li><a href="#4-modèle-conceptuel-v04">Modèle conceptuel v0.4</a></li>
+<li><a href="#5-import-depuis-geneweb">Import depuis GeneWeb</a></li>
+<li><a href="#6-interface-de-validation">Interface de validation</a></li>
+<li><a href="#7-saisie-assistée-par-modèles-de-langage">Saisie assistée par modèles de langage</a></li>
+<li><a href="#8-implémentation-postgresql-et-ocaml">Implémentation : PostgreSQL et OCaml</a></li>
+<li><a href="#9-décisions-et-questions-ouvertes">Décisions et questions ouvertes</a></li>
+<li><a href="#10-sources">Sources</a></li>
+</ol>
+<hr />
+<h2 id="1-objectif-et-contexte">1. Objectif et contexte</h2>
+<p>Le but est de concevoir un modèle de données historique <strong>orienté événements</strong>, à la croisée de la généalogie, de la prosopographie et de l'analyse relationnelle.</p>
+<ul>
+<li><strong>Entité pivot :</strong> l'événement, ancré dans le temps et dans l'espace. Depuis la v0.3, on distingue l'événement <em>tel qu'une source le décrit</em> (le factoïde) de l'événement <em>tel que le chercheur le reconstitue</em>.</li>
+<li><strong>Entités rattachées :</strong> personnes, masques et rôles (une personne agit sous un rôle précis dans un événement donné), lieux, témoins, sources et preuves, types d'événements.</li>
+<li><strong>Principe :</strong> modèle orienté <strong>factoïde</strong>. L'information tirée des sources est normalisée, l'incertitude et les points de vue divergents sont conservés.</li>
+<li><strong>Contrainte d'import :</strong> une partie des données viendra de bases <strong>GeneWeb</strong>.</li>
+</ul>
+<p>Précision de vocabulaire : IBM écrit <strong>ELP</strong> (Entity, Link, Property), et non EPL. Dans Analyst's Notebook, un <em>item type</em> désigne un type d'entité ou un type de lien. Les attributs forment une notion à part (<em>attribute classes</em>), et un événement n'y est pas une classe distincte : c'est un type d'entité affiché en <em>event frame</em> sur la vue chronologique.</p>
+<hr />
+<h2 id="2-corpus-de-référence">2. Corpus de référence</h2>
+<p>Treize références en quatre familles.</p>
+<h3 id="21-prosopographie-et-factoïdes">2.1 Prosopographie et factoïdes</h3>
+<h4 id="01-bradley-short-2005">01. Bradley &amp; Short (2005)</h4>
+<ul>
+<li><strong>Référence :</strong> Bradley, J. &amp; Short, H. (2005). « Texts into databases: the evolving field of new-style prosopography ». <em>Literary and Linguistic Computing</em>, 20 (suppl.), p. 3‑24.</li>
+<li><strong>Nature :</strong> papier académique, le texte fondateur.</li>
+<li><strong>Modèle :</strong> un factoïde est une affirmation tirée d'un passage de source. Elle relie une ou plusieurs personnes, un lieu et une date. La base ne dit pas qui était X : elle enregistre ce que la source S dit de X, et l'identité de la personne est reconstruite à partir de ces affirmations.</li>
+<li><strong>À retenir :</strong> le factoïde sert de pivot entre la source et la personne. La référence précise dans la source est obligatoire, et plusieurs affirmations contradictoires peuvent coexister sans être fusionnées.</li>
+</ul>
+<h4 id="02-pasin-bradley-2015">02. Pasin &amp; Bradley (2015)</h4>
+<ul>
+<li><strong>Référence :</strong> Pasin, M. &amp; Bradley, J. (2015). « Factoid-based prosopography and computer ontologies: towards an integrated approach ». <em>Digital Scholarship in the Humanities</em>, 30(1), p. 86‑97.</li>
+<li><strong>Nature :</strong> papier académique, avec une ontologie OWL (la Factoid Prosopography Ontology, FPO).</li>
+<li><strong>Modèle :</strong> le modèle factoïde est formalisé en ontologie et aligné sur CIDOC‑CRM. Chaque personne est citée à travers une <em>person reference</em> propre à la source, qu'on rattache ensuite à la personne consolidée.</li>
+<li><strong>À retenir :</strong> c'est la base de la séparation entre personne et masque. Le lien d'identification entre les deux est lui-même une assertion qu'on peut remettre en cause.</li>
+</ul>
+<h4 id="03-snapdrgn-2016">03. SNAP:DRGN (2016)</h4>
+<ul>
+<li><strong>Référence :</strong> Bodard, G., Cayless, H., Depauw, M., Isaksen, L., Lawrence, K. F., Rahtz, S. (2016). « Standards for Networking Ancient Prosopographies ». In G. Bodard &amp; M. Romanello (dir.), <em>Digital Classics Outside the Echo‑Chamber</em>, Ubiquity Press, p. 29‑44.</li>
+<li><strong>Nature :</strong> papier académique et spécification RDF.</li>
+<li><strong>Modèle :</strong> SNAP relie des bases prosopographiques sans les fusionner. Chaque base garde ses propres URI de personnes. Des liens de co-référence (<em>same as</em>, <em>may be the same as</em>) et des relations typées (parenté, relations sociales) sont publiés en Linked Data.</li>
+<li><strong>À retenir :</strong> l'identification se fait par des liens explicites, jamais par écrasement. Le vocabulaire de relations sociales et de parenté est réutilisable.</li>
+</ul>
+<h4 id="04-ipif-2019">04. IPIF (2019)</h4>
+<ul>
+<li><strong>Référence :</strong> Vogeler, G., Vasold, G., Schlögl, M. (2019). « Data exchange in practice: Towards a prosopographical API ». <em>Biographical Data in a Digital World 2019</em>, CEUR‑WS vol. 3152. Spécification associée : IPIF (International Prosopography Interchange Framework).</li>
+<li><strong>Nature :</strong> papier académique et spécification d'API (OpenAPI).</li>
+<li><strong>Modèle :</strong> l'API expose quatre ressources : Factoid, Person, Source et Statement. Un factoïde relie une personne et une source à un ou plusieurs <em>statements</em> typés (rôle, date, lieu, personnes liées).</li>
+<li><strong>À retenir :</strong> un gabarit prêt à l'emploi pour le triangle source → factoïde → personne, avec l'auteur et la date de saisie.</li>
+</ul>
+<h3 id="22-standards-et-ontologies">2.2 Standards et ontologies</h3>
+<h4 id="05-cidoccrm">05. CIDOC‑CRM</h4>
+<ul>
+<li><strong>Référence :</strong> CIDOC‑CRM, version 7.1.x. CIDOC CRM SIG / ICOM ; norme ISO 21127:2023.</li>
+<li><strong>Nature :</strong> standard (ontologie formelle).</li>
+<li><strong>Modèle :</strong> <strong>E5 Event</strong> se spécialise en E7 Activity, E63/E64 (début et fin d'existence), E67 Birth, E69 Death, E85 Joining, E86 Leaving, etc. Un événement est ancré par P4 <em>has time‑span</em> (qui porte des bornes floues, P82a/P82b) et par P7 <em>took place at</em>. Les participants sont reliés par P11 <em>had participant</em> ou P14 <em>carried out by</em>. Le rôle est porté par une propriété de propriété, <strong>P14.1 in the role of</strong>, réifiée dans la version 7 sous la forme PC14.</li>
+<li><strong>À retenir :</strong> l'événement est un pivot légitime. Le rôle est porté par le lien entre la personne et l'événement, pas par la personne. Les intervalles flous sont gérés.</li>
+</ul>
+<h4 id="06-crminf">06. CRMinf</h4>
+<ul>
+<li><strong>Référence :</strong> CRMinf, Argumentation Model. Stead, Doerr et al., CIDOC CRM SIG.</li>
+<li><strong>Nature :</strong> extension du CIDOC‑CRM.</li>
+<li><strong>Modèle :</strong> I2 <em>Belief</em> porte une valeur de vérité (I6) sur un ensemble de propositions (I4 <em>Proposition Set</em>). Les croyances sont produites par une inférence (I5) ou par l'adoption de l'avis d'une autorité ou d'une source (I7 <em>Belief Adoption</em>).</li>
+<li><strong>À retenir :</strong> l'outil formel pour les points de vue et l'incertitude : qui affirme quoi, avec quel degré de confiance, sur quelle base.</li>
+</ul>
+<h4 id="07-gedcom-x">07. GEDCOM X</h4>
+<ul>
+<li><strong>Référence :</strong> GEDCOM X Conceptual Model. FamilySearch, spécification 1.0, gedcomx.org.</li>
+<li><strong>Nature :</strong> spécification technique.</li>
+<li><strong>Modèle :</strong> le modèle sépare les <em>records</em> (personas extraits d'une source) des <em>conclusions</em> (personnes reconstruites), liés par un <em>EvidenceReference</em>. Un Event porte date et lieu ; ses participants sont des <strong>EventRole</strong> typés : <em>Principal</em>, <em>Participant</em>, <em>Official</em>, <em>Witness</em>. Chaque élément porte une <strong>Attribution</strong> et une <strong>confidence</strong>, et renvoie aux <em>SourceDescription</em>.</li>
+<li><strong>À retenir :</strong> la correspondance la plus directe avec notre architecture. Persona = masque, EventRole = rôle, le témoin est un rôle natif, et la preuve est chaînée jusqu'à la source.</li>
+</ul>
+<h4 id="08-gentech">08. GENTECH</h4>
+<ul>
+<li><strong>Référence :</strong> GENTECH Genealogical Data Model. Lexicon Working Group, National Genealogical Society, 1998 ; révision 2000.</li>
+<li><strong>Nature :</strong> spécification (modèle logique).</li>
+<li><strong>Modèle :</strong> chaque <strong>Assertion</strong> relie un sujet (Persona, Event, Characteristic ou Group) à une valeur, en citant une source. Les personas sont regroupés en personnes par des assertions d'identité, et une assertion peut être tirée d'autres assertions.</li>
+<li><strong>À retenir :</strong> l'ancêtre de GEDCOM X et le modèle le plus proche du factoïde en généalogie. Les <strong>groupes</strong> (familles, confréries, foyers) y sont des sujets à part entière.</li>
+</ul>
+<h4 id="09-fhiso">09. FHISO</h4>
+<ul>
+<li><strong>Référence :</strong> FHISO. Extended Legacy Format (ELF) : Data Model et Serialisation ; vocabulaire <em>Citation Elements</em> (fhiso.org/TR).</li>
+<li><strong>Nature :</strong> standards techniques.</li>
+<li><strong>Modèle :</strong> ELF formalise un modèle compatible GEDCOM 5.5.1, avec des extensions déclarées. <em>Citation Elements</em> décompose une citation en éléments typés (auteur, titre, dépôt, localisation…). FHISO a aussi produit un standard de dates.</li>
+<li><strong>À retenir :</strong> l'interopérabilité avec GEDCOM, la normalisation des sources, et un traitement des dates approximatives et des calendriers anciens.</li>
+</ul>
+<h4 id="10-bio-crm-2018">10. Bio CRM (2018)</h4>
+<ul>
+<li><strong>Référence :</strong> Tuominen, J., Hyvönen, E., Leskinen, P. (2018). « Bio CRM: A Data Model for Representing Biographical Data for Prosopographical Research ». <em>BD2017</em>, CEUR‑WS vol. 2119, p. 59‑66.</li>
+<li><strong>Nature :</strong> papier académique et ontologie.</li>
+<li><strong>Modèle :</strong> Bio CRM étend CIDOC‑CRM avec trois catégories de rôles : <strong>rôles unaires durables</strong> (profession, titre), <strong>rôles binaires durables</strong> (relations entre personnes) et <strong>rôles de participation à un événement</strong> (témoin, parrain, officiant).</li>
+<li><strong>À retenir :</strong> la grille pour typer les masques et les rôles, sans confondre rôle ponctuel, statut durable et relation.</li>
+</ul>
+<h3 id="23-modèles-dinvestigation-ibm-i2">2.3 Modèles d'investigation (IBM i2)</h3>
+<h4 id="11-ibm-i2-analysts-notebook">11. IBM i2 Analyst's Notebook</h4>
+<ul>
+<li><strong>Référence :</strong> IBM i2 Analyst's Notebook : Entity Link Properties (ELP) et Chart Reference. IBM, puis i2 Group.</li>
+<li><strong>Nature :</strong> documentation technique.</li>
+<li><strong>Modèle :</strong> un graphe d'entités typées et de liens typés, qui peuvent être orientés, multiples ou fusionnés. Les <em>attribute classes</em> portent les valeurs et les <em>cards</em> les éléments de preuve (source, date, notation). La vue chronologique place les événements en <em>event frames</em> sur des <em>theme lines</em>, une ligne par personne.</li>
+<li><strong>À retenir :</strong> un événement peut être un lien daté entre deux personnes, ou une entité reliée à ses participants ; pour notre modèle, c'est la seconde forme qu'il faut retenir. Les cards donnent une traçabilité élément par élément, et la notation des sources (grille de type Amirauté, fiabilité × crédibilité) s'applique aux témoignages.</li>
+</ul>
+<h4 id="12-ibm-i2-enterprise-insight-analysis">12. IBM i2 Enterprise Insight Analysis</h4>
+<ul>
+<li><strong>Référence :</strong> IBM i2 Enterprise Insight Analysis Data Model White Paper (v4.1, v4.3) ; documentation « The i2 Analyze data model » (docs.i2group.com).</li>
+<li><strong>Nature :</strong> livre blanc et spécification technique.</li>
+<li><strong>Modèle :</strong> le schéma i2 Analyze définit des types d'entités, de liens et de propriétés, ainsi que les couples source/cible autorisés pour chaque type de lien. Chaque <em>item</em> est construit à partir de <em>records</em> qui portent chacun leur provenance et leur notation.</li>
+<li><strong>À retenir :</strong> la séparation entre item et records correspond au couple personne / factoïde. Le schéma contraint les types de liens, et la provenance par record permet de fusionner ou dissocier des entités sans perte.</li>
+</ul>
+<h3 id="24-format-dimport">2.4 Format d'import</h3>
+<h4 id="13-geneweb">13. GeneWeb</h4>
+<ul>
+<li><strong>Référence :</strong> GeneWeb. Daniel de Rauglaudre (INRIA, 1997‑), aujourd'hui maintenu par la communauté et Geneanet ; licence GPL. Version 7.1.0‑beta2 (décembre 2024). Documentation du format <code>.gw</code> (geneweb.tuxfamily.org) et types OCaml du module <code>Def</code> (github.com/geneweb/geneweb).</li>
+<li><strong>Nature :</strong> logiciel libre, format de fichier et types OCaml.</li>
+<li><strong>Modèle :</strong> modèle centré sur la personne et la famille, au niveau des conclusions. Une personne est identifiée par son nom, son prénom et un numéro d'occurrence. Depuis la version 7, des événements personnels (<code>pevt</code>) et familiaux (<code>fevt</code>) portent date, lieu, source, note et témoins. La 7.1 type les témoins : parrain, officier civil, officier religieux, informateur, présent, mentionné.</li>
+<li><strong>À retenir :</strong> c'est la source d'import prioritaire. Ses témoins typés et ses dates à précision se transposent bien. En revanche, il n'a ni masque, ni entité source, ni lieu structuré : il faut les reconstruire à l'import (section 5).</li>
+</ul>
+<hr />
+<h2 id="3-synthèse-des-concepts-clés">3. Synthèse des concepts clés</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Définition pour notre modèle</th>
+<th>Références</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Événement pivot</td>
+<td>Distingué en deux : le factoïde (événement tel que raconté) et l'événement reconstitué qui regroupe les factoïdes.</td>
+<td>05, 07, 11, 13</td>
+</tr>
+<tr>
+<td>Masque</td>
+<td>Mention d'une personne telle que la source la présente. Distinct de la personne consolidée.</td>
+<td>01, 02, 07, 08</td>
+</tr>
+<tr>
+<td>Identification</td>
+<td>Lien révisable d'un élément écrit vers une entité conclue : passage → source, masque → personne, factoïde → événement.</td>
+<td>03, 07, 12</td>
+</tr>
+<tr>
+<td>Rôle de participation</td>
+<td>Porté par le lien masque ↔ événement, pas par la personne.</td>
+<td>05, 07, 10, 13</td>
+</tr>
+<tr>
+<td>Rôles durables</td>
+<td>Statut unaire (profession) et relation binaire (parenté), séparés des rôles ponctuels.</td>
+<td>03, 10</td>
+</tr>
+<tr>
+<td>Factoïde</td>
+<td>Unité atomique : source + localisation + énoncé + auteur de saisie.</td>
+<td>01, 04, 08</td>
+</tr>
+<tr>
+<td>Point de vue et confiance</td>
+<td>Qui affirme, sur quelle base, avec quel degré de confiance.</td>
+<td>06, 07</td>
+</tr>
+<tr>
+<td>Notation de la preuve</td>
+<td>Fiabilité de la source × crédibilité de l'information.</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Témoin</td>
+<td>Rôle dans l'événement et, le cas échéant, déclarant d'une affirmation.</td>
+<td>06, 07, 13</td>
+</tr>
+<tr>
+<td>Typage contraint des liens</td>
+<td>Chaque type de lien déclare les types d'entités qu'il peut relier.</td>
+<td>02, 12</td>
+</tr>
+<tr>
+<td>Provenance d'import</td>
+<td>Chaque donnée garde le lot, le fichier et la clé d'origine.</td>
+<td>12, 13</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-modèle-conceptuel-v04">4. Modèle conceptuel v0.4</h2>
+<h3 id="41-principe-quatre-agrégations-symétriques">4.1 Principe : quatre agrégations symétriques</h3>
+<p>Rattacher deux passages d'archives au même événement, c'est déjà interpréter. La v0.3 en a tiré la conséquence, et la v0.4 l'étend aux lieux : <strong>tout ce qui regroupe des éléments écrits relève de l'Interprétation</strong>, et ce regroupement se fait toujours de la même façon.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Ce qui est écrit (Source)</th>
+<th>Ce qui est conclu (Interprétation)</th>
+<th>Identification</th>
+<th>Question tranchée par le chercheur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASSAGE (citation brute et localisation)</td>
+<td>SOURCE (document canonique)</td>
+<td>IDENT_SOURCE</td>
+<td>Ces citations renvoient-elles au même document ?</td>
+</tr>
+<tr>
+<td>MASQUE (personne telle que nommée)</td>
+<td>PERSONNE (individu reconstruit)</td>
+<td>IDENT_PERSONNE</td>
+<td>Ces mentions désignent-elles le même individu ?</td>
+</tr>
+<tr>
+<td>FACTOIDE (événement tel que raconté)</td>
+<td>EVENEMENT (événement reconstitué)</td>
+<td>IDENT_EVENEMENT</td>
+<td>Ces récits décrivent-ils le même événement ?</td>
+</tr>
+<tr>
+<td>MENTION_LIEU (lieu tel qu'écrit)</td>
+<td>LIEU_HISTORIQUE (territoire daté) ou SITE (emplacement physique), voir 4.8</td>
+<td>IDENT_LIEU</td>
+<td>Ce « Saint‑Aubin » est-il Saint‑Aubin‑sur‑Scie, Saint‑Aubin‑des‑Bois, ou une paroisse disparue ?</td>
+</tr>
+</tbody>
+</table></div>
+<p>Les quatre identifications ont <strong>la même structure</strong> : un élément de départ, une cible, un degré (certain, probable, possible), un statut (proposé, actif, rejeté) et une conclusion qui l'argumente. Une seule logique à coder, à tester et à présenter dans l'interface.</p>
+<p>La résolution d'un lieu historique est souvent une interprétation à part entière. En v0.3, <code>FACTOIDE.lieu_id</code> la plaçait dans la couche Source : le jour où un chercheur prouve que ce n'était pas le bon Saint‑Aubin, il aurait fallu modifier un factoïde, contre R10. La v0.4 corrige ce point.</p>
+<h3 id="42-les-couches">4.2 Les couches</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Couche</th>
+<th>Entités</th>
+<th>Propriétés</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source</strong> (ce qui est écrit)</td>
+<td>PASSAGE, FACTOIDE, MASQUE, PARTICIPATION, QUALITE, RELATION, NOM, MENTION_LIEU</td>
+<td><strong>Immuable</strong>, en insertion seule. Le factoïde est le seul point d'ancrage : il porte la date déclarée, le type d'événement décrit, ses mentions de lieu, et c'est à lui que se rattachent les participations.</td>
+</tr>
+<tr>
+<td><strong>Interprétation</strong> (ce que l'on conclut)</td>
+<td>SOURCE, PERSONNE, EVENEMENT, LIEU_HISTORIQUE (+ NOM_LIEU, EMPRISE, APPARTENANCE, LOCALISATION), IDENT_SOURCE, IDENT_PERSONNE, IDENT_EVENEMENT, IDENT_LIEU, CONCLUSION</td>
+<td>Révisable. Chaque regroupement porte un auteur, un degré et des arguments. Plusieurs points de vue coexistent ; un seul est « actif » à un instant donné.</td>
+</tr>
+<tr>
+<td><strong>Référentiels</strong></td>
+<td>TYPE_EVENEMENT, ROLE, CONTRIBUTEUR, LOT_IMPORT, SITE</td>
+<td>Vocabulaires contrôlés (alignés sur CIDOC‑CRM et Bio CRM), provenance des imports et sites topographiques (coordonnées immuables).</td>
+</tr>
+<tr>
+<td><strong>Vues dérivées</strong></td>
+<td>Participants d'un événement, intervalle d'un événement, fiche consolidée d'une personne, réseau</td>
+<td>Calculées à partir des identifications actives, jamais saisies à la main.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ce qui a changé en v0.3 par rapport à la v0.2 :</p>
+<ul>
+<li>EVENEMENT quitte la couche Source et devient un regroupement de factoïdes.</li>
+<li>PARTICIPATION se rattache au factoïde, et non plus à l'événement. Les participants d'un événement sont une vue.</li>
+<li>SOURCE devient le document canonique ; la chaîne telle qu'écrite ou importée reste dans PASSAGE.</li>
+<li>LIEU passe dans les référentiels (v0.3), puis dans la couche Interprétation (v0.4).</li>
+</ul>
+<p>Ce qui change en v0.4 :</p>
+<ul>
+<li>Le lieu tel qu'écrit devient une MENTION_LIEU, rattachée au factoïde. Elle précise sa fonction : lieu de l'événement, domicile d'un masque (« demeurant à »), lieu d'origine, lieu attaché à un titre.</li>
+<li>LIEU devient une entité conclue, reliée aux mentions par IDENT_LIEU.</li>
+</ul>
+<p>En v0.5, LIEU se dédouble en SITE (référentiel) et LIEU_HISTORIQUE (interprétation) : voir 4.8.</p>
+<h3 id="43-diagramme-entitésassociations">4.3 Diagramme entités–associations</h3>
+<div class="diagram"><pre class="mermaid">erDiagram
+  PASSAGE ||--o{ FACTOIDE : fonde
+  PASSAGE ||--o{ MASQUE : mentionne
+  FACTOIDE ||--o{ PARTICIPATION : declare
+  MASQUE ||--o{ PARTICIPATION : &quot;agit sous&quot;
+  ROLE ||--o{ PARTICIPATION : qualifie
+  FACTOIDE ||--o{ QUALITE : declare
+  MASQUE ||--o{ QUALITE : porte
+  FACTOIDE ||--o{ RELATION : declare
+  MASQUE ||--o{ RELATION : sujet
+  MASQUE ||--o{ RELATION : objet
+  MASQUE ||--o{ NOM : porte
+  MASQUE |o--o{ FACTOIDE : &quot;declarant de&quot;
+  TYPE_EVENEMENT |o--o{ FACTOIDE : &quot;type decrit&quot;
+  FACTOIDE ||--o{ MENTION_LIEU : cite
+  MASQUE |o--o{ MENTION_LIEU : &quot;domicile de&quot;
+  PASSAGE ||--o{ IDENT_SOURCE : rattache
+  SOURCE ||--o{ IDENT_SOURCE : regroupe
+  MASQUE ||--o{ IDENT_PERSONNE : rattache
+  PERSONNE ||--o{ IDENT_PERSONNE : regroupe
+  FACTOIDE ||--o{ IDENT_EVENEMENT : rattache
+  EVENEMENT ||--o{ IDENT_EVENEMENT : regroupe
+  MENTION_LIEU ||--o{ IDENT_LIEU : rattache
+  LIEU_HISTORIQUE |o--o{ IDENT_LIEU : territoire
+  SITE |o--o{ IDENT_LIEU : emplacement
+  TYPE_EVENEMENT ||--o{ EVENEMENT : type
+  LIEU_HISTORIQUE |o--o{ EVENEMENT : &quot;lieu retenu&quot;
+  SITE |o--o{ EVENEMENT : &quot;site retenu&quot;
+  CONCLUSION ||--o{ IDENT_SOURCE : justifie
+  CONCLUSION ||--o{ IDENT_PERSONNE : justifie
+  CONCLUSION ||--o{ IDENT_EVENEMENT : justifie
+  CONCLUSION ||--o{ IDENT_LIEU : justifie
+  CONCLUSION }o--o{ FACTOIDE : &quot;s'appuie sur&quot;
+  CONCLUSION }o--o{ PARTICIPATION : &quot;porte sur&quot;
+  CONTRIBUTEUR ||--o{ FACTOIDE : saisit
+  CONTRIBUTEUR ||--o{ CONCLUSION : soutient
+  CONCLUSION ||--o{ CONCLUSION_EFFET : produit
+  CONCLUSION ||--o{ CONTRAINTE_TEMPORELLE : impose
+  EVENEMENT ||--o{ CONTRAINTE_TEMPORELLE : borne
+  EVENEMENT |o--o{ CONTRAINTE_TEMPORELLE : &quot;date de reference&quot;
+  LOT_IMPORT |o--o{ FACTOIDE : produit
+  LIEU_HISTORIQUE ||--o{ NOM_LIEU : nomme
+  LIEU_HISTORIQUE ||--o{ EMPRISE : &quot;etendue datee&quot;
+  LIEU_HISTORIQUE ||--o{ APPARTENANCE : partie
+  LIEU_HISTORIQUE ||--o{ APPARTENANCE : tout
+  LIEU_HISTORIQUE ||--o{ LOCALISATION : &quot;siege ou chef-lieu&quot;
+  SITE ||--o{ LOCALISATION : situe
+  TYPE_EVENEMENT |o--o{ TYPE_EVENEMENT : &quot;sous-type de&quot;
+</pre></div><p class="note">Sur mobile, faites défiler le diagramme horizontalement.</p>
+<p>Lecture rapide : passage, factoïde, masque, participation et mention de lieu forment la couche Source ; chaque entité IDENT_* fait le pont vers son pendant de la couche Interprétation.</p>
+<h3 id="44-dictionnaire-des-entités">4.4 Dictionnaire des entités</h3>
+<p><strong>Couche Source (insertion seule)</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Définition</th>
+<th>Attributs principaux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASSAGE</td>
+<td>Endroit cité d'un document, tel que saisi ou importé.</td>
+<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne), <code>transcription</code>, <code>langue</code>, <code>image_uri</code></td>
+</tr>
+<tr>
+<td>FACTOIDE</td>
+<td>Événement ou affirmation tel qu'un passage le décrit. Seul point d'ancrage de la couche.</td>
+<td><code>passage_id</code>, <code>type_evenement_id</code> (type décrit), <code>enonce</code>, <code>date_declaree</code> (texte), <code>date_min</code> / <code>date_max</code> / <code>calendrier</code> (normalisation mécanique du texte), <code>declarant_masque_id</code>, <code>credibilite</code> (1–6), <code>saisi_par</code>, <code>saisi_le</code>, <code>lot_import_id</code>, <code>remplace_id</code> (correction)</td>
+</tr>
+<tr>
+<td>MASQUE</td>
+<td>Personne telle que le passage la présente.</td>
+<td><code>passage_id</code> (un seul), <code>nom_ecrit</code>, <code>nom_normalise</code>, <code>sexe</code>, <code>age_declare</code>, <code>qualification_libre</code></td>
+</tr>
+<tr>
+<td>PARTICIPATION</td>
+<td>Présence d'un masque dans un factoïde, sous un rôle. C'est un nœud à part entière : une conclusion peut la contester.</td>
+<td><code>factoide_id</code>, <code>masque_id</code>, <code>role_id</code>, <code>ordre</code></td>
+</tr>
+<tr>
+<td>QUALITE</td>
+<td>Rôle durable unaire (profession, titre, statut). Son lieu éventuel passe par une mention de lieu.</td>
+<td><code>factoide_id</code>, <code>masque_id</code>, <code>role_id</code>, <code>valide_debut</code>, <code>valide_fin</code></td>
+</tr>
+<tr>
+<td>RELATION</td>
+<td>Rôle durable binaire (parenté, alliance, patronage).</td>
+<td><code>factoide_id</code>, <code>masque_sujet_id</code>, <code>masque_objet_id</code>, <code>type_relation</code>, <code>orientation</code></td>
+</tr>
+<tr>
+<td>NOM</td>
+<td>Formes de nom d'un masque.</td>
+<td><code>masque_id</code>, <code>type</code> (principal, public, alias, surnom, qualificatif), <code>prenoms</code>, <code>nom</code>, <code>forme_ecrite</code></td>
+</tr>
+<tr>
+<td>MENTION_LIEU</td>
+<td>Lieu tel que le passage l'écrit.</td>
+<td><code>factoide_id</code>, <code>forme_ecrite</code> (« S. Aubin »), <code>forme_normalisee</code>, <code>fonction</code> (lieu de l'événement, domicile, origine, lieu d'un titre), <code>masque_id</code> (si domicile ou origine), <code>qualite_id</code> (si titre), <code>epoque_designation</code> (contemporaine de l'acte ou moderne)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Couche Interprétation (révisable)</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Définition</th>
+<th>Attributs principaux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOURCE</td>
+<td>Document canonique auquel renvoient une ou plusieurs citations.</td>
+<td><code>titre</code>, <code>type</code>, <code>depot</code>, <code>cote</code> (éléments FHISO), <code>auteur_source</code>, <code>date_production</code>, <code>nature</code> (original, copie, transcription, compilation), <code>fiabilite</code> (A–F)</td>
+</tr>
+<tr>
+<td>PERSONNE</td>
+<td>Individu reconstruit ; ses données sont calculées à partir de ses masques.</td>
+<td><code>uri</code>, <code>nom_retenu</code> (vue), <code>same_as</code>, <code>acces</code>, <code>cle_externe</code></td>
+</tr>
+<tr>
+<td>EVENEMENT</td>
+<td>Événement reconstitué à partir d'un ou plusieurs factoïdes.</td>
+<td><code>type_evenement_id</code>, <code>libelle</code>, <code>debut_min</code> / <code>debut_max</code> / <code>fin_min</code> / <code>fin_max</code> (calculés, ou fixés par une conclusion), <code>lieu_historique_id</code> et <code>site_id</code> (calculés à partir des mentions rattachées), <code>coherence</code> (cohérent, conflit, incertitude assumée)</td>
+</tr>
+<tr>
+<td>LIEU_HISTORIQUE</td>
+<td>Territoire ou institution territoriale datés : paroisse, seigneurie, bailliage, commune…</td>
+<td><code>type</code>, <code>existence</code> (intervalle flou), <code>uri_externe</code></td>
+</tr>
+<tr>
+<td>NOM_LIEU</td>
+<td>Nom d'un lieu historique sur une période.</td>
+<td><code>lieu_historique_id</code>, <code>nom</code>, <code>langue</code>, <code>validite</code></td>
+</tr>
+<tr>
+<td>EMPRISE</td>
+<td>Étendue spatiale d'un lieu historique sur une période.</td>
+<td><code>lieu_historique_id</code>, <code>geometrie</code> (polygone si les limites sont connues), <code>centre</code> et <code>rayon_incertitude_m</code> (sinon), <code>validite</code>, <code>precision</code>, <code>conclusion_id</code></td>
+</tr>
+<tr>
+<td>APPARTENANCE</td>
+<td>Rattachement d'un lieu historique à un autre, dans une hiérarchie donnée.</td>
+<td><code>partie_id</code>, <code>tout_id</code>, <code>hierarchie</code> (ecclésiastique, judiciaire, fiscale, seigneuriale, administrative), <code>validite</code>, <code>conclusion_id</code></td>
+</tr>
+<tr>
+<td>LOCALISATION</td>
+<td>Lien entre un lieu historique et un site.</td>
+<td><code>lieu_historique_id</code>, <code>site_id</code>, <code>fonction</code> (chef-lieu, église paroissiale, château), <code>validite</code></td>
+</tr>
+<tr>
+<td>IDENT_SOURCE · IDENT_PERSONNE · IDENT_EVENEMENT · IDENT_LIEU</td>
+<td>Structure commune : un élément écrit rattaché à une entité conclue. Pour IDENT_LIEU, la cible est un lieu historique ou un site.</td>
+<td><code>de_id</code>, <code>vers_id</code>, <code>degre</code> (certain, probable, possible), <code>statut</code> (proposé, actif, rejeté), <code>conclusion_id</code>, <code>lot_import_id</code></td>
+</tr>
+<tr>
+<td>CONCLUSION</td>
+<td>Point de vue argumenté (CRMinf I2 Belief, I5 Inference Making).</td>
+<td><code>contributeur_id</code>, <code>date</code>, <code>valeur</code> (vrai, faux, incertain), <code>motifs[]</code> (liste prédéfinie), <code>argument</code> (texte libre), <code>factoides[]</code>, <code>cible</code> (élément contesté, facultatif) ; ses conséquences sont listées dans CONCLUSION_EFFET</td>
+</tr>
+<tr>
+<td>CONCLUSION_EFFET</td>
+<td>Une conséquence d'une conclusion. Une conclusion peut en avoir plusieurs, appliquées ensemble et retirées ensemble (R22).</td>
+<td><code>conclusion_id</code>, <code>type</code> (activer, rejeter ou proposer une identification ; poser une contrainte temporelle ; fixer un lieu retenu ; marquer une incertitude assumée), <code>cible_type</code>, <code>cible_id</code></td>
+</tr>
+<tr>
+<td>CONTRAINTE_TEMPORELLE</td>
+<td>Borne imposée à un événement par une conclusion, qui s'ajoute à l'intersection des factoïdes.</td>
+<td><code>evenement_id</code>, <code>borne</code> (début min, début max, fin min, fin max), <code>valeur</code> (date fixe) ou <code>evenement_reference_id</code> (borne liée à la date d'un autre événement, par exemple un changement de territoire), <code>conclusion_id</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Référentiels</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Définition</th>
+<th>Attributs principaux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TYPE_EVENEMENT</td>
+<td>Hiérarchie des types, alignée CIDOC (E67, E69, E85…).</td>
+<td><code>code</code>, <code>libelle</code>, <code>parent_id</code>, <code>classe_cidoc</code>, <code>roles_autorises[]</code></td>
+</tr>
+<tr>
+<td>ROLE</td>
+<td>Rôles typés selon les trois catégories Bio CRM.</td>
+<td><code>code</code>, <code>libelle</code>, <code>categorie</code> (participation, unaire, binaire), <code>inverse_id</code></td>
+</tr>
+<tr>
+<td>CONTRIBUTEUR</td>
+<td>Chercheur ou processus automatique.</td>
+<td><code>nom</code>, <code>type</code></td>
+</tr>
+<tr>
+<td>SITE</td>
+<td>Emplacement physique, défini par des coordonnées immuables. Ne porte aucune désignation historique.</td>
+<td><code>geometrie</code> (point, WGS 84), <code>rayon_incertitude_m</code>, <code>methode</code> (relevé, géoréférencement d'une carte ancienne, cadastre), <code>libelle_neutre</code></td>
+</tr>
+<tr>
+<td>LOT_IMPORT</td>
+<td>Provenance d'un import.</td>
+<td><code>format</code>, <code>fichier</code>, <code>empreinte</code> (SHA‑256), <code>outil</code>, <code>version</code>, <code>date</code>, <code>statut</code> (actif, annulé)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="45-règles-dintégrité">4.5 Règles d'intégrité</h3>
+<ol>
+<li><strong>R1 : un masque correspond à un seul passage.</strong> Deux mentions du même individu donnent deux masques et deux identifications.</li>
+<li><strong>R2 : pas d'information sans factoïde.</strong> Participations, qualités et relations sont rattachées à un factoïde par construction.</li>
+<li><strong>R3 : les rôles sont contraints par le type d'événement.</strong> La matrice TYPE_EVENEMENT × ROLE s'applique au type décrit par le factoïde (pas de « parrain » dans une vente).</li>
+<li><strong>R4 : fusion et dissociation non destructives,</strong> pour les quatre agrégations. Fusionner, c'est pointer plusieurs identifications vers la même cible ; dissocier, c'est rejeter une identification.</li>
+<li><strong>R5 : dates en intervalles.</strong> Le factoïde garde le texte déclaré et sa normalisation mécanique (bornes min et max, calendrier). L'intervalle d'un événement est l'intersection des intervalles de ses factoïdes actifs, sauf si une conclusion le fixe.</li>
+<li><strong>R6 : double notation de la preuve.</strong> Fiabilité et nature sur la source canonique (une copie tardive est moins fiable que l'original), crédibilité sur le factoïde.</li>
+<li><strong>R7 : témoin et déclarant sont deux choses.</strong> Le témoin est un rôle de participation ; le déclarant est la voix du factoïde. Un même masque peut cumuler les deux.</li>
+<li><strong>R8 : les vues sont calculées.</strong> Participants d'un événement, fiche d'une personne et réseau se déduisent des identifications actives ; changer une identification les recalcule.</li>
+<li><strong>R9 : tout import est réversible.</strong> Annuler un lot le marque « annulé » ; ses factoïdes et identifications sortent de toutes les vues.</li>
+<li><strong>R10 : la couche Source est un coffre-fort.</strong> Aucune modification ni suppression : une correction crée un nouveau factoïde qui pointe vers l'ancien (<code>remplace_id</code>).</li>
+<li><strong>R11 : une seule identification active par élément.</strong> C'est la vue de référence du projet. Les autres points de vue restent « proposé » ou « rejeté », avec leur conclusion, et restent consultables.</li>
+<li><strong>R12 : un conflit est signalé, jamais tranché automatiquement.</strong> Des dates d'intersection vide ou des lieux incompatibles passent l'événement en « conflit » et l'envoient dans la file de décisions.</li>
+<li><strong>R13 : aucune résolution dans la couche Source.</strong> Elle ne contient que du texte et des normalisations mécaniques (dates, graphies). Tout rattachement à une entité conclue (source, personne, événement, lieu) passe par une identification. Les règles de normalisation des dates sont versionnées pour pouvoir être rejouées.</li>
+<li><strong>R14 : un factoïde par acte.</strong> Un baptême, un contrat ou une déposition donne un seul factoïde, qui porte toutes ses participations : la co-présence est l'information essentielle, et l'atomiser en affirmations isolées obligerait à la reconstruire. Pour une source narrative, on crée un factoïde par épisode ; une affirmation isolée devient un factoïde de type « état » ou « activité » (CIDOC E7 Activity, E85 Joining).</li>
+<li><strong>R15 : cohérence temporelle des lieux.</strong> Une mention de désignation contemporaine ne peut être rattachée qu'à un lieu historique qui existe à la date du factoïde. Sinon, conflit (R12).</li>
+<li><strong>R16 : le présent est une vue.</strong> La commune actuelle et les coordonnées d'un événement se calculent à partir du site ou de l'emprise, jamais l'inverse : un acte de 1712 se rattache à la paroisse de 1712, pas à la commune d'aujourd'hui.</li>
+<li><strong>R17 : une mention, un référent.</strong> Si le texte désigne à la fois un emplacement et un territoire (« en l'église de Saint‑Aubin »), on crée deux mentions, chacune avec sa propre identification.</li>
+</ol>
+<p>Règles ajoutées en v0.7 :</p>
+<ol start="22">
+<li><strong>R22 : une conclusion, plusieurs effets, un seul retrait.</strong> Une décision comme « retenir la chapelle et dater après 1709 » produit plusieurs effets : activer l'identification de la chapelle, rejeter celle de la paroisse, poser une contrainte « début ≥ 1709 » sur l'événement. Ils sont appliqués dans une seule transaction ; retirer la conclusion les retire tous. Une contrainte peut renvoyer à la date d'un autre événement (le changement de territoire) plutôt qu'à une date fixe : si cette date est révisée, la contrainte suit.</li>
+<li><strong>R23 : l'incertitude assumée n'est pas un conflit.</strong> Garder l'enveloppe est une décision, signée et argumentée. L'événement sort de la file de décisions, mais il y revient automatiquement si une nouvelle source lui est rattachée.</li>
+<li><strong>R24 : rien n'est masqué en silence.</strong> Une source écartée d'un calcul (un domicile pris pour un lieu d'événement, par exemple) reste listée et consultable avec la raison de son exclusion. Une exclusion faite par la machine est une proposition (R18) : l'historien peut réintégrer la source.</li>
+</ol>
+<h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
+<blockquote>
+<p>« Le trois mars mil sept cent douze a été baptisé Jean, fils de Pierre Martin, laboureur, et de Marie Dubois, sa femme. Parrain Jean Leroy, marraine Anne Martin, en présence de Claude Petit, maître d'école, qui a signé. »
+— P1, citation « Registre paroissial de Saint‑Aubin, BMS 1705‑1715 », f° 42 v°</p>
+</blockquote>
+<p>En 1735, un extrait baptistaire est joint au contrat de mariage de Jean : « baptisé le treize mars 1712 en l'église de Saint‑Aubin, fils de Pierre Martin et de Marie Dubois ». C'est le passage P3, dans une minute notariale.</p>
+<p><strong>Couche Source</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Instances</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FACTOIDE</td>
+<td>F1 (P1) : baptême, « trois mars 1712 » → [1712‑03‑03], Saint‑Aubin · F3 (P3) : baptême, « treize mars 1712 » → [1712‑03‑13], Saint‑Aubin</td>
+</tr>
+<tr>
+<td>MASQUE</td>
+<td>P1 : M1 Jean · M2 Pierre Martin · M3 Marie Dubois · M4 Jean Leroy · M5 Anne Martin · M6 Claude Petit — P3 : M8 Jean · M9 Pierre Martin · M10 Marie Dubois</td>
+</tr>
+<tr>
+<td>PARTICIPATION</td>
+<td>F1 : M1 baptisé, M2 père, M3 mère, M4 parrain, M5 marraine, M6 témoin · F3 : M8 baptisé, M9 père, M10 mère</td>
+</tr>
+<tr>
+<td>QUALITE</td>
+<td>F1 : M2 laboureur, M6 maître d'école</td>
+</tr>
+<tr>
+<td>MENTION_LIEU</td>
+<td>ML1 « Saint‑Aubin » (F1) · ML3a « l'église » et ML3b « de Saint‑Aubin » (F3, deux mentions selon R17)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Couche Interprétation</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOURCE</td>
+<td>S1 registre de Saint‑Aubin (original, A) · S3 minute notariale de 1735 (copie, B)</td>
+</tr>
+<tr>
+<td>IDENT_EVENEMENT</td>
+<td>F1 → E1 certain, actif · F3 → E1 probable, actif (même enfant, mêmes parents, même paroisse)</td>
+</tr>
+<tr>
+<td>EVENEMENT</td>
+<td>E1 baptême, Saint‑Aubin. Intersection des dates vide → <strong>conflit</strong> (R12)</td>
+</tr>
+<tr>
+<td>CONCLUSION</td>
+<td>C5 : « Retenir le 3 mars : F1 est l'original ; F3 est une copie tardive, "trois" probablement lu "treize". » → E1 fixé au 1712‑03‑03</td>
+</tr>
+<tr>
+<td>IDENT_PERSONNE</td>
+<td>M1, M8 → Jean (P‑020) · M2, M9 → Pierre Martin (P‑017) · M3, M10 → Marie Dubois (P‑018)</td>
+</tr>
+<tr>
+<td>IDENT_LIEU</td>
+<td>ML1, ML3b → paroisse de Saint‑Aubin (LH‑112), probable : trois paroisses homonymes dans la région ; motif « parents domiciliés dans la paroisse selon l'acte notarié » · ML3a → site de l'église paroissiale (ST‑4471)</td>
+</tr>
+<tr>
+<td>LOCALISATION</td>
+<td>LH‑112 → ST‑4471, fonction « église paroissiale », validité jusqu'en 1790</td>
+</tr>
+</tbody>
+</table></div>
+<p>Les deux récits restent intacts. Si un chercheur conteste C5, il crée une autre conclusion ; si F3 s'avère décrire un autre enfant, on rejette l'identification F3 → E1 et le conflit disparaît.</p>
+<p>Le cas « Pierre Martin, marchand » de la v0.2 fonctionne de même : l'identification M7 → P‑017 est active et « probable » pour un chercheur ; l'avis contraire d'un autre chercheur est conservé en « rejeté » avec son argument (R11).</p>
+<h3 id="47-correspondances-avec-les-standards">4.7 Correspondances avec les standards</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>CIDOC‑CRM / CRMinf</th>
+<th>GEDCOM X</th>
+<th>Factoïde (FPO / IPIF)</th>
+<th>Bio CRM</th>
+<th>IBM i2 (ELP)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASSAGE</td>
+<td>E33 Linguistic Object (partie de)</td>
+<td>SourceReference + locator</td>
+<td>Source reference</td>
+<td>—</td>
+<td>Source reference</td>
+</tr>
+<tr>
+<td>FACTOIDE</td>
+<td>E5 Event documenté (P70i is documented in) ; E13 Attribute Assignment</td>
+<td>Event d'un record (niveau persona)</td>
+<td>Factoid / Statement</td>
+<td>Event (tel que décrit)</td>
+<td>Record d'événement</td>
+</tr>
+<tr>
+<td>MASQUE</td>
+<td>E21 Person référencée (P67 refers to)</td>
+<td>Persona</td>
+<td>Person reference</td>
+<td>—</td>
+<td>Record d'entité</td>
+</tr>
+<tr>
+<td>PARTICIPATION</td>
+<td>PC14 carried out by + P14.1 in the role of</td>
+<td>EventRole</td>
+<td>Statement role</td>
+<td>Event role</td>
+<td>Link type (réifié)</td>
+</tr>
+<tr>
+<td>MENTION_LIEU</td>
+<td>E44 Place Appellation (P1 is identified by)</td>
+<td>PlaceReference (champ <code>original</code>)</td>
+<td>Statement (lieu)</td>
+<td>—</td>
+<td>Attribut de lieu d'un record</td>
+</tr>
+<tr>
+<td>QUALITE</td>
+<td>E85 Joining / E7 Activity</td>
+<td>Fact (Occupation…)</td>
+<td>Statement</td>
+<td>Enduring unary role</td>
+<td>Propriété ou attribut</td>
+</tr>
+<tr>
+<td>RELATION</td>
+<td>—</td>
+<td>Relationship</td>
+<td>Relationship statement</td>
+<td>Enduring binary role</td>
+<td>Link type</td>
+</tr>
+<tr>
+<td>SOURCE</td>
+<td>E31 Document</td>
+<td>SourceDescription</td>
+<td>Source</td>
+<td>—</td>
+<td>Source d'un record</td>
+</tr>
+<tr>
+<td>PERSONNE</td>
+<td>E21 Person</td>
+<td>Person (conclusion)</td>
+<td>Person</td>
+<td>Person</td>
+<td>Item d'entité</td>
+</tr>
+<tr>
+<td>EVENEMENT</td>
+<td>E5 Event reconstitué</td>
+<td>Event (conclusion)</td>
+<td>—</td>
+<td>Event</td>
+<td>Item d'événement</td>
+</tr>
+<tr>
+<td>IDENT_*</td>
+<td>I7 Belief Adoption</td>
+<td>EvidenceReference (valable pour Person comme pour Event)</td>
+<td>same-as / may-be-same-as</td>
+<td>—</td>
+<td>Fusion de records en un item</td>
+</tr>
+<tr>
+<td>CONCLUSION</td>
+<td>I2 Belief, I5 Inference Making</td>
+<td>Attribution + confidence</td>
+<td>—</td>
+<td>—</td>
+<td>Notation + notes d'analyste</td>
+</tr>
+<tr>
+<td>TYPE / ROLE</td>
+<td>E55 Type (P2 has type)</td>
+<td>URI de types</td>
+<td>Vocabulaires</td>
+<td>Classes de rôles</td>
+<td>Types du schéma</td>
+</tr>
+<tr>
+<td>SITE</td>
+<td>E53 Place défini par P168 (E94 Space Primitive) ; CRMgeo SP6 Declarative Place</td>
+<td>PlaceDescription (latitude, longitude)</td>
+<td>Place</td>
+<td>Place</td>
+<td>Type d'entité « Location »</td>
+</tr>
+<tr>
+<td>LIEU_HISTORIQUE</td>
+<td>E74 Group (institution territoriale) ; E93 Presence pour une emprise datée ; CRMgeo SP2 Phenomenal Place</td>
+<td>PlaceDescription (jurisdiction, temporalDescription)</td>
+<td>Place</td>
+<td>Place</td>
+<td>Type d'entité « Location »</td>
+</tr>
+</tbody>
+</table></div>
+<p>GEDCOM X confirme la symétrie : son <em>EvidenceReference</em> s'applique à tout <em>Subject</em>, donc aux événements comme aux personnes. Sa <em>PlaceReference</em> distingue de même le texte d'origine (<code>original</code>) de la description de lieu vers laquelle elle pointe, ce qui correspond au couple MENTION_LIEU / LIEU.</p>
+<h3 id="48-lieux-historiques-et-sites-topographiques">4.8 Lieux historiques et sites topographiques</h3>
+<p>Un même nom de lieu recouvre deux réalités qu'il ne faut pas confondre : un <strong>emplacement physique</strong>, défini par des coordonnées qui ne changent pas, et un <strong>territoire historique</strong>, qui naît, change de nom, de limites et de rattachements, puis disparaît.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th></th>
+<th>Site topographique (SITE)</th>
+<th>Lieu historique (LIEU_HISTORIQUE)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nature</td>
+<td>Emplacement défini par des coordonnées dans un système de référence (WGS 84, Lambert‑93).</td>
+<td>Territoire ou institution territoriale : paroisse, seigneurie, fief, communauté d'habitants, bailliage, élection, commune, département.</td>
+</tr>
+<tr>
+<td>Rapport au temps</td>
+<td>Immuable. Seule notre connaissance s'affine : une meilleure mesure ajoute une géométrie plus précise, sans effacer l'ancienne.</td>
+<td>Daté. Tout ce qui le décrit (noms, limites, rattachements) a une période de validité.</td>
+</tr>
+<tr>
+<td>Exemples</td>
+<td>Emplacement de l'église de Saint‑Aubin ; le lieu-dit la Croix‑Blanche ; un moulin, un gué, une ferme.</td>
+<td>Paroisse de Saint‑Aubin sous l'Ancien Régime ; commune de Saint‑Aubin après 1790 ; la commune nouvelle issue d'une fusion.</td>
+</tr>
+<tr>
+<td>Question résolue</td>
+<td>Où, physiquement ? Où est-ce aujourd'hui ?</td>
+<td>Sous quelle juridiction, à quelle date ?</td>
+</tr>
+<tr>
+<td>Couche</td>
+<td>Référentiel : c'est une mesure, pas une interprétation.</td>
+<td>Interprétation : limites et rattachements sont des reconstructions, souvent approximatives.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Le site ne porte aucune désignation historique. Dire que tel emplacement est « l'église paroissiale de Saint‑Aubin » est une interprétation : elle est portée par une LOCALISATION, qui relie un lieu historique à un site pour une période.</p>
+<h4 id="un-lieu-historique-se-décompose-en-éléments-datés">Un lieu historique se décompose en éléments datés</h4>
+<ul>
+<li><strong>NOM_LIEU</strong> : noms successifs ou concurrents, chacun avec sa période et sa langue.</li>
+<li><strong>EMPRISE</strong> : étendue spatiale sur une période (polygone approximatif, ou point avec un rayon quand les limites sont inconnues), avec sa précision et la conclusion qui la justifie.</li>
+<li><strong>APPARTENANCE</strong> : rattachement à un autre lieu historique sur une période, <strong>dans une hiérarchie donnée</strong>. Sous l'Ancien Régime, plusieurs hiérarchies coexistent : ecclésiastique (paroisse ⊂ doyenné ⊂ diocèse), judiciaire (⊂ bailliage), fiscale (⊂ élection ⊂ généralité), seigneuriale. Une hiérarchie unique « paroisse ⊂ bailliage ⊂ province » serait fausse. Une paroisse partagée entre deux juridictions de même hiérarchie (paroisse « mi-partie », co-seigneurie) se modélise en créant un lieu historique pour chaque portion, rattaché à la paroisse entière : la contrainte « un seul rattachement par hiérarchie et par période » reste ainsi valable.</li>
+<li><strong>LOCALISATION</strong> : lien vers un ou plusieurs sites (chef-lieu, église paroissiale, château seigneurial), sur une période.</li>
+</ul>
+<h4 id="les-évolutions-territoriales-sont-des-événements">Les évolutions territoriales sont des événements</h4>
+<p>Créations, fusions, scissions, changements de nom ou de rattachement sont documentés par des sources : ordonnance épiscopale, décret, arrêté préfectoral. Ils entrent donc dans le modèle comme les autres événements : un FACTOIDE tiré de l'acte, un EVENEMENT de type « évolution territoriale ». Les périodes de validité des noms, emprises et appartenances s'appuient sur ces événements et sur les conclusions qui les interprètent. Le modèle s'applique ainsi à sa propre géographie.</p>
+<h4 id="résolution-des-mentions">Résolution des mentions</h4>
+<p>Une mention de lieu est rattachée à un lieu historique <strong>ou</strong> à un site, selon ce qu'elle désigne :</p>
+<ul>
+<li>« en la paroisse de Saint‑Aubin », « demeurant à Saint‑Aubin » → lieu historique ;</li>
+<li>« au lieu-dit la Croix‑Blanche », « en l'église » → site ;</li>
+<li>« en l'église de Saint‑Aubin » → deux mentions (R17), l'une vers le site, l'autre vers la paroisse.</li>
+</ul>
+<p>Les règles R15 à R17 (4.5) encadrent ces rattachements : cohérence avec la date du factoïde, présent calculé et jamais saisi, une mention pour un seul référent.</p>
+<h4 id="deux-questions-deux-chemins">Deux questions, deux chemins</h4>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Chemin dans le modèle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Où ce baptême a-t-il eu lieu, sur une carte d'aujourd'hui ?</td>
+<td>Mention → site (ou emprise du lieu historique) → coordonnées → commune actuelle, GeoNames.</td>
+</tr>
+<tr>
+<td>De quelle juridiction relevait le lieu de ce baptême en 1712 ?</td>
+<td>Mention → lieu historique → appartenances valables en 1712, hiérarchie par hiérarchie.</td>
+</tr>
+<tr>
+<td>Dans quelle paroisse se trouvait ce moulin en 1712 ?</td>
+<td>Site → emprises valables en 1712 qui le contiennent (projection spatiale).</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="référentiels-externes">Référentiels externes</h4>
+<ul>
+<li><strong>Sites :</strong> coordonnées IGN ou GeoNames pour les lieux actuels ; géoréférencement des cartes anciennes (Cassini, cadastre napoléonien) pour les emplacements disparus.</li>
+<li><strong>Lieux historiques :</strong> Pleiades pour l'Antiquité (lieu, localisations et noms, chacun daté) ; World Historical Gazetteer et son Linked Places Format, qui datent noms, géométries et relations ; en France, la base « Des villages de Cassini aux communes d'aujourd'hui » (EHESS) et l'historique du Code officiel géographique de l'INSEE pour les fusions et changements de nom des communes.</li>
+</ul>
+<hr />
+<h2 id="5-import-depuis-geneweb">5. Import depuis GeneWeb</h2>
+<p>GeneWeb stocke des <strong>conclusions</strong> : une personne, ses dates, ses familles. Notre modèle stocke d'abord <strong>ce que disent les sources</strong>. L'import reconstruit la couche Source à partir de ce que GeneWeb a retenu, sans jamais inventer de passage.</p>
+<h3 id="51-le-modèle-geneweb-en-bref">5.1 Le modèle GeneWeb en bref</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Représentation GeneWeb</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Personne</td>
+<td>Clé <code>Nom Prénom.occ</code> (le numéro d'occurrence distingue les homonymes). Nom public <code>(…)</code>, alias de prénom <code>{…}</code>, <code>#salias</code>, <code>#alias</code>, <code>#nick</code>, <code>#occu</code>, titres <code>[titre:lieu:début:fin:n]</code>, accès <code>#apubl</code> / <code>#apriv</code>.</td>
+</tr>
+<tr>
+<td>Famille</td>
+<td>Bloc <code>fam</code> : couple, mariage (<code>#mp</code> lieu, <code>#ms</code> source), témoins <code>wit</code>, source <code>src</code>, enfants entre <code>beg</code> et <code>end</code>. Statuts <code>#nm</code>, <code>#eng</code>, <code>#sep</code>, divorce <code>-</code>.</td>
+</tr>
+<tr>
+<td>Événements</td>
+<td><code>pevt</code> (<code>#birt</code>, <code>#bapt</code>, <code>#deat</code>, <code>#buri</code>, <code>#crem</code>, <code>#occu</code>, <code>#resi</code>, <code>#cens</code>, <code>#will</code>, <code>#educ</code>, <code>#mser</code>…) et <code>fevt</code> (<code>#marr</code>, <code>#marb</code>, <code>#marc</code>, <code>#enga</code>, <code>#div</code>, <code>#sep</code>, <code>#anul</code>, <code>#resi</code>…). Chacun porte date, <code>#p</code> lieu, <code>#s</code> source, note et témoins.</td>
+</tr>
+<tr>
+<td>Témoins</td>
+<td>Tableau <code>(personne × witness_kind)</code> sur chaque événement. Types en 7.1 : <code>Witness</code>, <code>Witness_GodParent</code>, <code>Witness_CivilOfficer</code>, <code>Witness_ReligiousOfficer</code>, <code>Witness_Informant</code>, <code>Witness_Attending</code>, <code>Witness_Mentioned</code>, <code>Witness_Other</code>.</td>
+</tr>
+<tr>
+<td>Relations</td>
+<td>Bloc <code>rel</code> : <code>adop</code> (adoption), <code>reco</code> (reconnaissance), <code>cand</code> (parent candidat), <code>godp</code> (parrain), <code>fost</code> (nourricier), côté père ou mère.</td>
+</tr>
+<tr>
+<td>Dates</td>
+<td><code>~</code> environ, <code>?</code> peut-être, <code>&lt;</code> avant, <code>&gt;</code> après, <code>\|</code> ou, <code>..</code> entre ; calendriers <code>J</code> julien, <code>F</code> républicain, <code>H</code> hébraïque ; date en texte libre.</td>
+</tr>
+<tr>
+<td>Sources, lieux</td>
+<td>Chaînes de caractères libres, sans entité ni hiérarchie.</td>
+</tr>
+<tr>
+<td>Notes</td>
+<td><code>notes</code> par personne, <code>comm</code> par famille, notes d'événement, pages wiki avec liens <code>[[…]]</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="52-écarts-avec-notre-modèle">5.2 Écarts avec notre modèle</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Notion</th>
+<th>GeneWeb</th>
+<th>Traitement en v0.3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Masque</td>
+<td>Absent : un témoin est une personne à part entière.</td>
+<td>Un masque par personne et par passage cité, rattaché à sa personne par une IDENT_PERSONNE « certain » du lot.</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>Chaîne libre par événement ou famille.</td>
+<td>Chaque chaîne devient un PASSAGE (<code>citation_brute</code>). Le regroupement vers les SOURCE canoniques passe par IDENT_SOURCE (voir 5.5).</td>
+</tr>
+<tr>
+<td>Événement</td>
+<td>Une seule version par événement.</td>
+<td>Chaque événement GeneWeb donne un FACTOIDE et un EVENEMENT, reliés par une IDENT_EVENEMENT « certain ». Les rapprochements avec d'autres lots ou sources deviennent des identifications proposées.</td>
+</tr>
+<tr>
+<td>Lieu</td>
+<td>Chaîne libre, souvent « lieu-dit, commune, département, pays », le plus souvent avec les noms <strong>actuels</strong>.</td>
+<td>Chaque chaîne devient une MENTION_LIEU de désignation « moderne ». Elle est rattachée à la commune actuelle (correspondance unique → « certain », sinon « proposé »). Le lieu historique de l'événement (la paroisse à la date de l'acte) est déduit par projection spatiale : site du chef-lieu de la commune, puis emprise valable à la date. Il reste « proposé » tant qu'une source contemporaine ne le confirme pas.</td>
+</tr>
+<tr>
+<td>Contradictions</td>
+<td>Une seule valeur retenue par champ.</td>
+<td>Aucune à l'import ; elles apparaissent quand d'autres sources sont rattachées aux mêmes événements.</td>
+</tr>
+<tr>
+<td>Parenté</td>
+<td>Implicite (enfant d'une famille), pas toujours sourcée.</td>
+<td>RELATION « fils/fille de » portée par un factoïde issu de <code>csrc</code> ou <code>src</code>, à défaut par la source de repli de la base.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="53-table-de-correspondance">5.3 Table de correspondance</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>GeneWeb</th>
+<th>Entités cibles</th>
+<th>Règle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Nom Prénom.occ</code></td>
+<td>PERSONNE + MASQUE(s) + NOM</td>
+<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> pour les réimports.</td>
+</tr>
+<tr>
+<td><code>(public)</code>, <code>{alias}</code>, <code>#salias</code>, <code>#nick</code></td>
+<td>NOM</td>
+<td>Une ligne par forme, avec son type.</td>
+</tr>
+<tr>
+<td><code>pevt</code> naissance, baptême, décès…</td>
+<td>FACTOIDE + PARTICIPATION + EVENEMENT + IDENT_EVENEMENT</td>
+<td>Rôle principal selon le type : né, baptisé, décédé, inhumé.</td>
+</tr>
+<tr>
+<td><code>fam</code> + <code>fevt #marr</code>…</td>
+<td>FACTOIDE + 2 PARTICIPATION + EVENEMENT</td>
+<td>Rôles époux / épouse ; <code>#marc</code> (contrat) et <code>#marb</code> (bans) sont des types distincts.</td>
+</tr>
+<tr>
+<td>Témoin (<code>witness_kind</code>)</td>
+<td>PARTICIPATION sur le factoïde</td>
+<td>Voir 5.4.</td>
+</tr>
+<tr>
+<td><code>Witness_Informant</code></td>
+<td>PARTICIPATION + <code>FACTOIDE.declarant</code></td>
+<td>L'informateur est aussi la voix du factoïde (R7).</td>
+</tr>
+<tr>
+<td><code>#occu</code></td>
+<td>QUALITE (profession)</td>
+<td>Sans dates : validité inconnue.</td>
+</tr>
+<tr>
+<td><code>[titre:lieu:début:fin:n]</code></td>
+<td>QUALITE (titre)</td>
+<td>Intervalle, lieu et rang conservés.</td>
+</tr>
+<tr>
+<td><code>rel adop/reco/cand/godp/fost</code></td>
+<td>RELATION</td>
+<td><code>cand</code> : relation de degré « possible ».</td>
+</tr>
+<tr>
+<td>Enfants d'une famille</td>
+<td>RELATION fils/fille de</td>
+<td>Factoïde issu de <code>csrc</code> ou <code>src</code>.</td>
+</tr>
+<tr>
+<td><code>notes</code>, <code>comm</code>, note d'événement</td>
+<td>CONCLUSION ou PASSAGE.transcription</td>
+<td>Une note qui argumente devient une conclusion ; une transcription reste dans le passage.</td>
+</tr>
+<tr>
+<td><code>#apubl</code> / <code>#apriv</code></td>
+<td><code>PERSONNE.acces</code></td>
+<td>À respecter à l'export et à l'affichage.</td>
+</tr>
+<tr>
+<td>Décès <code>k</code>/<code>m</code>/<code>e</code>/<code>s</code></td>
+<td>Sous-type d'événement</td>
+<td>Tué, assassiné, exécuté, disparu.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="54-témoins-de-witness_kind-aux-rôles">5.4 Témoins : de <code>witness_kind</code> aux rôles</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th><code>witness_kind</code></th>
+<th>Rôle de participation</th>
+<th>Équivalents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Witness</code></td>
+<td>témoin</td>
+<td>GEDCOM X Witness, CIDOC P11</td>
+</tr>
+<tr>
+<td><code>Witness_GodParent</code></td>
+<td>parrain ou marraine selon le sexe</td>
+<td>Rôle de participation Bio CRM</td>
+</tr>
+<tr>
+<td><code>Witness_CivilOfficer</code></td>
+<td>officier d'état civil</td>
+<td>GEDCOM X Official</td>
+</tr>
+<tr>
+<td><code>Witness_ReligiousOfficer</code></td>
+<td>célébrant</td>
+<td>GEDCOM X Official</td>
+</tr>
+<tr>
+<td><code>Witness_Informant</code></td>
+<td>déclarant</td>
+<td>+ <code>FACTOIDE.declarant</code></td>
+</tr>
+<tr>
+<td><code>Witness_Attending</code></td>
+<td>présent</td>
+<td>GEDCOM X Participant</td>
+</tr>
+<tr>
+<td><code>Witness_Mentioned</code></td>
+<td>mentionné</td>
+<td>Masque cité, sans rôle actif</td>
+</tr>
+<tr>
+<td><code>Witness_Other</code></td>
+<td>autre, à qualifier</td>
+<td>File de revue</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="55-sources-des-chaînes-brutes-aux-sources-canoniques">5.5 Sources : des chaînes brutes aux sources canoniques</h3>
+<p>Dans une base GeneWeb, les chaînes de source sont très répétitives : chaque auteur applique ses propres conventions, et l'on compte en général quelques centaines de chaînes distinctes pour des dizaines de milliers de personnes. Pas besoin de traitement automatique du langage lourd.</p>
+<ol>
+<li><strong>Découper</strong> chaque chaîne en partie « document » et partie « localisation » avec quelques expressions régulières propres à la base (<code>f°42v</code>, <code>p. 12</code>, <code>acte n° 34</code>, <code>vue 118</code>).</li>
+<li><strong>Regrouper</strong> les parties « document » par similarité (empreinte normalisée, puis distance d'édition), comme le fait OpenRefine.</li>
+<li><strong>Rattacher</strong> : regroupement exact → IDENT_SOURCE « certain » actif ; regroupement approché → « probable » proposé, dans la file de décisions.</li>
+<li><strong>Garder les orphelines</strong> : une chaîne non rattachée reste un passage sans source canonique, visible dans une liste dédiée. Rien n'est perdu.</li>
+</ol>
+<p>L'interface de fusion des sources est la même que pour les personnes et les événements (section 6).</p>
+<h3 id="56-dates-de-la-précision-geneweb-aux-intervalles-du-factoïde">5.6 Dates : de la précision GeneWeb aux intervalles du factoïde</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Précision GeneWeb</th>
+<th>Exemple</th>
+<th><code>date_min</code></th>
+<th><code>date_max</code></th>
+<th>Remarque</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sure</td>
+<td><code>3/3/1712</code></td>
+<td>1712‑03‑03</td>
+<td>1712‑03‑03</td>
+<td>Précision au jour</td>
+</tr>
+<tr>
+<td>About <code>~</code></td>
+<td><code>~1712</code></td>
+<td>1707</td>
+<td>1717</td>
+<td>Fenêtre paramétrable (ici ±5 ans)</td>
+</tr>
+<tr>
+<td>Maybe <code>?</code></td>
+<td><code>?1712</code></td>
+<td>1712</td>
+<td>1712</td>
+<td>Crédibilité du factoïde abaissée</td>
+</tr>
+<tr>
+<td>Before <code>&lt;</code></td>
+<td><code>&lt;1712</code></td>
+<td>vide</td>
+<td>1711‑12‑31</td>
+<td>Borne ouverte</td>
+</tr>
+<tr>
+<td>After <code>&gt;</code></td>
+<td><code>&gt;1712</code></td>
+<td>1713‑01‑01</td>
+<td>vide</td>
+<td>Borne ouverte</td>
+</tr>
+<tr>
+<td>OrYear <code>\|</code></td>
+<td><code>1712\|1713</code></td>
+<td>1712</td>
+<td>1713</td>
+<td>Alternative stricte notée dans l'énoncé</td>
+</tr>
+<tr>
+<td>YearInt <code>..</code></td>
+<td><code>1710..1715</code></td>
+<td>1710</td>
+<td>1715</td>
+<td>Intervalle direct</td>
+</tr>
+<tr>
+<td>Calendrier</td>
+<td><code>12/3/1712J</code></td>
+<td>converti en grégorien</td>
+<td></td>
+<td><code>calendrier</code> = julien, texte d'origine gardé</td>
+</tr>
+<tr>
+<td>Date texte</td>
+<td><code>0(Pâques 1712)</code></td>
+<td>vide ou estimée</td>
+<td></td>
+<td>Texte dans <code>date_declaree</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="57-exemple-dimport">5.7 Exemple d'import</h3>
+<p>Extrait <code>.gw</code> illustratif, tel qu'un export <code>gwu</code> pourrait le produire :</p>
+<pre class="code"><code class="language-text">fam MARTIN Pierre +1705 #mp Saint-Aubin DUBOIS Marie
+src BMS Saint-Aubin 1705-1715
+beg
+- h Jean 3/3/1712 #bp Saint-Aubin
+end
+
+pevt MARTIN Jean
+#bapt 3/3/1712 #p Saint-Aubin #s BMS Saint-Aubin f°42v
+wit m: LEROY Jean
+end pevt
+</code></pre>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Instances créées</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LOT_IMPORT</td>
+<td>L1 · gw · gwu 7.1 · 28/09/2026</td>
+</tr>
+<tr>
+<td>PASSAGE</td>
+<td>P1 « BMS Saint-Aubin f°42v » · P0 « BMS Saint-Aubin 1705-1715 »</td>
+</tr>
+<tr>
+<td>SOURCE + IDENT_SOURCE</td>
+<td>S1 « BMS Saint-Aubin 1705-1715 » ← P0 (certain) et P1 (certain, même partie « document »)</td>
+</tr>
+<tr>
+<td>FACTOIDE</td>
+<td>F1 baptême [1712‑03‑03], Saint‑Aubin (P1) · F0 mariage [1705], Saint‑Aubin (P0)</td>
+</tr>
+<tr>
+<td>MASQUE</td>
+<td>P1 : M1 Jean MARTIN, M4 Jean LEROY · P0 : M2 Pierre MARTIN, M3 Marie DUBOIS</td>
+</tr>
+<tr>
+<td>MENTION_LIEU + IDENT_LIEU</td>
+<td>« Saint-Aubin » (F1 et F0), désignation moderne → commune actuelle ; paroisse de 1705‑1712 déduite par projection spatiale, en « proposé »</td>
+</tr>
+<tr>
+<td>PARTICIPATION</td>
+<td>F1 : M1 baptisé, M4 témoin (ou parrain si <code>witness_kind</code> = GodParent) · F0 : M2 époux, M3 épouse</td>
+</tr>
+<tr>
+<td>EVENEMENT + IDENT_EVENEMENT</td>
+<td>E1 ← F1 · E0 ← F0 (certain, lot L1)</td>
+</tr>
+<tr>
+<td>IDENT_PERSONNE</td>
+<td>M1 → MARTIN/Jean/0 · M2 → MARTIN/Pierre/0 · … (certain, lot L1)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="58-chaîne-dimport">5.8 Chaîne d'import</h3>
+<ol>
+<li><strong>Extraire.</strong> Lire la base <code>.gwb</code> en OCaml avec la bibliothèque de GeneWeb (option A, sans perte), ou analyser l'export <code>gwu</code> (option B). Le GEDCOM de <code>gwb2ged</code> reste un plan C : il risque d'aplatir les types de témoins et les notes.</li>
+<li><strong>Normaliser.</strong> Dates en intervalles, graphies de lieux, chaînes de source découpées (5.5). Les cas ambigus partent dans la file de décisions.</li>
+<li><strong>Charger la couche Source.</strong> Passages, factoïdes, masques, participations, qualités, relations, noms, tous rattachés au lot.</li>
+<li><strong>Créer les identifications du lot.</strong> Une personne par clé GeneWeb, un événement par factoïde, une source par groupe exact, un lieu par correspondance unique, toutes « certain » et attribuées au lot.</li>
+<li><strong>Rapprocher avec l'existant.</strong> Les correspondances avec les personnes, événements, sources et lieux déjà en base sont créées en « proposé » et entrent dans la file de décisions.</li>
+<li><strong>Réimporter sans doublon.</strong> La <code>cle_externe</code> et l'empreinte du fichier permettent de comparer deux lots et de n'appliquer que les différences.</li>
+</ol>
+<p>L'export inverse vers GeneWeb est possible mais appauvrissant : une seule valeur par champ, masques fusionnés, incertitude réduite aux symboles de précision. On exporte les vues fondées sur les identifications actives.</p>
+<hr />
+<h2 id="6-interface-de-validation">6. Interface de validation</h2>
+<p>L'enjeu est de laisser l'historien trancher sans le noyer sous les masques. Principe : <strong>il ne parcourt jamais les masques, c'est l'interface qui lui propose des décisions</strong>. Grâce à la symétrie du modèle, le même écran sert aux quatre agrégations (sources, personnes, événements, lieux). Pour les lieux, la frise est remplacée par une carte des candidats, avec un curseur de date qui affiche les emprises et les rattachements valables à la date du factoïde.</p>
+<ol>
+<li><strong>File de décisions.</strong> Le système calcule des candidats en croisant plusieurs indices : proximité des noms, compatibilité des dates, distance des lieux, proches en commun. Il les classe par impact. Les identifications « certain » d'un import n'apparaissent pas, sauf en cas de conflit.</li>
+<li><strong>Comparaison côte à côte, écarts seulement.</strong> Deux fiches en colonnes : les champs concordants sont repliés, les divergences surlignées avec leur source et leur notation. Chaque indice du score est affiché (« même paroisse », « parrain commun »).</li>
+<li><strong>Frise chronologique.</strong> Une ligne de vie par candidat, dans l'esprit des <em>theme lines</em> d'i2, avec les incohérences signalées : baptisé après son décès, présent dans deux lieux le même jour, âge impossible.</li>
+<li><strong>Décision par groupes.</strong> L'historien valide un ensemble de masques ou de factoïdes en une fois, et peut en détacher un seul.</li>
+<li><strong>Argumentation en un geste.</strong> Chaque décision propose des motifs prédéfinis (mêmes parents, même métier et même lieu, signature identique, original préféré à la copie) plus un champ libre. La conclusion est créée automatiquement.</li>
+<li><strong>Affichage dosé.</strong> Masques groupés par source et repliés par défaut, avis rejetés masqués mais consultables, trois à cinq candidats à la fois.</li>
+<li><strong>Annulation.</strong> Toute décision se défait : elle ne fait que changer le statut d'une identification (R4).</li>
+</ol>
+<p>Ces principes reprennent les réflexes des outils de rapprochement comme OpenRefine ou Mix'n'match. L'écran de saisie et de validation qui précède cette file est décrit en 7.4.</p>
+<h3 id="61-les-cinq-écrans-de-la-maquette">6.1 Les cinq écrans de la maquette</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Écran</th>
+<th>Rôle</th>
+<th>Éléments clés</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Dépôt et lecture à voix haute</td>
+<td>Lire le document</td>
+<td>Ligne en cours encadrée sur l'image, enregistrement, alignement mot à mot entre écriture et voix (6.2).</td>
+</tr>
+<tr>
+<td>2. Saisie et validation d'un acte</td>
+<td>Vérifier le brouillon</td>
+<td>Image, transcription et fiche pré-remplie liées au mot ; seuls les champs incertains ou déduits demandent une action.</td>
+</tr>
+<tr>
+<td>3. Rattachements proposés</td>
+<td>Trancher les identifications</td>
+<td>File de décisions, comparaison côte à côte, détail du score, frise qui élimine les candidats impossibles, motifs en un clic.</td>
+</tr>
+<tr>
+<td>4. Conflit de date</td>
+<td>Trancher entre des dates</td>
+<td>Une ligne par source, cœur et halo, hypothèses vérifiées (6.3).</td>
+</tr>
+<tr>
+<td>5. Conflit de lieu</td>
+<td>Trancher entre des lieux</td>
+<td>Carte à la date de l'événement, frise liée, verdict selon la date (6.4).</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="62-alignement-mot-à-mot-entre-écriture-et-voix">6.2 Alignement mot à mot entre écriture et voix</h3>
+<ul>
+<li><strong>Vue en partition</strong> : une case par mot, l'écriture en haut, la voix en bas ; un seul mot quand les deux s'accordent.</li>
+<li><strong>Comparaison après normalisation</strong> (abréviations développées, orthographe modernisée), pour que seules les vraies différences ressortent.</li>
+<li><strong>Quatre états</strong>, distingués par la couleur, le trait et la clarté : accord ; écart attendu entre graphie et lecture ; écriture peu sûre complétée par la voix ; divergence à trancher.</li>
+<li><strong>Résumé en tête</strong> (mots, accords, écarts, divergences) et réécoute du passage exact de l'enregistrement pour chaque divergence.</li>
+</ul>
+<h3 id="63-conflit-de-date">6.3 Conflit de date</h3>
+<ul>
+<li><strong>Une ligne par source</strong> sur un axe commun, avec la date telle qu'écrite. Trait plein pour un original, hachures pour une copie, bande estompée pour un témoignage. Une date qui déborde l'échelle est signalée par des flèches.</li>
+<li><strong>Regroupement</strong> : les sources parfaitement concordantes partagent une ligne, avec un badge « ×n » qu'on peut déplier.</li>
+<li><strong>Ligne « événement calculé »</strong> : le cœur (intersection) en aplat foncé, le halo (union) en aplat clair ; en cas de conflit, pas de cœur et l'écart est affiché.</li>
+<li><strong>Hypothèses vérifiées</strong> : décalage de calendrier, naissance prise pour le baptême, erreur de copie, biais de mémoire (source très postérieure, formule arrondie comme « il y a environ vingt ans »).</li>
+<li><strong>Échelle adaptée</strong> à l'écart en jeu : jour, mois ou année.</li>
+</ul>
+<h3 id="64-conflit-de-lieu-et-carte-liée-à-la-date">6.4 Conflit de lieu et carte liée à la date</h3>
+<ul>
+<li><strong>Deux conflits distincts</strong> : quel lieu désigne ce nom (identité, candidats côte à côte) ; où l'événement a eu lieu (géométrie, cœur et halo).</li>
+<li><strong>Territoires à la date de l'événement</strong>, jamais la commune actuelle (R16).</li>
+<li><strong>Cœur et halo</strong> calculés par PostGIS ; sans zone commune, un trait ocre au plus court avec la distance. Un emboîtement (une paroisse dans son bailliage, une église dans sa paroisse) s'affiche comme « précisions compatibles ». Une intersection de zones approximatives reste affichée comme approximative.</li>
+<li><strong>Lisibilité</strong> : une seule couche en couleur, celle de la décision ; un seul fond à la fois (moderne atténué, Cassini, aucun) et un rideau pour comparer ; sources en contours seuls, allumés au survol ; une seule façon de montrer l'incertitude (bords estompés) ; petites cartes au-delà de trois sources ; points et rayons en vue éloignée ; contrôle en niveaux de gris.</li>
+<li><strong>Lien avec la date</strong> : sous la carte, une frise à deux lignes, date de l'événement et géographie. La géographie est découpée en périodes stables séparées par des losanges (changements de territoire). Le curseur et l'étiquette « Carte au … » partagent une couleur réservée à ce lien. Si un changement tombe dans l'intervalle de dates possibles, le curseur s'ouvre juste avant et la carte montre le territoire suivant en fantôme.</li>
+</ul>
+<h3 id="65-incertitude-assumée-garder-lenveloppe">6.5 Incertitude assumée (« garder l'enveloppe »)</h3>
+<p>Quand un conflit ne peut pas être tranché, l'historien peut le dire. C'est une décision (R23), pas un abandon.</p>
+<ul>
+<li><strong>Dans les données</strong> : une conclusion de valeur « incertain », dont l'effet marque l'événement en « incertitude assumée ». Aucun lieu ni aucune date n'est retenu à la place de l'enveloppe ; les identifications restent « proposé ».</li>
+<li><strong>Sur l'écran</strong> : l'étiquette ocre « conflit » devient une étiquette grise « incertitude assumée », avec l'auteur et la date. Le halo reste, sans cœur ; le trait de distance passe de l'ocre au gris (« écart documenté »). Le panneau de décision est remplacé par le résumé de la conclusion et un bouton « Rouvrir ».</li>
+<li><strong>Ailleurs dans l'outil</strong> : sur la carte de vie d'une personne, l'événement s'affiche comme une zone (le halo), jamais comme un point. Dans les comptages par territoire, il est rangé à part (« lieu incertain ») plutôt qu'attribué en silence à l'une des hypothèses. Une requête par juridiction renvoie toutes les hypothèses, signalées comme telles.</li>
+<li><strong>Réveil</strong> : rattacher une nouvelle source à l'événement le renvoie dans la file de décisions, avec la conclusion précédente affichée.</li>
+<li><strong>Export</strong> : vers GeneWeb, le lieu est écrit sous forme d'alternative (« Saint‑Aubin ou Les Essarts ») avec une note. Vers CIDOC‑CRM, chaque hypothèse devient une proposition CRMinf de valeur « incertain ».</li>
+</ul>
+<h3 id="66-sources-hors-calcul">6.6 Sources hors calcul</h3>
+<p>Une source écartée du calcul, par exemple un contrat de mariage qui donne le domicile et non le lieu du mariage, n'est jamais effacée (R24).</p>
+<ul>
+<li><strong>Dans la liste des sources</strong> : barrée, grisée, avec la raison en clair (« domicile, pas lieu du mariage : hors calcul ») et un bouton « Réintégrer ».</li>
+<li><strong>Sur la carte et la frise</strong> : absente par défaut. Au survol, elle apparaît en contour gris très fin, sans aplat ni couleur, avec la même raison en étiquette.</li>
+<li><strong>Traçabilité</strong> : l'exclusion est une proposition de la machine, attribuée à son agent, que l'historien confirme ou annule.</li>
+</ul>
+<hr />
+<h2 id="7-saisie-assistée-par-modèles-de-langage">7. Saisie assistée par modèles de langage</h2>
+<p>Principe : <strong>l'utilisateur fournit le document, la machine prépare, l'humain décide.</strong> Le but est d'obtenir une base aussi complète que possible sans la fatigue de saisie qui, champ après champ, finit par en dégrader la qualité.</p>
+<p>Le modèle s'y prête naturellement : ce qu'une machine sait extraire correspond exactement à la couche Source (texte tel qu'écrit, masques, rôles, dates et lieux déclarés). Les rattachements aux personnes, événements, sources et lieux restent des décisions humaines (R13).</p>
+<h3 id="71-le-circuit">7.1 Le circuit</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Étape</th>
+<th>Entrée</th>
+<th>Traitement</th>
+<th>Sortie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Dépôt</td>
+<td>Image, PDF ou texte</td>
+<td>PDF avec couche texte : lecture directe. Scan : reconnaissance d'écriture (HTR) avec des modèles entraînés sur les écritures anciennes (eScriptorium, Kraken, Transkribus). Découpage de la page en actes.</td>
+<td>Transcription machine et zones de l'image</td>
+</tr>
+<tr>
+<td>2. Lecture à voix haute (facultative)</td>
+<td>Audio</td>
+<td>L'utilisateur lit le passage ; reconnaissance vocale.</td>
+<td>Lecture humaine</td>
+</tr>
+<tr>
+<td>3. Confrontation</td>
+<td>Transcription machine et lecture</td>
+<td>Alignement mot à mot ; les divergences sont signalées.</td>
+<td>Transcription consolidée, qui garde la graphie et la lecture</td>
+</tr>
+<tr>
+<td>4. Extraction</td>
+<td>Transcription consolidée</td>
+<td>Modèle de langage à sortie structurée, contrainte par le schéma, avec un gabarit par type d'acte (baptême, mariage, sépulture, contrat…).</td>
+<td>Brouillon : factoïde, masques, participations, qualités, relations, mentions de lieu, dates déclarées, chacun ancré dans le texte</td>
+</tr>
+<tr>
+<td>5. Suggestions</td>
+<td>Brouillon et base existante</td>
+<td>Calcul de score (noms, dates, lieux, réseau) ; le modèle de langage explique les candidats en clair.</td>
+<td>Identifications « proposé »</td>
+</tr>
+<tr>
+<td>6. Validation</td>
+<td>Brouillon et suggestions</td>
+<td>Écran en trois colonnes (7.4).</td>
+<td>Versement dans la couche Source ; décisions d'identification</td>
+</tr>
+</tbody>
+</table></div>
+<p>La lecture à voix haute est l'apport le plus fort de ce circuit : un paléographe lit plus vite qu'il ne tape, et la confrontation entre la reconnaissance d'écriture et la voix désigne d'elle-même les mots douteux. La voix donne toutefois une <em>lecture</em> (abréviations développées, orthographe modernisée) et non la <em>graphie</em> : on garde les deux, et l'image reste la preuve.</p>
+<h3 id="72-des-modèles-spécialisés-derrière-une-passerelle-commune">7.2 Des modèles spécialisés, derrière une passerelle commune</h3>
+<p>Plutôt qu'un seul modèle polyvalent, une chaîne de modèles spécialisés : écriture, voix, extraction. Chaque étape se mesure, se remplace et s'améliore séparément. Toutes passent par une <strong>passerelle de modèles</strong> qui fixe le contrat d'entrée et de sortie (schéma JSON) ; le choix du modèle concret (service en ligne, petit modèle local) relève de la configuration, pas du code.</p>
+<p>Les registres paroissiaux sont très formulaires : un petit modèle bien guidé suffit en général à l'extraction. Les actes notariés et les sources narratives demanderont des modèles plus capables.</p>
+<h3 id="73-déploiement-hybride">7.3 Déploiement hybride</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Composant</th>
+<th>Où</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base PostgreSQL, droits, file de décisions, images</td>
+<td>Serveur local de l'équipe</td>
+<td>Évite la complexité de la gestion des droits en ligne ; les données restent sous contrôle.</td>
+</tr>
+<tr>
+<td>Reconnaissance d'écriture</td>
+<td>Serveur local (idéalement avec GPU) ou service en ligne</td>
+<td>Traitement lourd, par lots.</td>
+</tr>
+<tr>
+<td>Reconnaissance vocale et extraction</td>
+<td>Service en ligne par défaut ; petits modèles en local sur un poste puissant (ordinateur à mémoire unifiée importante) ou sur le serveur</td>
+<td>Choix par configuration, grâce à la passerelle.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Le système reste agnostique : un même projet peut combiner les trois modes.</p>
+<p><strong>Garde-fou avant tout envoi externe.</strong> Les personnes étudiées sont en principe décédées, et le RGPD ne s'applique pas aux défunts. Trois cas imposent pourtant un filtre :</p>
+<ul>
+<li>Les bases importées, GeneWeb en tête, contiennent souvent des <strong>personnes vivantes</strong> (marquées privées, ou sans date de décès et nées il y a moins d'un siècle environ).</li>
+<li>Les <strong>délais de communicabilité</strong> du Code du patrimoine protègent les documents récents : de l'ordre de 75 ans pour les actes de naissance et de mariage et pour les minutes notariales. À vérifier avec un juriste.</li>
+<li>Les <strong>conditions de réutilisation</strong> des images fixées par certains services d'archives.</li>
+</ul>
+<p>Ces documents et ces personnes sont traités en local uniquement (R21).</p>
+<h3 id="74-lécran-de-saisie-et-de-validation">7.4 L'écran de saisie et de validation</h3>
+<ul>
+<li><strong>Trois colonnes</strong> : l'image avec les zones repérées, la transcription, la fiche pré-remplie.</li>
+<li><strong>Traçabilité au mot</strong> : cliquer un champ surligne les mots dans la transcription et la zone dans l'image, et inversement.</li>
+<li><strong>Attention ciblée</strong> : seuls les champs peu sûrs, déduits ou divergents entre voix et écriture sont mis en évidence ; le reste se valide acte par acte, en un geste.</li>
+<li><strong>Correction à la voix</strong> : « le parrain s'appelle Leroy, L‑E‑R‑O‑Y ».</li>
+<li><strong>Enchaînement</strong> : après validation de l'acte, l'écran passe aux suggestions de rattachement (file de décisions, section 6).</li>
+<li><strong>Boucle d'amélioration</strong> : chaque correction est journalisée et sert à évaluer et à améliorer les modèles.</li>
+</ul>
+<h3 id="75-ce-que-la-saisie-assistée-ajoute-au-modèle">7.5 Ce que la saisie assistée ajoute au modèle</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Ajout</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zone de brouillon (schéma <code>saisie</code>)</td>
+<td>La couche Source étant en insertion seule, l'extraction écrit dans un brouillon. Un LOT_SAISIE (document, statut : en cours, validé, abandonné) regroupe ses éléments. La validation les verse en une transaction dans le schéma <code>source</code>.</td>
+</tr>
+<tr>
+<td>Ancrage</td>
+<td><code>ancre_debut</code> et <code>ancre_fin</code> (positions dans la transcription) et <code>zone_image</code> (polygone) sur les masques, mentions de lieu, participations et dates déclarées.</td>
+</tr>
+<tr>
+<td>Transcriptions de PASSAGE</td>
+<td><code>transcription_machine</code>, <code>lecture_orale</code>, <code>transcription_validee</code>.</td>
+</tr>
+<tr>
+<td>Contributeur « agent »</td>
+<td>CONTRIBUTEUR de type agent, avec modèle, version, gabarit et paramètres : on sait toujours qui a proposé quoi.</td>
+</tr>
+<tr>
+<td>Confiance d'extraction</td>
+<td>Score de 0 à 1 porté par chaque élément du brouillon, distinct de la crédibilité de la source (R6).</td>
+</tr>
+<tr>
+<td>Lu ou déduit</td>
+<td>Indicateur <code>mode</code> sur les relations, qualités et dates : lu dans le texte, ou déduit (« sa femme », « l'an que dessus »).</td>
+</tr>
+<tr>
+<td>Journal des corrections</td>
+<td>Pour chaque champ : valeur proposée, valeur retenue, auteur. Sert de jeu d'évaluation.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="76-règles-de-la-saisie-assistée">7.6 Règles de la saisie assistée</h3>
+<ol start="18">
+<li><strong>R18 : la machine propose, l'humain verse.</strong> Aucun élément extrait n'entre dans la couche Source sans validation humaine, et aucune identification créée par un agent n'est « actif ».</li>
+<li><strong>R19 : pas d'élément sans ancrage.</strong> Tout élément extrait cite sa position dans la transcription ; sans ancrage, il est rejeté automatiquement. C'est la parade contre les inventions.</li>
+<li><strong>R20 : lu ou déduit.</strong> Un élément déduit est marqué comme tel et n'est jamais pré-validé.</li>
+<li><strong>R21 : filtre avant envoi externe.</strong> Documents sous délai de communicabilité, personnes possiblement vivantes et images à réutilisation restreinte ne quittent pas le serveur local.</li>
+</ol>
+<h3 id="77-risques">7.7 Risques</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Risque</th>
+<th>Parade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inventions (un parrain inexistant)</td>
+<td>Ancrage obligatoire (R19).</td>
+</tr>
+<tr>
+<td>Déductions présentées comme lues</td>
+<td>Indicateur lu ou déduit (R20).</td>
+</tr>
+<tr>
+<td>Validation machinale : l'utilisateur accepte tout, trop vite</td>
+<td>Champs incertains qui exigent une action ; une part des actes validés est présentée à nouveau pour contrôle par sondage ; taux de correction suivi par utilisateur.</td>
+</tr>
+<tr>
+<td>Dates (calendrier julien, « l'an que dessus », fêtes religieuses)</td>
+<td>Toujours signalées pour vérification.</td>
+</tr>
+<tr>
+<td>Confusion entre graphie et lecture</td>
+<td>Les deux sont conservées ; <code>nom_ecrit</code> suit la graphie vérifiée sur l'image.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-implémentation-postgresql-et-ocaml">8. Implémentation : PostgreSQL et OCaml</h2>
+<h3 id="81-choix-darchitecture">8.1 Choix d'architecture</h3>
+<ul>
+<li><strong>PostgreSQL pour le cœur.</strong> Tout est réifié : une participation est une ligne, qu'une conclusion peut désigner. Une base de graphe n'apporte donc pas d'avantage décisif, car dans Neo4j un lien ne peut pas pointer vers un autre lien et la participation y serait de toute façon un nœud. PostgreSQL garantit l'intégrité transactionnelle de la couche Source.</li>
+<li><strong>Quatre schémas.</strong> <code>saisie</code> (brouillons de la saisie assistée), <code>source</code> (insertion seule), <code>interp</code> (révisable, lieux historiques compris), <code>ref</code> (référentiels, sites compris). Les droits de modification et de suppression sont retirés sur <code>source</code>.</li>
+<li><strong>PostGIS</strong> pour les géométries des sites et des emprises, et <strong>btree_gist</strong> pour interdire les chevauchements de périodes.</li>
+<li><strong>Deux systèmes de coordonnées.</strong> Stockage en WGS 84 (EPSG:4326), pour l'échange avec GeoNames, le World Historical Gazetteer et les fonds de carte. Calculs de distance, de surface, d'intersection et de zones tampons en Lambert‑93 (EPSG:2154) pour la France métropolitaine, par transformation à la volée ou colonne calculée indexée. Un projet hors métropole (outre-mer, étranger) déclare son propre système métrique, par exemple la zone UTM adaptée.</li>
+<li><strong>Vues pour les calculs.</strong> Participants d'un événement, intervalle d'un événement, fiche consolidée ; en vues matérialisées si le volume l'exige.</li>
+<li><strong>Projection en graphe pour l'analyse.</strong> Apache AGE (extension de graphe pour PostgreSQL) ou un export vers Neo4j en lecture seule, pour la centralité et les plus courts chemins sur le réseau de personnes.</li>
+<li><strong>Backend Python</strong> pour l'API, la file de décisions et la publication RDF (CIDOC‑CRM, avec PC14 pour les participations).</li>
+<li><strong>OCaml pour le connecteur GeneWeb</strong> (8.3).</li>
+<li><strong>Passerelle de modèles</strong> pour la saisie assistée, et déploiement hybride (section 7).</li>
+</ul>
+<h3 id="82-esquisse-sql">8.2 Esquisse SQL</h3>
+<p>Esquisse non testée, pour fixer les idées.</p>
+<pre class="code"><code class="language-sql">-- Couche Source : insertion seule
+CREATE TABLE source.factoide (
+  id                  bigserial PRIMARY KEY,
+  passage_id          bigint NOT NULL REFERENCES source.passage,
+  type_evenement_id   int REFERENCES ref.type_evenement,
+  enonce              text,
+  date_declaree       text,
+  date_min            date,
+  date_max            date,
+  calendrier          text,
+  declarant_masque_id bigint REFERENCES source.masque,
+  credibilite         smallint CHECK (credibilite BETWEEN 1 AND 6),
+  remplace_id         bigint REFERENCES source.factoide,
+  lot_import_id       int REFERENCES ref.lot_import,
+  saisi_par           int NOT NULL REFERENCES ref.contributeur,
+  saisi_le            timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE source.mention_lieu (
+  id              bigserial PRIMARY KEY,
+  factoide_id     bigint NOT NULL REFERENCES source.factoide,
+  forme_ecrite    text NOT NULL,
+  forme_normalisee text,
+  fonction        text NOT NULL,  -- evenement, domicile, origine, titre
+  masque_id       bigint REFERENCES source.masque
+);
+
+CREATE TABLE source.participation (
+  id          bigserial PRIMARY KEY,
+  factoide_id bigint NOT NULL REFERENCES source.factoide,
+  masque_id   bigint NOT NULL REFERENCES source.masque,
+  role_id     int NOT NULL REFERENCES ref.role,
+  ordre       smallint
+);
+
+REVOKE UPDATE, DELETE ON ALL TABLES IN SCHEMA source FROM app_user;
+
+-- Structure d'identification commune, déclinée trois fois
+CREATE TYPE degre AS ENUM ('certain', 'probable', 'possible');
+CREATE TYPE statut_ident AS ENUM ('propose', 'actif', 'rejete');
+
+CREATE TABLE interp.ident_evenement (
+  id            bigserial PRIMARY KEY,
+  factoide_id   bigint NOT NULL REFERENCES source.factoide,
+  evenement_id  bigint NOT NULL REFERENCES interp.evenement,
+  degre         degre NOT NULL,
+  statut        statut_ident NOT NULL,
+  conclusion_id bigint NOT NULL REFERENCES interp.conclusion,
+  lot_import_id int REFERENCES ref.lot_import
+);
+-- R11 : une seule identification active par factoïde
+CREATE UNIQUE INDEX ident_evenement_actif
+  ON interp.ident_evenement (factoide_id) WHERE statut = 'actif';
+-- interp.ident_personne (masque_id → personne_id),
+-- interp.ident_source (passage_id → source_id) et
+-- interp.ident_lieu (mention_lieu_id → lieu_historique_id ou site_id) : même structure
+
+-- Vue : participants d'un événement (R8)
+CREATE VIEW interp.participant_evenement AS
+SELECT ie.evenement_id, ip.personne_id, p.role_id, p.factoide_id
+FROM interp.ident_evenement ie
+JOIN source.participation p   ON p.factoide_id = ie.factoide_id
+JOIN interp.ident_personne ip ON ip.masque_id = p.masque_id AND ip.statut = 'actif'
+WHERE ie.statut = 'actif';
+
+-- Vue : intervalle et conflit de date d'un événement (R5, R12)
+CREATE VIEW interp.intervalle_evenement AS
+SELECT ie.evenement_id,
+       max(f.date_min) AS debut_min,
+       min(f.date_max) AS debut_max,
+       max(f.date_min) &gt; min(f.date_max) AS conflit
+FROM interp.ident_evenement ie
+JOIN source.factoide f ON f.id = ie.factoide_id
+WHERE ie.statut = 'actif'
+GROUP BY ie.evenement_id;
+</code></pre>
+<p><strong>Lieux (PostGIS)</strong>, esquisse non testée :</p>
+<pre class="code"><code class="language-sql">CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+-- Site : coordonnées immuables, insertion seule
+CREATE TABLE ref.site (
+  id             serial PRIMARY KEY,
+  libelle_neutre text,
+  geom           geometry(Point, 4326) NOT NULL,
+  rayon_incertitude_m numeric,
+  methode        text,            -- releve, carte ancienne, cadastre
+  remplace_id    int REFERENCES ref.site
+);
+
+CREATE TABLE interp.lieu_historique (
+  id        serial PRIMARY KEY,
+  type      text NOT NULL,        -- paroisse, seigneurie, bailliage, commune…
+  existence daterange
+);
+
+-- Une seule emprise par lieu et par période
+CREATE TABLE interp.emprise (
+  id                 serial PRIMARY KEY,
+  lieu_historique_id int NOT NULL REFERENCES interp.lieu_historique,
+  validite           daterange NOT NULL,
+  geom               geometry(MultiPolygon, 4326),  -- limites connues
+  centre             geometry(Point, 4326),         -- sinon : chef-lieu
+  rayon_incertitude_m numeric,                      -- et rayon
+  precision          text,
+  CHECK (geom IS NOT NULL OR centre IS NOT NULL),
+  conclusion_id      bigint REFERENCES interp.conclusion,
+  EXCLUDE USING gist (lieu_historique_id WITH =, validite WITH &amp;&amp;)
+);
+
+-- Un seul rattachement par lieu, par hiérarchie et par période
+CREATE TABLE interp.appartenance (
+  id            serial PRIMARY KEY,
+  partie_id     int NOT NULL REFERENCES interp.lieu_historique,
+  tout_id       int NOT NULL REFERENCES interp.lieu_historique,
+  hierarchie    text NOT NULL,    -- ecclesiastique, judiciaire, fiscale, seigneuriale, administrative
+  validite      daterange NOT NULL,
+  conclusion_id bigint REFERENCES interp.conclusion,
+  EXCLUDE USING gist (partie_id WITH =, hierarchie WITH =, validite WITH &amp;&amp;)
+);
+
+CREATE INDEX ON ref.site USING gist (geom);
+CREATE INDEX ON interp.emprise USING gist (geom);
+CREATE INDEX ON interp.emprise USING gist (validite);
+
+-- Zone tampon calculée à l'affichage, jamais stockée
+CREATE VIEW interp.emprise_affichage AS
+SELECT id, lieu_historique_id, validite,
+       coalesce(geom, ST_Buffer(centre::geography, rayon_incertitude_m)::geometry) AS geom_affichee
+FROM interp.emprise;
+
+-- Dans quelle paroisse se trouvait ce site le 3 mars 1712 ?
+SELECT lh.id
+FROM ref.site s
+JOIN interp.emprise e ON ST_Contains(e.geom, s.geom)
+JOIN interp.lieu_historique lh ON lh.id = e.lieu_historique_id
+WHERE s.id = 4471
+  AND lh.type = 'paroisse'
+  AND e.validite @&gt; DATE '1712-03-03';
+</code></pre>
+<p><strong>Conclusions à effets multiples, contraintes temporelles et calculs métriques</strong>, esquisse non testée :</p>
+<pre class="code"><code class="language-sql">CREATE TABLE interp.conclusion_effet (
+  id            bigserial PRIMARY KEY,
+  conclusion_id bigint NOT NULL REFERENCES interp.conclusion ON DELETE CASCADE,
+  type          text NOT NULL,   -- activer_ident, rejeter_ident, contrainte_temporelle, lieu_retenu, incertitude_assumee
+  cible_type    text NOT NULL,
+  cible_id      bigint NOT NULL
+);
+
+CREATE TABLE interp.contrainte_temporelle (
+  id                     bigserial PRIMARY KEY,
+  evenement_id           bigint NOT NULL REFERENCES interp.evenement,
+  borne                  text NOT NULL,   -- debut_min, debut_max, fin_min, fin_max
+  valeur                 date,
+  evenement_reference_id bigint REFERENCES interp.evenement,  -- ex. changement de territoire
+  conclusion_id          bigint NOT NULL REFERENCES interp.conclusion,
+  CHECK ((valeur IS NULL) &lt;&gt; (evenement_reference_id IS NULL))
+);
+
+-- « Retenir la chapelle et dater après 1709 » : une seule transaction (R22)
+BEGIN;
+  INSERT INTO interp.conclusion (…) VALUES (…) RETURNING id;          -- C21
+  UPDATE interp.ident_lieu SET statut = 'actif'  WHERE id = :ident_chapelle;
+  UPDATE interp.ident_lieu SET statut = 'rejete' WHERE id = :ident_paroisse;
+  INSERT INTO interp.contrainte_temporelle (evenement_id, borne, evenement_reference_id, conclusion_id)
+       VALUES (:e0, 'debut_min', :transfert_1709, :c21);
+  INSERT INTO interp.conclusion_effet (conclusion_id, type, cible_type, cible_id) VALUES
+       (:c21, 'activer_ident', 'ident_lieu', :ident_chapelle),
+       (:c21, 'rejeter_ident', 'ident_lieu', :ident_paroisse),
+       (:c21, 'contrainte_temporelle', 'evenement', :e0);
+COMMIT;
+
+-- Distance métrique : calcul en Lambert-93, stockage en WGS 84
+SELECT ST_Distance(ST_Transform(s.geom, 2154), ST_Transform(e.geom, 2154)) AS distance_m
+FROM ref.site s, interp.emprise e
+WHERE s.id = :chapelle AND e.id = :emprise_paroisse_1706;
+
+-- Index sur la géométrie projetée, pour que ces calculs restent rapides
+CREATE INDEX ON interp.emprise USING gist (ST_Transform(geom, 2154));
+</code></pre>
+<h3 id="83-ocaml-le-connecteur-geneweb">8.3 OCaml : le connecteur GeneWeb</h3>
+<p><strong>Forces pour ce projet</strong></p>
+<ul>
+<li><strong>Types somme et filtrage exhaustif.</strong> Ajouter un rôle ou un type d'événement fait signaler par le compilateur chaque traitement qui l'oublie.</li>
+<li><strong>Accès direct à GeneWeb.</strong> Le connecteur lit la base avec les types officiels (<code>Def</code>), sans perte ni format intermédiaire.</li>
+<li><strong>Performances natives</strong>, éprouvées sur les très grandes bases de Geneanet ; parallélisme depuis OCaml 5.</li>
+<li><strong>Analyse syntaxique solide</strong> (Menhir, Angstrom) pour les chaînes de source, de lieu et de date.</li>
+</ul>
+<p><strong>Limites</strong></p>
+<ul>
+<li><strong>Vivier de développeurs réduit</strong> en humanités numériques, où Python et Java dominent.</li>
+<li><strong>Écosystème RDF et graphe plus mince</strong> : pas d'équivalent mûr à rdflib ou Jena.</li>
+<li><strong>GeneWeb n'est pas un socle pour notre modèle</strong> : moteur centré sur la personne, stockage binaire.</li>
+</ul>
+<p><strong>Recommandation.</strong> OCaml pour le connecteur, qui lit la base GeneWeb et émet notre modèle en JSON ou CSV ; le cœur en PostgreSQL et Python.</p>
+<p><strong>Esquisse de types</strong> (non compilée, à ajuster aux modules réels de GeneWeb 7.1). Le type paramétré <code>identification</code> exprime directement la symétrie du modèle :</p>
+<pre class="code"><code class="language-ocaml">type degre = Certain | Probable | Possible
+type statut = Propose | Actif | Rejete
+
+(* Une seule structure pour les quatre agrégations *)
+type ('de, 'vers) identification = {
+  de : 'de; vers : 'vers;
+  degre : degre; statut : statut;
+  conclusion : Conclusion.id;
+  lot : Lot_import.id option;
+}
+type ident_source    = (Passage.id,  Source.id)    identification
+type ident_personne  = (Masque.id,   Personne.id)  identification
+type ident_evenement = (Factoide.id, Evenement.id) identification
+type cible_lieu = Historique of Lieu_historique.id | Site of Site.id
+type ident_lieu      = (Mention_lieu.id, cible_lieu) identification
+
+type participation = {
+  factoide : Factoide.id;   (* R2 : rattachée au factoïde, plus à l'événement *)
+  masque : Masque.id;
+  role : Role.id;
+}
+
+(* Connecteur GeneWeb : le compilateur exige un cas par type de témoin *)
+let role_of_witness sexe = function
+  | Def.Witness -&gt; &quot;temoin&quot;
+  | Def.Witness_GodParent -&gt; if sexe = Def.Female then &quot;marraine&quot; else &quot;parrain&quot;
+  | Def.Witness_CivilOfficer -&gt; &quot;officier_etat_civil&quot;
+  | Def.Witness_ReligiousOfficer -&gt; &quot;celebrant&quot;
+  | Def.Witness_Informant -&gt; &quot;declarant&quot;
+  | Def.Witness_Attending -&gt; &quot;present&quot;
+  | Def.Witness_Mentioned -&gt; &quot;mentionne&quot;
+  | Def.Witness_Other -&gt; &quot;autre&quot;
+</code></pre>
+<hr />
+<h2 id="9-décisions-et-questions-ouvertes">9. Décisions et questions ouvertes</h2>
+<h3 id="91-décisions-prises-v04-à-v06">9.1 Décisions prises (v0.4 à v0.6)</h3>
+<ol>
+<li><strong>Les lieux forment une quatrième agrégation</strong> (MENTION_LIEU ⇢ LIEU par IDENT_LIEU), pour que la couche Source reste en insertion seule (R10, R13).</li>
+<li><strong>Le factoïde reste à la granularité de l'acte</strong> (R14). La co-présence des participants est l'information essentielle des registres et minutes, et ce choix rejoint l'<em>Event</em> de niveau record de GEDCOM X. Les affirmations fines d'IPIF existent déjà à l'intérieur du factoïde, sous forme de participations, qualités et relations.</li>
+<li><strong>Lieu historique et site topographique sont distincts</strong> (4.8). Le site porte les coordonnées immuables ; le lieu historique porte le temps : noms, emprises, appartenances et localisations datés.</li>
+<li><strong>Saisie assistée</strong> (section 7) : la machine prépare le brouillon, l'humain valide ; chaîne de modèles spécialisés derrière une passerelle ; serveur local pour la base et les droits, modèles en ligne ou locaux selon la configuration.</li>
+<li><strong>Conclusions à effets multiples et incertitude assumée</strong> (R22, R23) : une décision peut porter à la fois sur le lieu et sur la date ; garder l'incertitude est une décision à part entière.</li>
+<li><strong>Calculs métriques en Lambert‑93</strong>, stockage en WGS 84.</li>
+</ol>
+<h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
+<ol>
+<li><strong>Score des candidats.</strong> Poids des indices (noms, dates, lieux, réseau) et seuils de proposition : à calibrer sur un échantillon annoté.</li>
+<li><strong>Plusieurs équipes, plusieurs vues de référence ?</strong> R11 suppose une vue de référence par projet. Si plusieurs projets partagent la base, <code>actif</code> devra dépendre du projet.</li>
+<li><strong>Publication RDF.</strong> Correspondance fine vers CIDOC‑CRM et CRMinf (PC14, I2, I7) à écrire et à tester.</li>
+<li><strong>Types d'événements décrits.</strong> Le type porté par le factoïde (<code>type_evenement_id</code>) est traité comme une normalisation du vocabulaire. Si des classements font débat (un « contrat » qui est en fait une donation), il faudra les traiter par une conclusion sur le factoïde.</li>
+<li><strong>Emprises anciennes.</strong> Les limites des paroisses et seigneuries sont rarement connues avant le cadastre napoléonien. On commence par des points (chef-lieu) avec un rayon d'incertitude, comme le recommande le World Historical Gazetteer, puis on ajoute des polygones à mesure des sources. La zone tampon est calculée à l'affichage (<code>ST_Buffer</code>), jamais stockée ; la précision doit rester visible sur la carte.</li>
+<li><strong>Notion d'organisation.</strong> Faut-il introduire une entité pour les groupes constitués autres que territoriaux (régiment, confrérie, communauté religieuse, corporation, étude notariale, entreprise, association) ? Rien ne l'impose aujourd'hui. Le modèle les traite déjà de trois façons partielles : le LIEU_HISTORIQUE couvre les institutions territoriales (paroisse, bailliage) ; la profession est un rôle durable unaire ; la parenté est un rôle durable binaire. Un « employeur » ou une « appartenance à un régiment » n'a pas de place propre. À instruire lors d'une prochaine itération : (a) un besoin avéré dans le corpus ou les requêtes visées (réseau, prosopographie institutionnelle) ; (b) si oui, la forme : une cinquième agrégation par identification révisable (mention d'organisation ⇢ organisation, sur le patron de IDENT_LIEU), ou un simple type de masque ; (c) le rôle durable binaire masque ↔ organisation, daté, avec intervalle flou ; (d) la frontière avec LIEU_HISTORIQUE pour les institutions à la fois territoriales et personnes morales (une paroisse, une seigneurie) ; (e) la correspondance CIDOC‑CRM (E74 Group) et le traitement des groupes dans GEDCOM X ; (f) l'effet sur l'import GeneWeb. S'il est retenu, une nouvelle règle (R25) devra fixer son statut vis-à-vis de R13 et R18. Aucune décision prise.</li>
+</ol>
+<hr />
+<h2 id="10-sources">10. Sources</h2>
+<ul>
+<li><a href="https://ceur-ws.org/Vol-2119/paper10.pdf">Bio CRM, CEUR‑WS vol. 2119, article 10</a></li>
+<li><a href="https://ceur-ws.org/Vol-3152/BD2019_paper_6.pdf">Data Exchange in Practice: Towards a Prosopographical API, CEUR‑WS vol. 3152</a></li>
+<li><a href="https://github.com/GVogeler/prosopogrAPhI">IPIF / prosopogrAPhI (GitHub)</a></li>
+<li><a href="https://fhiso.org/TR/elf-data-model.pdf">FHISO, ELF Data Model</a></li>
+<li><a href="https://fhiso.org/TR/cev-rdfa-bindings">FHISO, Citation Elements</a></li>
+<li><a href="https://www.ibm.com/support/pages/i2-analysts-notebook-entity-link-properties-elp">IBM, i2 Analyst's Notebook: Entity Link Properties (ELP)</a></li>
+<li><a href="https://www.ibm.com/docs/en/SSXVTH_4.3.3/com.ibm.i2.understand.data.doc/platform_datamodel_whitepaper_pdf.pdf">IBM i2 EIA Data Model White Paper v4.3</a></li>
+<li><a href="https://docs.i2group.com/analyze/4.4.3/data_model_intro.html">The i2 Analyze data model</a></li>
+<li><a href="https://docs.i2group.com/analyze/4.4.4/data_model_elp_relationships.html">ELP relationships in i2 Analyze</a></li>
+<li><a href="https://geneweb.tuxfamily.org/wiki/GWformat">GeneWeb, format .gw</a></li>
+<li><a href="https://geneweb.tuxfamily.org/wiki/gwu">GeneWeb, export avec gwu</a></li>
+<li><a href="https://geneweb.tuxfamily.org/wiki/ged">GeneWeb, import/export GEDCOM</a></li>
+<li><a href="https://github.com/geneweb/geneweb/blob/master/lib/def/def.ml">GeneWeb, types du module Def</a></li>
+<li><a href="https://github.com/geneweb/geneweb/releases">GeneWeb, versions publiées</a></li>
+</ul>
+<p>Les autres références (Bradley &amp; Short, Pasin &amp; Bradley, SNAP, CIDOC‑CRM, CRMinf, CRMgeo, GEDCOM X, GENTECH, Pleiades, World Historical Gazetteer, base Cassini de l'EHESS, historique du COG de l'INSEE) sont citées de mémoire. Leurs références bibliographiques sont à vérifier avant une diffusion formelle. Les exemples (baptême, extrait baptistaire, extrait <code>.gw</code>, identifiants de lieux et de sites) sont fictifs.</p>
+</main>

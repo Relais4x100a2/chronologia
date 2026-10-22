@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Saisie et validation d'un acte</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+body{margin:0;font-family:"IBM Plex Sans",system-ui,sans-serif;color:#1B2320;background:#EEF0EC}
+a{color:#16615D}a:hover{color:#0E4441}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid #16615D;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: #EEF0EC; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1B2320">
+
+  <header style="height: 64px; box-sizing: border-box; padding: 0 24px; display: flex; align-items: center; gap: 24px; background: #FFFFFF; border-bottom: 1px solid #D5DAD5">
+    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6661">Registre BMS Saint‑Aubin 1705‑1715 · f° 42 v°</div>
+      <div style="font-size: 17px; font-weight: 600">Acte 3 sur 6 · Baptême de Jean Martin</div>
+    </div>
+    <nav aria-label="Étapes" style="display: flex; align-items: center; gap: 6px; margin-left: 24px; font-size: 13px">
+      <span style="padding: 6px 10px; border-radius: 4px; background: #E3E7E2; color: #3E4944">Dépôt ✓</span>
+      <span style="color: #9AA39E">›</span>
+      <span style="padding: 6px 10px; border-radius: 4px; background: #E3E7E2; color: #3E4944">Lecture ✓</span>
+      <span style="color: #9AA39E">›</span>
+      <span style="padding: 6px 10px; border-radius: 4px; background: #E3E7E2; color: #3E4944">Extraction ✓</span>
+      <span style="color: #9AA39E">›</span>
+      <span style="padding: 6px 10px; border-radius: 4px; background: {{accent}}; color: #FFFFFF; font-weight: 600">Validation</span>
+      <span style="color: #9AA39E">›</span>
+      <span style="padding: 6px 10px; border-radius: 4px; color: #5B6661">Rattachements</span>
+    </nav>
+    <div style="flex-grow: 1"></div>
+    <button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #C5CCC6; background: #FFFFFF; border-radius: 6px; font-size: 14px; color: #1B2320; display: flex; align-items: center; gap: 8px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+      Corriger à la voix
+    </button>
+    <button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #C5CCC6; background: #FFFFFF; border-radius: 6px; font-size: 14px; color: #1B2320">Acte suivant</button>
+  </header>
+
+  <div style="flex-grow: 1; min-height: 0; display: flex; gap: 16px; padding: 16px 24px 0 24px">
+
+    <section aria-label="Image" style="width: 430px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Image</h2>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B6661">f° 42 v° · zone 3 · 118 %</span>
+      </div>
+      <div style="flex-grow: 1; background: #E4D6BA; border-radius: 6px; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+        <div style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.9; color: #3F2C18; background: #F1E6CF; padding: 18px 20px; border-radius: 3px; opacity: 0.55">… et ont signé avec nous. Marguerite Boucher, veuve de feu Nicolas Hébert, âgée d'environ soixante ans, a été inhumée …</div>
+        <div style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.95; color: #3F2C18; background: #F1E6CF; padding: 18px 20px; border-radius: 3px; outline: 2px solid #16615D; outline-offset: 3px">
+          Le trois mars mil sept cent douze a été baptisé Jean, fils de Pierre Martin, laboureur, et de Marie Dubois sa femme. Le parrain <span style="background: rgba(22,97,93,0.22); box-shadow: 0 0 0 2px #16615D; border-radius: 2px; padding: 0 2px">Jean Leroy</span>, la marraine Anne Martin, en présence de Claude Petit, maître d'école, qui a signé avec nous.
+          <div style="margin-top: 10px; display: flex; gap: 28px; font-size: 18px">
+            <span>J. Leroy</span><span>C. Petit</span><span>Delaunay, curé</span>
+          </div>
+        </div>
+        <div style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.9; color: #3F2C18; background: #F1E6CF; padding: 18px 20px; border-radius: 3px; opacity: 0.55">Le cinq dudit mois a été baptisée Françoise, fille de …</div>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #5B6661">Simulation d'image. Le cadre vert entoure l'acte ; la zone surlignée correspond au champ sélectionné.</p>
+    </section>
+
+    <section aria-label="Transcription" style="width: 420px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Transcription</h2>
+        <div role="group" aria-label="Affichage" style="display: flex; border: 1px solid #C5CCC6; border-radius: 6px; overflow: hidden; font-size: 13px">
+          <button type="button" aria-pressed="true" style="height: 32px; padding: 0 12px; border: 0; background: #1B2320; color: #FFFFFF">Graphie</button>
+          <button type="button" aria-pressed="false" style="height: 32px; padding: 0 12px; border: 0; background: #FFFFFF; color: #1B2320">Lecture</button>
+        </div>
+      </div>
+      <div style="flex-grow: 1; background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; padding: 20px 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+        <p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 2.05; color: #1B2320">
+          <span style="background: #F1E4D0; border-bottom: 2px solid #9A6A1C">Le trois mars mil sept cent douze</span> a été <span style="font-weight: 600">baptisé</span> <span style="background: #DCEBE8; border-bottom: 2px solid #16615D">Jean</span>, fils de <span style="background: #DCEBE8; border-bottom: 2px solid #16615D">Pierre Martin</span>, <span style="border-bottom: 2px dotted #16615D">laboureur</span>, et de <span style="background: #DCEBE8; border-bottom: 2px solid #16615D">Marie Dubois</span> <span style="background: #ECE5F6; border-bottom: 2px dashed #5A3F8F">sa femme</span>. Le parrain <span style="background: #16615D; color: #FFFFFF; padding: 1px 3px; border-radius: 2px">Jean Le<span style="text-decoration: underline wavy #F2B84B; text-underline-offset: 3px">roy</span></span>, la marraine <span style="background: #DCEBE8; border-bottom: 2px solid #16615D">Anne Martin</span>, en présence de <span style="background: #DCEBE8; border-bottom: 2px solid #16615D">Claude Petit</span>, <span style="border-bottom: 2px dotted #16615D">maître d'école</span>, qui a signé avec nous.
+        </p>
+        <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: #3E4944">
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 10px; background: #DCEBE8; border-bottom: 2px solid #16615D"></span>Personne citée</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 10px; background: #F1E4D0; border-bottom: 2px solid #9A6A1C"></span>Date</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 10px; border-bottom: 2px dotted #16615D"></span>Qualité</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 10px; background: #ECE5F6; border-bottom: 2px dashed #5A3F8F"></span>Relation déduite</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 10px; text-decoration: underline wavy #F2B84B"></span>Écriture ≠ voix</span>
+        </div>
+        <div style="border-top: 1px solid #E3E7E2; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #3E4944">
+          <div style="display: flex; justify-content: space-between"><span>Reconnaissance d'écriture</span><span style="font-family: 'IBM Plex Mono', monospace">htr-bms-xviii · 94 %</span></div>
+          <div style="display: flex; justify-content: space-between"><span>Lecture à voix haute</span><span style="font-family: 'IBM Plex Mono', monospace">0:48 · 1 divergence</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Fiche pré-remplie" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Fiche pré-remplie</h2>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B6661">agent extraction‑bapteme v2 · brouillon</span>
+      </div>
+      <div style="flex-grow: 1; background: #FFFFFF; border: 1px solid #D5DAD5; border-radius: 6px; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden">
+
+        <div style="padding: 14px 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; border-bottom: 1px solid #E3E7E2">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="type-acte" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Type d'acte</label>
+            <input id="type-acte" value="Baptême" style="height: 36px; padding: 0 10px; border: 1px solid #C5CCC6; border-radius: 5px; font-size: 14px; font-family: inherit; color: #1B2320">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="date-acte" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Date · lue « le trois mars mil sept cent douze »</label>
+            <input id="date-acte" value="1712‑03‑03 · grégorien" style="height: 36px; padding: 0 10px; border: 1px solid #C5CCC6; border-radius: 5px; font-size: 14px; font-family: 'IBM Plex Mono', monospace; color: #1B2320">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="lieu-acte" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Lieu · déduit de l'en-tête du registre</label>
+            <input id="lieu-acte" value="Saint‑Aubin" style="height: 36px; padding: 0 10px; border: 1px solid #B9A6DA; background: #F7F3FC; border-radius: 5px; font-size: 14px; font-family: inherit; color: #1B2320">
+          </div>
+        </div>
+
+        <div style="padding: 12px 18px 4px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Participants · 6</div>
+        <div role="table" aria-label="Participants" style="display: flex; flex-direction: column; padding: 0 10px">
+          <div role="row" style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; padding: 6px 8px; font-size: 11.5px; color: #5B6661">
+            <span role="columnheader">Nom écrit</span><span role="columnheader">Rôle</span><span role="columnheader">Qualité</span><span role="columnheader">Confiance</span>
+          </div>
+          <div role="row" style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; padding: 8px; border-top: 1px solid #EEF0EC; font-size: 14px; align-items: center">
+            <span>Jean</span><span>baptisé</span><span style="color: #9AA39E">—</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3E4944">0,99</span>
+          </div>
+          <div role="row" style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; padding: 8px; border-top: 1px solid #EEF0EC; font-size: 14px; align-items: center">
+            <span>Pierre Martin</span><span>père</span><span>laboureur</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3E4944">0,98</span>
+          </div>
+          <div role="row" style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; padding: 8px; border-top: 1px solid #EEF0EC; font-size: 14px; align-items: center">
+            <span>Marie Dubois</span><span>mère</span><span style="color: #9AA39E">—</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3E4944">0,98</span>
+          </div>
+          <div role="row" aria-selected="true" style="display: flex; flex-direction: column; gap: 10px; padding: 10px 8px 12px 8px; border-top: 1px solid #EEF0EC; background: #EAF3F1; border-radius: 6px; box-shadow: inset 0 0 0 2px #16615D">
+            <div style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; font-size: 14px; align-items: center">
+              <span style="font-weight: 600">Jean Leroy</span><span>parrain</span><span style="color: #9AA39E">—</span><span style="display: flex; align-items: center; gap: 6px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #7A4E0A">0,62</span><span style="font-size: 11px; padding: 2px 6px; border-radius: 3px; background: #F6E7C8; color: #7A4E0A">à vérifier</span></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: #3E4944">
+              <span>Écriture : <b style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Leroi</b></span>
+              <span>Voix : <b style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">Leroy</b></span>
+              <span style="color: #9AA39E">·</span>
+              <span>Signature : « J. Leroy »</span>
+              <div style="flex-grow: 1"></div>
+              <button type="button" style="height: 34px; padding: 0 12px; border: 0; border-radius: 5px; background: #16615D; color: #FFFFFF; font-size: 13px; font-weight: 500">Retenir « Leroy »</button>
+              <button type="button" style="height: 34px; padding: 0 12px; border: 1px solid #C5CCC6; border-radius: 5px; background: #FFFFFF; color: #1B2320; font-size: 13px">« Leroi »</button>
+              <button type="button" style="height: 34px; padding: 0 12px; border: 1px solid #C5CCC6; border-radius: 5px; background: #FFFFFF; color: #1B2320; font-size: 13px">Autre…</button>
+            </div>
+          </div>
+          <div role="row" style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; padding: 8px; border-top: 1px solid #EEF0EC; font-size: 14px; align-items: center">
+            <span>Anne Martin</span><span>marraine</span><span style="color: #9AA39E">—</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3E4944">0,97</span>
+          </div>
+          <div role="row" style="display: grid; grid-template-columns: 1.4fr 1fr 1.1fr 0.8fr; gap: 10px; padding: 8px; border-top: 1px solid #EEF0EC; font-size: 14px; align-items: center">
+            <span>Claude Petit</span><span>témoin · signe</span><span>maître d'école</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3E4944">0,95</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px 18px 4px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #5B6661">Relations · 2</div>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 18px 14px 18px">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 14px">
+            <span>Jean <span style="color: #5B6661">fils de</span> Pierre Martin et Marie Dubois</span>
+            <span style="font-size: 11px; padding: 2px 6px; border-radius: 3px; background: #DCEBE8; color: #0E4441">lu</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 14px">
+            <span>Pierre Martin <span style="color: #5B6661">époux de</span> Marie Dubois</span>
+            <span style="font-size: 11px; padding: 2px 6px; border-radius: 3px; background: #ECE5F6; color: #4A3278">déduit de « sa femme »</span>
+            <div style="flex-grow: 1"></div>
+            <button type="button" style="height: 32px; padding: 0 10px; border: 1px solid #C5CCC6; border-radius: 5px; background: #FFFFFF; font-size: 13px; color: #1B2320">Confirmer</button>
+            <button type="button" style="height: 32px; padding: 0 10px; border: 1px solid #C5CCC6; border-radius: 5px; background: #FFFFFF; font-size: 13px; color: #1B2320">Retirer</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer style="height: 72px; box-sizing: border-box; padding: 0 24px; margin-top: 16px; display: flex; align-items: center; gap: 16px; background: #FFFFFF; border-top: 1px solid #D5DAD5">
+    <span style="display: flex; align-items: center; gap: 8px; font-size: 14px"><span style="width: 10px; height: 10px; border-radius: 5px; background: #C98A1B"></span><b style="font-weight: 600">3 points à trancher</b><span style="color: #5B6661">· nom du parrain, lieu déduit, relation déduite</span></span>
+    <div style="flex-grow: 1"></div>
+    <span style="font-size: 13px; color: #5B6661">Rien n'entre dans la base avant validation.</span>
+    <button type="button" style="height: 44px; padding: 0 16px; border: 1px solid #C5CCC6; border-radius: 6px; background: #FFFFFF; font-size: 14px; color: #1B2320">Enregistrer le brouillon</button>
+    <button type="button" aria-disabled="true" style="height: 44px; padding: 0 18px; border: 0; border-radius: 6px; background: #B7C9C6; color: #1B2320; font-size: 14px; font-weight: 600">Valider l'acte (3 restants)</button>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#16615D","options":["#16615D","#274B7A","#7A4E0A"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#16615D' };
+  }
+}
+</script>
+</body>
+</html>
