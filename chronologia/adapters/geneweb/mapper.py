@@ -13,6 +13,7 @@ from geneweb_py.core.date import Date
 from geneweb_py.core.event import Event, WitnessKind
 from geneweb_py.core.exceptions import UnsupportedCalendarError
 from geneweb_py.core.genealogy import Genealogy
+from geneweb_py.core.family import Family
 from geneweb_py.core.person import Person, RelationType
 
 from chronologia.modele.entites import (
@@ -30,7 +31,10 @@ _TYPES_EVENEMENT = {
     "BAPTISM": "bapteme",
     "DEATH": "deces",
     "BURIAL": "inhumation",
+    "MARRIAGE": "mariage",
+    "DIVORCE": "divorce",
 }
+_RELIGIEUX = {"bapteme", "mariage"}
 _ROLE_PRINCIPAL = {
     "naissance": "ne",
     "bapteme": "baptise",
@@ -66,13 +70,13 @@ def _bornes(date_gw: Date) -> Tuple[Optional[date], Optional[date]]:
         return None, None
 
 
-def _role_temoin(temoin: Dict[str, Any]) -> str:
+def _role_temoin(temoin: Dict[str, Any], type_evt: str) -> str:
     genre: Optional[str] = temoin.get("type")
     kind = temoin.get("witness_kind")
     if kind == WitnessKind.GODPARENT:
         return {"m": "parrain", "f": "marraine"}.get(genre or "", "parrain_ou_marraine")
     if kind == WitnessKind.OFFICER:
-        return "officier"
+        return "celebrant" if type_evt in _RELIGIEUX else "officier"
     return "temoin"
 
 
@@ -155,9 +159,104 @@ class _Constructeur:
             ordre += 1
             m = self.masque(passage, temoin["person_id"], genealogie)
             self.participations.append(
-                Participation(factoide.ref, m.ref, _role_temoin(temoin), ordre)
+                Participation(factoide.ref, m.ref, _role_temoin(temoin, type_evt), ordre)
             )
         self.evenement_certain(factoide)
+
+    def _conjoints(
+        self, famille: Family, passage: Passage, genealogie: Genealogy
+    ) -> List[Tuple[Masque, str]]:
+        res: List[Tuple[Masque, str]] = []
+        if famille.husband_id:
+            res.append((self.masque(passage, famille.husband_id, genealogie), "epoux"))
+        if famille.wife_id:
+            res.append((self.masque(passage, famille.wife_id, genealogie), "epouse"))
+        return res
+
+    def evenement_familial(
+        self,
+        famille: Family,
+        type_evt: str,
+        date_gw: Optional[Date],
+        citation: Optional[str],
+        debut: Optional[int],
+        fin: Optional[int],
+        temoins: List[Dict[str, Any]],
+        genealogie: Genealogy,
+    ) -> None:
+        passage = self.passage(citation, debut, fin)
+        factoide = self.factoide(passage, type_evt, date_gw)
+        ordre = 0
+        for masque, role in self._conjoints(famille, passage, genealogie):
+            ordre += 1
+            self.participations.append(
+                Participation(factoide.ref, masque.ref, role, ordre)
+            )
+        for temoin in temoins:
+            ordre += 1
+            m = self.masque(passage, temoin["person_id"], genealogie)
+            self.participations.append(
+                Participation(factoide.ref, m.ref, _role_temoin(temoin, type_evt), ordre)
+            )
+        self.evenement_certain(factoide)
+
+    def famille(self, famille: Family, genealogie: Genealogy) -> None:
+        citation = famille.marriage_source or famille.family_source
+        debut, fin = famille.start_line, famille.end_line
+        mariages = [
+            e for e in famille.events if e.event_type.name == "MARRIAGE"
+        ]
+        # Un fevt #marr remplace le mariage de la ligne fam (même fait, mieux décrit).
+        if mariages:
+            for e in mariages:
+                self.evenement_familial(
+                    famille, "mariage", e.date, e.source or citation,
+                    e.start_line, e.end_line, e.witnesses, genealogie,
+                )
+        elif famille.marriage_date or famille.marriage_place or famille.marriage_source:
+            self.evenement_familial(
+                famille, "mariage", famille.marriage_date, citation,
+                debut, fin, famille.witnesses, genealogie,
+            )
+        if famille.divorce_date:
+            self.evenement_familial(
+                famille, "divorce", famille.divorce_date, citation,
+                debut, fin, [], genealogie,
+            )
+        for e in famille.events:
+            if e.event_type.name in ("MARRIAGE", "DIVORCE"):
+                continue
+            type_evt = _TYPES_EVENEMENT.get(e.event_type.name, e.event_type.name.lower())
+            self.evenement_familial(
+                famille, type_evt, e.date, e.source or citation,
+                e.start_line, e.end_line, e.witnesses, genealogie,
+            )
+        self.filiation(famille, genealogie)
+
+    def filiation(self, famille: Family, genealogie: Genealogy) -> None:
+        if not famille.children:
+            return
+        # Un factoïde sans type porte toute la filiation de la famille.
+        passage = self.passage(
+            famille.common_children_source or famille.family_source,
+            famille.start_line,
+            famille.end_line,
+        )
+        factoide = self.factoide(passage, None, None)
+        for enfant in famille.children:
+            sujet = self.masque(passage, enfant.person_id, genealogie)
+            for parent, orientation in (
+                (famille.husband_id, "pere"),
+                (famille.wife_id, "mere"),
+            ):
+                if parent:
+                    objet = self.masque(passage, parent, genealogie)
+                    self.relations.append(
+                        Relation(
+                            factoide.ref, sujet.ref, objet.ref, "filiation",
+                            orientation,
+                        )
+                    )
 
     def relations_typees(self, personne: Person, genealogie: Genealogy) -> None:
         for lien in personne.relation_links:
@@ -188,6 +287,8 @@ def importer_genealogie(
         for evt in personne.events:
             c.evenement_personnel(personne, evt, genealogie)
         c.relations_typees(personne, genealogie)
+    for famille in list(genealogie.families.values()):
+        c.famille(famille, genealogie)
     return LotImport(
         tuple(c.passages),
         tuple(c.masques),

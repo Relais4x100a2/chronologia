@@ -41,7 +41,7 @@ def test_bapteme_passage_porte_citation_et_lignes(lot):
     passage = _passage(lot, _factoide(lot, "bapteme"))
     assert passage.citation_brute == "BMS Saint-Aubin f°42v"
     assert (passage.ligne_debut, passage.ligne_fin) == (11, 15)
-    assert passage.fichier == "chronologia_sample_5_7.gw"
+    assert passage.fichier_source == "chronologia_sample_5_7.gw"
 
 
 def test_bapteme_date_exacte_et_texte_declare(lot):
@@ -74,7 +74,7 @@ def test_un_masque_par_personne_et_par_passage(lot):
 
 def test_chaque_factoide_d_evenement_a_son_evenement_certain(lot):
     evenements = [f for f in lot.factoides if f.type_evenement is not None]
-    assert len(evenements) == 2
+    assert len(evenements) == 3
     for f in evenements:
         idents = [i for i in lot.ident_evenements if i.factoide_ref == f.ref]
         assert len(idents) == 1
@@ -86,7 +86,7 @@ def test_relations_typees_gardent_les_occurrences(lot):
     relations = {
         (r.type_relation, r.orientation, masques[r.objet_masque_ref])
         for r in lot.relations
-        if masques[r.sujet_masque_ref] == "MARTIN_Jean_0"
+        if masques[r.sujet_masque_ref] == "MARTIN_Jean_0" and r.type_relation != "filiation"
     }
     assert relations == {
         ("parrainage", "pere", "MOREAU_Louis_1"),

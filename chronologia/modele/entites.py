@@ -1,4 +1,4 @@
-"""Entités de la couche Source et identifications associées (modèle v0.7.1).
+"""Entités de la couche Source et identifications associées (modèle v0.7.2).
 
 Toutes les entités sont immuables (R10). Les références entre entités sont des
 clés locales à un lot d'import (``P1``, ``M3``…) ; les identifiants de base de
@@ -15,8 +15,7 @@ class Passage:
     ref: str
     citation_brute: Optional[str]
     # Provenance dans le fichier d'import (lignes 1-indexées, bornes incluses).
-    # Hors modèle v0.7.1 : à consigner section 9 si on le retient.
-    fichier: Optional[str] = None
+    fichier_source: Optional[str] = None
     ligne_debut: Optional[int] = None
     ligne_fin: Optional[int] = None
 
