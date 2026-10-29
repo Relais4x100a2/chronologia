@@ -72,3 +72,29 @@ class IdentEvenement:
     evenement_ref: str
     degre: str
     statut: str
+
+
+@dataclass(frozen=True)
+class Qualite:
+    """Rôle durable unaire (profession, titre). ``role`` est le libellé écrit."""
+
+    ref: str
+    factoide_ref: str
+    masque_ref: str
+    categorie: str  # profession | titre
+    role: str
+    valide_debut: Optional[date] = None
+    valide_fin: Optional[date] = None
+    rang: Optional[int] = None
+
+
+@dataclass(frozen=True)
+class MentionLieu:
+    ref: str
+    factoide_ref: str
+    forme_ecrite: str
+    forme_normalisee: Optional[str]
+    fonction: str  # evenement | domicile | origine | titre
+    masque_ref: Optional[str] = None
+    qualite_ref: Optional[str] = None
+    epoque_designation: str = "moderne"

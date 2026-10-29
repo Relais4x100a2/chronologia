@@ -15,14 +15,17 @@ from geneweb_py.core.exceptions import UnsupportedCalendarError
 from geneweb_py.core.genealogy import Genealogy
 from geneweb_py.core.family import Family
 from geneweb_py.core.person import Person, RelationType
+from geneweb_py.core.place import parse_place
 
 from chronologia.modele.entites import (
     Evenement,
     Factoide,
     IdentEvenement,
     Masque,
+    MentionLieu,
     Participation,
     Passage,
+    Qualite,
     Relation,
 )
 
@@ -60,6 +63,8 @@ class LotImport:
     relations: Tuple[Relation, ...]
     evenements: Tuple[Evenement, ...]
     ident_evenements: Tuple[IdentEvenement, ...]
+    qualites: Tuple[Qualite, ...] = ()
+    mentions_lieu: Tuple[MentionLieu, ...] = ()
 
 
 def _bornes(date_gw: Date) -> Tuple[Optional[date], Optional[date]]:
@@ -90,6 +95,8 @@ class _Constructeur:
         self.relations: List[Relation] = []
         self.evenements: List[Evenement] = []
         self.idents: List[IdentEvenement] = []
+        self.qualites: List[Qualite] = []
+        self.mentions: List[MentionLieu] = []
 
     def passage(
         self,
@@ -140,6 +147,28 @@ class _Constructeur:
         self.factoides.append(f)
         return f
 
+    def lieu(
+        self,
+        factoide: Factoide,
+        ecrit: Optional[str],
+        fonction: str = "evenement",
+        qualite: Optional[Qualite] = None,
+    ) -> None:
+        decompose = parse_place(ecrit)
+        if decompose is None:
+            return
+        self.mentions.append(
+            MentionLieu(
+                f"L{len(self.mentions) + 1}",
+                factoide.ref,
+                decompose.raw,
+                decompose.name,
+                fonction,
+                None,
+                qualite.ref if qualite else None,
+            )
+        )
+
     def evenement_certain(self, factoide: Factoide) -> None:
         e = Evenement(f"E{len(self.evenements) + 1}")
         self.evenements.append(e)
@@ -151,6 +180,7 @@ class _Constructeur:
         type_evt = _TYPES_EVENEMENT.get(evt.event_type.name, evt.event_type.name.lower())
         passage = self.passage(evt.source, evt.start_line, evt.end_line)
         factoide = self.factoide(passage, type_evt, evt.date)
+        self.lieu(factoide, evt.place)
         principal = self.masque(passage, personne.unique_id, genealogie)
         ordre = 1
         role = _ROLE_PRINCIPAL.get(type_evt, "sujet")
@@ -185,9 +215,11 @@ class _Constructeur:
         fin: Optional[int],
         temoins: List[Dict[str, Any]],
         genealogie: Genealogy,
+        lieu: Optional[str] = None,
     ) -> None:
         passage = self.passage(citation, debut, fin)
         factoide = self.factoide(passage, type_evt, date_gw)
+        self.lieu(factoide, lieu)
         ordre = 0
         for masque, role in self._conjoints(famille, passage, genealogie):
             ordre += 1
@@ -213,12 +245,12 @@ class _Constructeur:
             for e in mariages:
                 self.evenement_familial(
                     famille, "mariage", e.date, e.source or citation,
-                    e.start_line, e.end_line, e.witnesses, genealogie,
+                    e.start_line, e.end_line, e.witnesses, genealogie, e.place,
                 )
         elif famille.marriage_date or famille.marriage_place or famille.marriage_source:
             self.evenement_familial(
                 famille, "mariage", famille.marriage_date, citation,
-                debut, fin, famille.witnesses, genealogie,
+                debut, fin, famille.witnesses, genealogie, famille.marriage_place,
             )
         if famille.divorce_date:
             self.evenement_familial(
@@ -231,7 +263,7 @@ class _Constructeur:
             type_evt = _TYPES_EVENEMENT.get(e.event_type.name, e.event_type.name.lower())
             self.evenement_familial(
                 famille, type_evt, e.date, e.source or citation,
-                e.start_line, e.end_line, e.witnesses, genealogie,
+                e.start_line, e.end_line, e.witnesses, genealogie, e.place,
             )
         self.filiation(famille, genealogie)
 
@@ -260,10 +292,33 @@ class _Constructeur:
                         )
                     )
 
+    def qualites_personne(self, personne: Person, genealogie: Genealogy) -> None:
+        if not personne.occupation and not personne.titles:
+            return
+        # Un factoïde sans type par personne porte ses qualités (R2).
+        passage = self.passage(None, personne.start_line, personne.end_line)
+        factoide = self.factoide(passage, None, None)
+        masque = self.masque(passage, personne.unique_id, genealogie)
+        if personne.occupation:
+            self.qualites.append(
+                Qualite(
+                    f"Q{len(self.qualites) + 1}", factoide.ref, masque.ref,
+                    "profession", personne.occupation,
+                )
+            )
+        for titre in personne.titles:
+            debut = _bornes(titre.start_date)[0] if titre.start_date else None
+            fin = _bornes(titre.end_date)[1] if titre.end_date else None
+            q = Qualite(
+                f"Q{len(self.qualites) + 1}", factoide.ref, masque.ref,
+                "titre", titre.name, debut, fin, titre.number or None,
+            )
+            self.qualites.append(q)
+            self.lieu(factoide, titre.place, "titre", q)
+
     def relations_typees(self, personne: Person, genealogie: Genealogy) -> None:
         for lien in personne.relation_links:
-            # Le bloc rel n'a pas encore de lignes de provenance côté toldot.
-            passage = self.passage(None, None, None)
+            passage = self.passage(None, lien.start_line, lien.end_line)
             factoide = self.factoide(passage, None, None)
             sujet = self.masque(passage, personne.unique_id, genealogie)
             objet = self.masque(passage, lien.target_person_key, genealogie)
@@ -289,6 +344,7 @@ def importer_genealogie(
         for evt in personne.events:
             c.evenement_personnel(personne, evt, genealogie)
         c.relations_typees(personne, genealogie)
+        c.qualites_personne(personne, genealogie)
     for famille in list(genealogie.families.values()):
         c.famille(famille, genealogie)
     return LotImport(
@@ -299,4 +355,6 @@ def importer_genealogie(
         tuple(c.relations),
         tuple(c.evenements),
         tuple(c.idents),
+        tuple(c.qualites),
+        tuple(c.mentions),
     )
