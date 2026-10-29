@@ -104,3 +104,8 @@ def test_homonymes_restent_distincts(lot):
 def test_toute_relation_est_portee_par_un_factoide_existant(lot):
     refs = {f.ref for f in lot.factoides}
     assert all(r.factoide_ref in refs for r in lot.relations)
+
+
+def test_date_brute_garde_l_ecriture_d_origine(lot):
+    assert _factoide(lot, "bapteme").date_brute == "3/3/1712"
+    assert _factoide(lot, "deces").date_brute == "~1790"

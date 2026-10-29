@@ -126,3 +126,12 @@ def test_divorce_est_un_factoide_distinct():
     (f,) = _factoides(lot, "divorce")
     assert (f.date_min, f.date_max) == (date(1760, 1, 1), date(1760, 12, 31))
     assert _roles(lot, f) == {"DUPONT_Paul_0": "epoux", "MARTIN_Anne_0": "epouse"}
+
+
+def test_date_brute_est_la_chaine_ecrite():
+    lot = _lot()
+    (mariage,) = _factoides(lot, "mariage")
+    assert mariage.date_brute == "1705"
+    lot = _lot(FEVT)
+    (mariage,) = _factoides(lot, "mariage")
+    assert (mariage.date_brute, mariage.date_declaree) == ("12/5/1750", "12/05/1750")

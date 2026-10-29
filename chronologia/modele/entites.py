@@ -39,6 +39,8 @@ class Factoide:
     date_max: Optional[date] = None
     calendrier: Optional[str] = None
     date_incertaine: bool = False
+    # Chaîne exactement comme écrite dans la source (R13), avant normalisation.
+    date_brute: Optional[str] = None
 
 
 @dataclass(frozen=True)

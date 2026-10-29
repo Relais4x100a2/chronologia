@@ -119,10 +119,11 @@ class _Constructeur:
     def factoide(
         self, passage: Passage, type_evenement: Optional[str], date_gw: Optional[Date]
     ) -> Factoide:
-        texte = mini = maxi = None
+        texte = brute = mini = maxi = None
         incertaine = False
         if date_gw is not None:
             texte = date_gw.display_text
+            brute = date_gw.raw_text
             mini, maxi = _bornes(date_gw)
             incertaine = getattr(date_gw.prefix, "name", None) == "MAYBE"
         f = Factoide(
@@ -134,6 +135,7 @@ class _Constructeur:
             maxi,
             None,
             incertaine,
+            brute,
         )
         self.factoides.append(f)
         return f
