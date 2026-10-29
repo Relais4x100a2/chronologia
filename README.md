@@ -6,7 +6,7 @@ Modèle de données historique orienté événements, à la croisée de la proso
 
 | Chemin | Contenu |
 |---|---|
-| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.7.3 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
+| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.7.4 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
 | `docs/etude-page-claude.html` | Version page du document, générée par `tools/build_page.py`. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`) pour le connecteur d'import. |
 | `maquettes/design/` | Les cinq écrans de la maquette (dépôt et lecture à voix haute, validation d'un acte, rattachements, conflit de date, conflit de lieu). |
