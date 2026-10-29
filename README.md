@@ -92,6 +92,10 @@ Régénérer la page : `pip install markdown && python3 tools/build_page.py`.
 
 Conçu de septembre à octobre 2026 dans une conversation Claude (Cowork). Versions 0.1 à 0.7 du modèle : voir le journal des versions en tête du document de référence.
 
+## Licence
+
+[MIT](LICENSE). Les illustrations du README relèvent de leurs licences propres (voir ci-dessous).
+
 ## Crédits des illustrations
 
 Images libres de droit, issues de Wikimedia Commons :
