@@ -72,3 +72,40 @@ def test_comparaison_pure_les_lots_ne_changent_pas():
     avant = (a.factoides, a.masques, b.factoides)
     comparer_lots(a, b)
     assert avant == (a.factoides, a.masques, b.factoides)
+
+
+def _lot_notes(*notes: str):
+    corps = "".join(f"notes MARTIN Jean\nbeg\n{n}\nend notes\n\n" for n in notes)
+    texte = "fam MARTIN Pierre +1705 DUBOIS Marie\nbeg\n- h Jean 1712\nend\n\n" + corps
+    return importer_genealogie(
+        GeneWebParser(validate=False).parse_string(texte), empreinte=str(hash(texte))
+    )
+
+
+def _concl(ecarts):
+    return [e for e in ecarts if e.genre == "conclusion"]
+
+
+def test_note_identique_est_invariante():
+    d = comparer_lots(_lot_notes("Marchand drapier."), _lot_notes("Marchand drapier."))
+    (e,) = _concl(d.invariants)
+    assert e.cle.startswith("gw:pers:MARTIN_Jean_0") and not _concl(d.modifications)
+
+
+def test_note_modifiee_garde_ancien_et_nouveau_texte():
+    d = comparer_lots(_lot_notes("Marchand drapier."), _lot_notes("Marchand de laine."))
+    (e,) = _concl(d.modifications)
+    assert (e.ancien.argument, e.nouveau.argument) == (
+        "Marchand drapier.",
+        "Marchand de laine.",
+    )
+    assert e.champs == ("argument",)
+
+
+def test_note_ajoutee_et_note_retiree():
+    vide = _lot_notes()
+    avec = _lot_notes("Marchand drapier.")
+    (aj,) = _concl(comparer_lots(vide, avec).ajouts)
+    assert aj.nouveau.argument == "Marchand drapier."
+    (ret,) = _concl(comparer_lots(avec, vide).retractions)
+    assert ret.ancien.argument == "Marchand drapier." and ret.nouveau is None

@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Dict, FrozenSet, List, Optional, Tuple, Union
 
 from chronologia.modele.entites import (
+    Conclusion,
     Factoide,
     Masque,
     MentionLieu,
@@ -18,12 +19,12 @@ from chronologia.modele.entites import (
 
 from .mapper import LotImport
 
-Entite = Union[Masque, Factoide]
+Entite = Union[Masque, Factoide, Conclusion]
 
 
 @dataclass(frozen=True)
 class Ecart:
-    genre: str  # personne | factoide
+    genre: str  # personne | factoide | conclusion
     cle: str
     ancien: Optional[Entite]
     nouveau: Optional[Entite]
@@ -117,6 +118,48 @@ def _premier_masque(lot: LotImport) -> Dict[str, Masque]:
     return res
 
 
+def _conclusions_par_cible(lot: LotImport) -> Dict[str, List[Conclusion]]:
+    cles = {m.ref: m.cle_externe for m in lot.masques}
+    res: Dict[str, List[Conclusion]] = defaultdict(list)
+    for c in lot.conclusions:
+        res[cles[c.cible_masque_ref]].append(c)
+    return res
+
+
+def _comparer_conclusions(
+    ancien: LotImport,
+    nouveau: LotImport,
+    ajouts: List[Ecart],
+    invariants: List[Ecart],
+    modifications: List[Ecart],
+    retractions: List[Ecart],
+) -> None:
+    """Notes d'une même cible : textes identiques d'abord, puis appariement par ordre."""
+    ca, cn = _conclusions_par_cible(ancien), _conclusions_par_cible(nouveau)
+    for cible in sorted(ca.keys() | cn.keys()):
+        restes_a = list(ca.get(cible, []))
+        restes_n = list(cn.get(cible, []))
+        rang = 0
+        for c in list(restes_a):
+            ident = next((n for n in restes_n if n.argument == c.argument), None)
+            if ident is not None:
+                rang += 1
+                restes_a.remove(c)
+                restes_n.remove(ident)
+                invariants.append(Ecart("conclusion", f"{cible}|{rang}", c, ident))
+        for k in range(max(len(restes_a), len(restes_n))):
+            rang += 1
+            cle = f"{cible}|{rang}"
+            a = restes_a[k] if k < len(restes_a) else None
+            n = restes_n[k] if k < len(restes_n) else None
+            if a is None:
+                ajouts.append(Ecart("conclusion", cle, None, n))
+            elif n is None:
+                retractions.append(Ecart("conclusion", cle, a, None))
+            else:
+                modifications.append(Ecart("conclusion", cle, a, n, ("argument",)))
+
+
 def comparer_lots(ancien: LotImport, nouveau: LotImport) -> DiffLots:
     ajouts: List[Ecart] = []
     invariants: List[Ecart] = []
@@ -148,4 +191,5 @@ def comparer_lots(ancien: LotImport, nouveau: LotImport) -> DiffLots:
             cible = invariants if not champs else modifications
             cible.append(Ecart("factoide", cle, ga[cle], gn[cle], champs))
 
+    _comparer_conclusions(ancien, nouveau, ajouts, invariants, modifications, retractions)
     return DiffLots(tuple(ajouts), tuple(invariants), tuple(modifications), tuple(retractions))
