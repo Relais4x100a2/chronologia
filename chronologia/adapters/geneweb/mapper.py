@@ -41,6 +41,20 @@ _TYPES_EVENEMENT = {
     "MARRIAGE": "mariage",
     "DIVORCE": "divorce",
 }
+# Tags fevt : un type par tag, jamais d'événement ignoré en silence (R13)
+_TYPES_FAMILIAUX = {
+    "marc": "contrat_mariage",
+    "marb": "bans_mariage",
+    "marl": "licence_mariage",
+    "nmar": "non_mariage",
+    "nmen": "non_mention",
+    "anul": "annulation",
+    "pacs": "pacs",
+    "resi": "residence",
+    "sep": "separation",
+    "enga": "engagement",
+    "strng": "strng",
+}
 _RELIGIEUX = {"bapteme", "mariage"}
 _ROLE_PRINCIPAL = {
     "naissance": "ne",
@@ -92,7 +106,21 @@ def _bornes(date_gw: Date) -> Tuple[Optional[date], Optional[date]]:
 
 def _cle_famille(famille: Family) -> str:
     """Clé de réimport stable d'une famille (indépendante de l'ordre du fichier)."""
-    return f"gw:fam:{famille.husband_id or 'inconnu'}__{famille.wife_id or 'inconnu'}"
+    cle = f"gw:fam:{famille.husband_id or 'inconnu'}__{famille.wife_id or 'inconnu'}"
+    if not (famille.husband_id or famille.wife_id) and famille.children:
+        # Conjoints inconnus : le premier enfant distingue les familles entre elles.
+        cle += f":{famille.children[0].person_id}"
+    return cle
+
+
+def _type_evenement_familial(evt: Any) -> str:
+    """Type Source d'un événement fevt : le tag d'origine, libre si inconnu."""
+    fet = evt.family_event_type
+    if fet is not None and fet.value == "other":
+        return evt.event_type_raw or "autre"
+    if fet is not None and fet.value in _TYPES_FAMILIAUX:
+        return _TYPES_FAMILIAUX[fet.value]
+    return str(_TYPES_EVENEMENT.get(evt.event_type.name, evt.event_type.name.lower()))
 
 
 def _role_temoin(temoin: Dict[str, Any], type_evt: str) -> str:
@@ -332,7 +360,7 @@ class _Constructeur:
         for e in famille.events:
             if e.event_type.name in ("MARRIAGE", "DIVORCE"):
                 continue
-            type_evt = _TYPES_EVENEMENT.get(e.event_type.name, e.event_type.name.lower())
+            type_evt = _type_evenement_familial(e)
             self.evenement_familial(
                 famille, type_evt, e.date, e.source or citation,
                 e.start_line, e.end_line, e.witnesses, genealogie, e.place,
