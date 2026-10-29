@@ -63,6 +63,18 @@ def appliquer_diff(
     Raises:
         KeyError: un élément ancien du diff n'est pas dans ``lot_ancien_id``.
     """
+    with con:
+        return ecrire_diff(con, diff, lot_ancien_id, lot_nouveau_id, maintenant)
+
+
+def ecrire_diff(
+    con: sqlite3.Connection,
+    diff: DiffLots,
+    lot_ancien_id: int,
+    lot_nouveau_id: int,
+    maintenant: Optional[datetime] = None,
+) -> BilanApplicationDiff:
+    """Comme ``appliquer_diff``, dans la transaction en cours (l'appelant la valide)."""
     horodatage = (maintenant or datetime.now(timezone.utc)).isoformat()
     compteurs = {"retractation": 0, "modification": 0, "reconduction": 0}
     groupes = (
@@ -70,12 +82,11 @@ def appliquer_diff(
         ("modification", diff.modifications),
         ("reconduction", diff.invariants),
     )
-    with con:
-        for motif, ecarts in groupes:
-            for e in ecarts:
-                if e.genre in _TABLES and e.ancien is not None:
-                    if _retracter(con, e, lot_ancien_id, lot_nouveau_id, motif, horodatage):
-                        compteurs[motif] += 1
+    for motif, ecarts in groupes:
+        for e in ecarts:
+            if e.genre in _TABLES and e.ancien is not None:
+                if _retracter(con, e, lot_ancien_id, lot_nouveau_id, motif, horodatage):
+                    compteurs[motif] += 1
     return BilanApplicationDiff(
         compteurs["retractation"], compteurs["modification"], compteurs["reconduction"]
     )
