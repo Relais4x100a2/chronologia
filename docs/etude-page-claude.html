@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.1, 28 septembre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.2, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -201,6 +201,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.1</td>
 <td>Consolidation du dossier. Question ouverte ajoutée en 9.2 (point 6) : faut-il une notion d'organisation ? Aucun changement de modèle ni de règle.</td>
+</tr>
+<tr>
+<td>0.7.2</td>
+<td><strong>Provenance de fichier sur le PASSAGE</strong> : <code>fichier_source</code>, <code>ligne_debut</code>, <code>ligne_fin</code> (4.4, décision 7 en 9.1). Import GeneWeb : rôle <code>officier</code> pour les témoins <code>#offi</code> (décision 8) et date déclarée prise telle que normalisée par l'analyseur (décision 9). Aucune nouvelle règle d'intégrité.</td>
 </tr>
 </tbody>
 </table></div>
@@ -545,7 +549,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>PASSAGE</td>
 <td>Endroit cité d'un document, tel que saisi ou importé.</td>
-<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne), <code>transcription</code>, <code>langue</code>, <code>image_uri</code></td>
+<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne), <code>transcription</code>, <code>langue</code>, <code>image_uri</code>, <code>fichier_source</code> / <code>ligne_debut</code> / <code>ligne_fin</code> (provenance dans le fichier importé, 1‑indexées, bornes incluses)</td>
 </tr>
 <tr>
 <td>FACTOIDE</td>
@@ -1903,7 +1907,7 @@ let role_of_witness sexe = function
 </code></pre>
 <hr />
 <h2 id="9-décisions-et-questions-ouvertes">9. Décisions et questions ouvertes</h2>
-<h3 id="91-décisions-prises-v04-à-v06">9.1 Décisions prises (v0.4 à v0.6)</h3>
+<h3 id="91-décisions-prises-v04-à-v072">9.1 Décisions prises (v0.4 à v0.7.2)</h3>
 <ol>
 <li><strong>Les lieux forment une quatrième agrégation</strong> (MENTION_LIEU ⇢ LIEU par IDENT_LIEU), pour que la couche Source reste en insertion seule (R10, R13).</li>
 <li><strong>Le factoïde reste à la granularité de l'acte</strong> (R14). La co-présence des participants est l'information essentielle des registres et minutes, et ce choix rejoint l'<em>Event</em> de niveau record de GEDCOM X. Les affirmations fines d'IPIF existent déjà à l'intérieur du factoïde, sous forme de participations, qualités et relations.</li>
@@ -1911,6 +1915,9 @@ let role_of_witness sexe = function
 <li><strong>Saisie assistée</strong> (section 7) : la machine prépare le brouillon, l'humain valide ; chaîne de modèles spécialisés derrière une passerelle ; serveur local pour la base et les droits, modèles en ligne ou locaux selon la configuration.</li>
 <li><strong>Conclusions à effets multiples et incertitude assumée</strong> (R22, R23) : une décision peut porter à la fois sur le lieu et sur la date ; garder l'incertitude est une décision à part entière.</li>
 <li><strong>Calculs métriques en Lambert‑93</strong>, stockage en WGS 84.</li>
+<li><strong>Le PASSAGE garde sa provenance dans le fichier importé</strong> : <code>fichier_source</code>, <code>ligne_debut</code>, <code>ligne_fin</code>. Pour un événement GeneWeb, de la ligne du tag à la dernière ligne de ses témoins, source et notes ; pour un mariage, de la ligne <code>fam</code> à la fin du bloc. Cela prolonge R13 : on peut toujours retrouver, ligne à ligne, d'où vient une affirmation.</li>
+<li><strong>Témoin <code>#offi</code></strong> : rôle générique <code>officier</code> ; il devient <code>celebrant</code> quand le type d'événement est religieux (baptême, mariage). L'analyseur ne distingue pas officier civil et religieux.</li>
+<li><strong>Date déclarée à l'import GeneWeb</strong> : <code>date_declaree</code> reprend la valeur normalisée par l'analyseur (<code>03/03/1712</code> pour <code>3/3/1712</code>). Le texte exact d'origine n'est pas conservé à ce stade ; il reste retrouvable par les lignes du passage.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
