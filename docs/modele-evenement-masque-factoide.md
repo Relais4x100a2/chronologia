@@ -1,7 +1,7 @@
 # Modèle Événement–Masque–Factoïde
 
 **Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb**
-Version 0.7.2, 29 octobre 2026, préparée pour Guillaume Cayeux
+Version 0.7.3, 29 octobre 2026, préparée pour Guillaume Cayeux
 
 > **Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon**
 > PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -21,6 +21,7 @@ Version 0.7.2, 29 octobre 2026, préparée pour Guillaume Cayeux
 | 0.7 | **Conclusions à effets multiples** (CONCLUSION_EFFET) et **contraintes temporelles** (CONTRAINTE_TEMPORELLE) : une même décision peut valider un lieu et resserrer la date d'un événement. État « incertitude assumée », distinct du conflit. Sources hors calcul : jamais effacées. Calculs métriques en Lambert‑93. Règles R22 à R24. Écrans de la maquette et règles d'interface consignés (6.1 à 6.6). |
 | 0.7.1 | Consolidation du dossier. Question ouverte ajoutée en 9.2 (point 6) : faut-il une notion d'organisation ? Aucun changement de modèle ni de règle. |
 | 0.7.2 | **Provenance de fichier sur le PASSAGE** : `fichier_source`, `ligne_debut`, `ligne_fin` (4.4, décision 7 en 9.1). Import GeneWeb : rôle `officier` pour les témoins `#offi` (décision 8) et date déclarée prise telle que normalisée par l'analyseur (décision 9). Aucune nouvelle règle d'intégrité. |
+| 0.7.3 | **`date_brute` sur le FACTOÏDE** (4.4, décision 9 en 9.1) : la date telle qu'écrite dans la source est conservée à côté de la date normalisée et des bornes. Aucune nouvelle règle d'intégrité. |
 
 ## Sommaire
 
@@ -275,7 +276,7 @@ Lecture rapide : passage, factoïde, masque, participation et mention de lieu fo
 | Entité | Définition | Attributs principaux |
 |---|---|---|
 | PASSAGE | Endroit cité d'un document, tel que saisi ou importé. | `citation_brute` (texte d'origine), `localisation` (folio, page, ligne), `transcription`, `langue`, `image_uri`, `fichier_source` / `ligne_debut` / `ligne_fin` (provenance dans le fichier importé, 1‑indexées, bornes incluses) |
-| FACTOIDE | Événement ou affirmation tel qu'un passage le décrit. Seul point d'ancrage de la couche. | `passage_id`, `type_evenement_id` (type décrit), `enonce`, `date_declaree` (texte), `date_min` / `date_max` / `calendrier` (normalisation mécanique du texte), `declarant_masque_id`, `credibilite` (1–6), `saisi_par`, `saisi_le`, `lot_import_id`, `remplace_id` (correction) |
+| FACTOIDE | Événement ou affirmation tel qu'un passage le décrit. Seul point d'ancrage de la couche. | `passage_id`, `type_evenement_id` (type décrit), `enonce`, `date_declaree` (texte), `date_brute` (texte exact de la source), `date_min` / `date_max` / `calendrier` (normalisation mécanique du texte), `declarant_masque_id`, `credibilite` (1–6), `saisi_par`, `saisi_le`, `lot_import_id`, `remplace_id` (correction) |
 | MASQUE | Personne telle que le passage la présente. | `passage_id` (un seul), `nom_ecrit`, `nom_normalise`, `sexe`, `age_declare`, `qualification_libre` |
 | PARTICIPATION | Présence d'un masque dans un factoïde, sous un rôle. C'est un nœud à part entière : une conclusion peut la contester. | `factoide_id`, `masque_id`, `role_id`, `ordre` |
 | QUALITE | Rôle durable unaire (profession, titre, statut). Son lieu éventuel passe par une mention de lieu. | `factoide_id`, `masque_id`, `role_id`, `valide_debut`, `valide_fin` |
@@ -744,6 +745,7 @@ CREATE TABLE source.factoide (
   type_evenement_id   int REFERENCES ref.type_evenement,
   enonce              text,
   date_declaree       text,
+  date_brute          text,   -- chaîne telle qu'écrite dans la source (R13)
   date_min            date,
   date_max            date,
   calendrier          text,
@@ -994,7 +996,7 @@ let role_of_witness sexe = function
 6. **Calculs métriques en Lambert‑93**, stockage en WGS 84.
 7. **Le PASSAGE garde sa provenance dans le fichier importé** : `fichier_source`, `ligne_debut`, `ligne_fin`. Pour un événement GeneWeb, de la ligne du tag à la dernière ligne de ses témoins, source et notes ; pour un mariage, de la ligne `fam` à la fin du bloc. Cela prolonge R13 : on peut toujours retrouver, ligne à ligne, d'où vient une affirmation.
 8. **Témoin `#offi`** : rôle générique `officier` ; il devient `celebrant` quand le type d'événement est religieux (baptême, mariage). L'analyseur ne distingue pas officier civil et religieux.
-9. **Date déclarée à l'import GeneWeb** : `date_declaree` reprend la valeur normalisée par l'analyseur (`03/03/1712` pour `3/3/1712`). Le texte exact d'origine n'est pas conservé à ce stade ; il reste retrouvable par les lignes du passage.
+9. **Dates à l'import GeneWeb** (remplace la version 0.7.2) : `date_brute` conserve la chaîne exactement comme écrite (`3/3/1712`, `~1712`, `?1750`), par fidélité à R13 ; `date_declaree` reprend la forme normalisée par l'analyseur (`03/03/1712`) ; `date_min` / `date_max` viennent des bornes calculées et servent à l'interrogation temporelle.
 
 ### 9.2 Questions ouvertes
 
