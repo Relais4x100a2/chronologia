@@ -153,6 +153,13 @@ CREATE TABLE IF NOT EXISTS audit_retractation (
 );
 CREATE INDEX IF NOT EXISTS ix_retractation_cible
     ON audit_retractation (cible_table, cible_id);
+
+CREATE VIEW IF NOT EXISTS source_factoide_actif AS
+SELECT f.*
+FROM source_factoide f
+LEFT JOIN audit_retractation r
+  ON r.cible_table = 'source_factoide' AND r.cible_id = f.id
+WHERE r.id IS NULL;
 """
 
 
