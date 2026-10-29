@@ -999,7 +999,7 @@ let role_of_witness sexe = function
 8. **Témoin `#offi`** : rôle générique `officier` ; il devient `celebrant` quand le type d'événement est religieux (baptême, mariage). L'analyseur ne distingue pas officier civil et religieux.
 9. **Dates à l'import GeneWeb** (remplace la version 0.7.2) : `date_brute` conserve la chaîne exactement comme écrite (`3/3/1712`, `~1712`, `?1750`), par fidélité à R13 ; `date_declaree` reprend la forme normalisée par l'analyseur (`03/03/1712`) ; `date_min` / `date_max` viennent des bornes calculées et servent à l'interrogation temporelle.
 10. **Qualités à l'import GeneWeb** : `#occu` et titres `[titre:lieu:début:fin:n]` donnent une QUALITE (`role_id` = libellé tel qu'écrit, `categorie` = profession ou titre, `rang` = n du titre). Le passage est la ligne de définition de la personne ; un factoïde sans type par personne porte ses qualités (R2). Le lieu d'un titre est une MENTION_LIEU de fonction `titre`, liée à la qualité.
-11. **Lieux à l'import GeneWeb** : chaque chaîne de lieu donne une MENTION_LIEU de désignation « moderne » (`forme_ecrite` = chaîne brute, `forme_normalisee` = nom sans le complément `[complément]_-_lieu`). L'adaptateur ne crée pas d'IDENT_LIEU : elle suppose les référentiels de lieux, qui viennent après (5.6, étape 4 du lot).
+11. **Lieux à l'import GeneWeb** : chaque chaîne de lieu donne une MENTION_LIEU de désignation « moderne » (`forme_ecrite` = chaîne brute, `forme_normalisee` = nom sans le complément `[complément]_-_lieu`). L'adaptateur ne crée pas d'IDENT_LIEU : elle suppose les référentiels de lieux, qui viennent après (5.8, étape 4).
 
 ### 9.2 Questions ouvertes
 
