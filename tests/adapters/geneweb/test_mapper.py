@@ -74,7 +74,7 @@ def test_un_masque_par_personne_et_par_passage(lot):
 
 def test_chaque_factoide_d_evenement_a_son_evenement_certain(lot):
     evenements = [f for f in lot.factoides if f.type_evenement is not None]
-    assert len(evenements) == 3
+    assert len(evenements) == 4  # bapteme, deces, mariage + naissance de la ligne enfant
     for f in evenements:
         idents = [i for i in lot.ident_evenements if i.factoide_ref == f.ref]
         assert len(idents) == 1

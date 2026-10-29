@@ -228,6 +228,33 @@ class _Constructeur:
             )
         self.evenement_certain(factoide)
 
+    def evenements_declares(self, personne: Person, genealogie: Genealogy) -> None:
+        """Naissance, baptême, décès et inhumation écrits sur la ligne de la personne.
+
+        Un ``pevt`` du même type prime (même fait, mieux décrit) : rien n'est ajouté.
+        """
+        presents = {
+            _TYPES_EVENEMENT.get(e.event_type.name, e.event_type.name.lower())
+            for e in personne.events
+        }
+        declares = (
+            ("naissance", personne.birth_date, personne.birth_place, personne.birth_source),
+            ("bapteme", personne.baptism_date, personne.baptism_place, personne.baptism_source),
+            ("deces", personne.death_date, personne.death_place, personne.death_source),
+            ("inhumation", None, personne.burial_place, personne.burial_source),
+        )
+        for type_evt, date_gw, lieu, source in declares:
+            if type_evt in presents or not (date_gw or lieu):
+                continue
+            passage = self.passage(source, personne.start_line, personne.end_line)
+            factoide = self.factoide(passage, type_evt, date_gw)
+            self.lieu(factoide, lieu)
+            principal = self.masque(passage, personne.unique_id, genealogie)
+            self.participations.append(
+                Participation(factoide.ref, principal.ref, _ROLE_PRINCIPAL[type_evt], 1)
+            )
+            self.evenement_certain(factoide)
+
     def _conjoints(
         self, famille: Family, passage: Passage, genealogie: Genealogy
     ) -> List[Tuple[Masque, str]]:
@@ -419,6 +446,7 @@ def importer_genealogie(
     for personne in list(genealogie.persons.values()):
         for evt in personne.events:
             c.evenement_personnel(personne, evt, genealogie)
+        c.evenements_declares(personne, genealogie)
         c.relations_typees(personne, genealogie)
         c.qualites_personne(personne, genealogie)
         c.notes_personne(personne, genealogie)

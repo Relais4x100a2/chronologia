@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.6, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.7, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -221,6 +221,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.6</td>
 <td><strong><code>cle_famille</code> sur le FACTOÏDE</strong> (4.4, décision 14) : clé déterministe des familles GeneWeb pour le réimport. Aucune nouvelle règle d'intégrité.</td>
+</tr>
+<tr>
+<td>0.7.7</td>
+<td><strong>Événements déclarés sur la ligne de personne</strong> (5.3, décision 15) : naissance, baptême, décès et inhumation écrits sur la ligne d'un enfant ou d'un conjoint donnent chacun un factoïde, sans nouvelle règle.</td>
 </tr>
 </tbody>
 </table></div>
@@ -1941,6 +1945,7 @@ let role_of_witness sexe = function
 <li><strong>LOT_IMPORT et réimport</strong> : l'adaptateur produit un LOT_IMPORT (fichier, empreinte SHA‑256 du contenu, date, outil, version, <code>nb_entites</code>). Réimporter un fichier d'empreinte déjà connue est refusé (idempotence, R9 et R10) : le lot existant est signalé, rien n'est écrasé ni dupliqué. Les clés ont une forme stable (5.3) ; la comparaison de deux lots d'empreintes différentes (5.8 étape 6) reste à faire.</li>
 <li><strong>Notes à l'import GeneWeb</strong> : une note d'événement et un <code>comm</code> de famille vont dans <code>PASSAGE.transcription</code> (ce qui est écrit sur l'acte). Une note de personne est de la prose d'auteur : elle devient une CONCLUSION (<code>argument</code> = texte, <code>cible</code> = masque, <code>valeur</code> non renseignée), jamais un fait (R2, R18). Limite connue : toldot espace les signes de ponctuation et les crochets de ces textes, qui ne sont donc pas encore restitués à l'identique.</li>
 <li><strong>Clé des familles GeneWeb</strong> : l'identifiant technique de toldot (<code>FAM_001</code>) dépend de l'ordre du fichier ; il est écarté. La clé <code>gw:fam:{père}__{mère}</code> est portée par <code>FACTOIDE.cle_famille</code> sur les factoïdes issus d'une famille (mariage, divorce, filiation, événements familiaux). Deux unions des mêmes conjoints partagent la clé : le réimport les distingue par les passages, pas par la clé seule.</li>
+<li><strong>Événements de la ligne de personne</strong> : les dates et lieux de naissance (<code>#bp</code>), baptême (<code>!</code>, <code>#pp</code>), décès (<code>#dp</code>) et inhumation (<code>#rp</code>) d'une ligne d'enfant (<code>- h Luc …</code>) ou de conjoint (ligne <code>fam</code>) produisent un factoïde par événement, avec pour PASSAGE la ligne de la personne (source <code>#bs</code>, <code>#ps</code>, <code>#ds</code>, <code>#rs</code> en citation) et la personne comme participant principal. Un <code>pevt</code> du même type prime : rien n'est ajouté. Le déclarant reste vide ; les témoins sont des PARTICIPATION (<code>temoin</code>, <code>parrain</code>, <code>marraine</code>, <code>celebrant</code>), sans heuristique.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
