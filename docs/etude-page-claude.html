@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.4, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.5, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -213,6 +213,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.4</td>
 <td><strong>Import GeneWeb de QUALITE et de MENTION_LIEU</strong> : <code>categorie</code> et <code>rang</code> sur QUALITE (4.4, décision 10) ; désignation « moderne » des lieux importés et IDENT_LIEU différée jusqu'aux référentiels (décision 11). Aucune nouvelle règle d'intégrité.</td>
+</tr>
+<tr>
+<td>0.7.5</td>
+<td><strong>LOT_IMPORT, <code>cle_externe</code> et notes à l'import GeneWeb</strong> : <code>nb_entites</code> sur LOT_IMPORT, <code>cle_externe</code> sur PASSAGE (4.4), formats de clés (5.3), réimport idempotent (5.8 étape 6) ; décisions 12 et 13. Aucune nouvelle règle d'intégrité.</td>
 </tr>
 </tbody>
 </table></div>
@@ -557,7 +561,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>PASSAGE</td>
 <td>Endroit cité d'un document, tel que saisi ou importé.</td>
-<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne), <code>transcription</code>, <code>langue</code>, <code>image_uri</code>, <code>fichier_source</code> / <code>ligne_debut</code> / <code>ligne_fin</code> (provenance dans le fichier importé, 1‑indexées, bornes incluses)</td>
+<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne), <code>transcription</code>, <code>langue</code>, <code>image_uri</code>, <code>cle_externe</code>, <code>fichier_source</code> / <code>ligne_debut</code> / <code>ligne_fin</code> (provenance dans le fichier importé, 1‑indexées, bornes incluses)</td>
 </tr>
 <tr>
 <td>FACTOIDE</td>
@@ -701,7 +705,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>LOT_IMPORT</td>
 <td>Provenance d'un import.</td>
-<td><code>format</code>, <code>fichier</code>, <code>empreinte</code> (SHA‑256), <code>outil</code>, <code>version</code>, <code>date</code>, <code>statut</code> (actif, annulé)</td>
+<td><code>format</code>, <code>fichier</code>, <code>empreinte</code> (SHA‑256), <code>outil</code>, <code>version</code>, <code>date</code>, <code>statut</code> (actif, annulé), <code>nb_entites</code> (entités produites par le lot)</td>
 </tr>
 </tbody>
 </table></div>
@@ -1130,7 +1134,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td><code>Nom Prénom.occ</code></td>
 <td>PERSONNE + MASQUE(s) + NOM</td>
-<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> pour les réimports.</td>
+<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> pour les réimports : <code>gw:pers:{nom}_{prénom}_{occ}</code>. Une famille : <code>gw:fam:{identifiant}</code> ; un passage : <code>gw:pass:{empreinte courte}:{ligne_debut}_{ligne_fin}</code>.</td>
 </tr>
 <tr>
 <td><code>(public)</code>, <code>{alias}</code>, <code>#salias</code>, <code>#nick</code></td>
@@ -1929,6 +1933,8 @@ let role_of_witness sexe = function
 <li><strong>Dates à l'import GeneWeb</strong> (remplace la version 0.7.2) : <code>date_brute</code> conserve la chaîne exactement comme écrite (<code>3/3/1712</code>, <code>~1712</code>, <code>?1750</code>), par fidélité à R13 ; <code>date_declaree</code> reprend la forme normalisée par l'analyseur (<code>03/03/1712</code>) ; <code>date_min</code> / <code>date_max</code> viennent des bornes calculées et servent à l'interrogation temporelle.</li>
 <li><strong>Qualités à l'import GeneWeb</strong> : <code>#occu</code> et titres <code>[titre:lieu:début:fin:n]</code> donnent une QUALITE (<code>role_id</code> = libellé tel qu'écrit, <code>categorie</code> = profession ou titre, <code>rang</code> = n du titre). Le passage est la ligne de définition de la personne ; un factoïde sans type par personne porte ses qualités (R2). Le lieu d'un titre est une MENTION_LIEU de fonction <code>titre</code>, liée à la qualité.</li>
 <li><strong>Lieux à l'import GeneWeb</strong> : chaque chaîne de lieu donne une MENTION_LIEU de désignation « moderne » (<code>forme_ecrite</code> = chaîne brute, <code>forme_normalisee</code> = nom sans le complément <code>[complément]_-_lieu</code>). L'adaptateur ne crée pas d'IDENT_LIEU : elle suppose les référentiels de lieux, qui viennent après (5.8, étape 4).</li>
+<li><strong>LOT_IMPORT et réimport</strong> : l'adaptateur produit un LOT_IMPORT (fichier, empreinte SHA‑256 du contenu, date, outil, version, <code>nb_entites</code>). Réimporter un fichier d'empreinte déjà connue est refusé (idempotence, R9 et R10) : le lot existant est signalé, rien n'est écrasé ni dupliqué. Les clés ont une forme stable (5.3) ; la comparaison de deux lots d'empreintes différentes (5.8 étape 6) reste à faire.</li>
+<li><strong>Notes à l'import GeneWeb</strong> : une note d'événement et un <code>comm</code> de famille vont dans <code>PASSAGE.transcription</code> (ce qui est écrit sur l'acte). Une note de personne est de la prose d'auteur : elle devient une CONCLUSION (<code>argument</code> = texte, <code>cible</code> = masque, <code>valeur</code> non renseignée), jamais un fait (R2, R18). Limite connue : toldot espace les signes de ponctuation et les crochets de ces textes, qui ne sont donc pas encore restitués à l'identique.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
