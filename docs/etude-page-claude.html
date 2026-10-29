@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.11, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.12, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -241,6 +241,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.11</td>
 <td><strong>Événements familiaux <code>fevt</code> exhaustifs</strong> : chaque tag d'un bloc <code>fevt</code> donne un FACTOIDE typé (<code>mariage</code>, <code>divorce</code>, <code>separation</code>, <code>engagement</code>, <code>contrat_mariage</code>, <code>bans_mariage</code>, <code>licence_mariage</code>, <code>non_mariage</code>, <code>non_mention</code>, <code>annulation</code>, <code>pacs</code>, <code>residence</code>) ; un tag inconnu garde son écriture d'origine comme type libre. Une famille sans conjoint connu (<code>fam ? ? + ? ?</code>) est importée avec ses enfants et événements ; sa clé porte le premier enfant. Aucune règle nouvelle (R13 appliquée).</td>
+</tr>
+<tr>
+<td>0.7.12</td>
+<td><strong>Persistance SQLite</strong> : décision 18. Socle de développement et de test en SQLite (<code>:memory:</code> ou fichier local), schémas PostgreSQL simulés par préfixe de table (<code>source_</code>, <code>interp_</code>, <code>audit_</code>). R10 appliquée par triggers <code>BEFORE UPDATE</code> et <code>BEFORE DELETE</code> ; rétractation par <code>audit_retractation</code>. Aucune règle nouvelle.</td>
 </tr>
 </tbody>
 </table></div>
@@ -1964,6 +1968,7 @@ let role_of_witness sexe = function
 <li><strong>Événements de la ligne de personne</strong> : les dates et lieux de naissance (<code>#bp</code>), baptême (<code>!</code>, <code>#pp</code>), décès (<code>#dp</code>) et inhumation (<code>#rp</code>) d'une ligne d'enfant (<code>- h Luc …</code>) ou de conjoint (ligne <code>fam</code>) produisent un factoïde par événement, avec pour PASSAGE la ligne de la personne (source <code>#bs</code>, <code>#ps</code>, <code>#ds</code>, <code>#rs</code> en citation) et la personne comme participant principal. Un <code>pevt</code> du même type prime : rien n'est ajouté. Le déclarant reste vide ; les témoins sont des PARTICIPATION (<code>temoin</code>, <code>parrain</code>, <code>marraine</code>, <code>celebrant</code>), sans heuristique.</li>
 <li><strong>Différentiel de lots</strong> : la comparaison de deux lots (<code>comparer_lots(ancien, nouveau)</code>) est une fonction pure qui ne modifie aucun lot. Les masques s'apparient par <code>cle_externe</code>. Un factoïde s'apparie par (type, <code>cle_famille</code>, participant principal, rang d'occurrence) ; sans participant, par son premier lien (relation ou qualité). Les lignes de fichier ne comptent pas dans l'égalité (un ajout en tête les décale toutes). Les CONCLUSION (notes de personne) s'apparient par cible (<code>cle_externe</code> de la personne) : textes identiques d'abord (invariants), puis les notes restantes par ordre (modification avec ancien et nouveau <code>argument</code>), le surplus étant ajout ou rétraction. Quatre issues : <em>ajout</em> (absent de l'ancien), <em>invariant</em> (identique : dates, lieux, participants, relations, qualités, citation et transcription), <em>modification</em> (même fait, valeur changée, avec la liste des champs) et <em>rétraction</em> (présent dans l'ancien seulement). Une rétraction ne supprime rien (R10) : l'application du différentiel la versera comme un retrait d'identification, jamais comme un effacement de la couche Source.</li>
 <li><strong>Événements familiaux et familles sans conjoint</strong> : un bloc <code>fevt</code> ne perd aucun tag (R13). Chaque tag standard a son type Source (table 5.3) ; un tag inconnu devient un type libre à son écriture d'origine. Une ligne <code>fam ? ? + ? ?</code> crée quand même sa famille, avec enfants et événements ; la clé <code>gw:fam:inconnu__inconnu:{clé du premier enfant}</code> distingue ces familles entre elles (sans enfant, la clé reste partagée : cas non rencontré).</li>
+<li><strong>Persistance SQLite</strong> : le DDL est écrit en SQL portable, avec un préfixe de table par schéma PostgreSQL visé (<code>source_*</code>, <code>interp_*</code>, <code>audit_*</code>), pour basculer vers <code>source.*</code> et <code>interp.*</code> (PostgreSQL/PostGIS) sans toucher à la logique métier. Dates en TEXT ISO-8601. Les tables sont en insertion seule (R10, triggers) ; une rétractation s'enregistre dans <code>audit_retractation</code>, jamais par <code>DELETE</code>. <code>personne</code> et <code>ident_personne</code> sont réservées au chantier d'identification MASQUE → PERSONNE.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
