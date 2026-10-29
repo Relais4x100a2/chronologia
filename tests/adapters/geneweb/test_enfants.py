@@ -86,3 +86,15 @@ def test_filiation_vers_les_deux_parents_pour_chaque_enfant():
         "gw:pers:DUPONT_Marie_0": {"pere", "mere"},
         "gw:pers:DUPONT_Jean_0": {"pere", "mere"},
     }
+
+
+def test_dates_aberrantes_gardent_le_texte_sans_bornes():
+    texte = (
+        "fam DUPONT Paul +1750 MARTIN Anne\nbeg\n"
+        "- h Luc 30/2/1700\n- f Eve 1/1/99999999999\nend\n"
+    )
+    lot = importer_genealogie(GeneWebParser(validate=False).parse_string(texte))
+    naissances = [f for f in lot.factoides if f.type_evenement == "naissance"]
+    assert len(naissances) == 2
+    for f in naissances:
+        assert f.date_brute and f.date_min is None and f.date_max is None

@@ -85,7 +85,8 @@ def _bornes(date_gw: Date) -> Tuple[Optional[date], Optional[date]]:
     """Bornes de la date, sans toucher au texte déclaré."""
     try:
         return date_gw.to_bounds()
-    except UnsupportedCalendarError:
+    except (UnsupportedCalendarError, ValueError, OverflowError):
+        # Calendrier non géré ou date impossible : le texte reste (R13), sans bornes.
         return None, None
 
 
@@ -111,6 +112,7 @@ class _Constructeur:
         self.conclusions: List[Conclusion] = []
         self.passages: List[Passage] = []
         self.masques: List[Masque] = []
+        self._masques_par_passage: Dict[Tuple[str, str], Masque] = {}
         self.factoides: List[Factoide] = []
         self.participations: List[Participation] = []
         self.relations: List[Relation] = []
@@ -137,9 +139,9 @@ class _Constructeur:
     def masque(
         self, passage: Passage, cle: str, genealogie: Genealogy
     ) -> Masque:
-        for m in self.masques:
-            if m.passage_ref == passage.ref and m.cle_externe == f"gw:pers:{cle}":
-                return m
+        connu = self._masques_par_passage.get((passage.ref, cle))
+        if connu is not None:
+            return connu
         personne = genealogie.persons.get(cle)
         sexe, nom = None, cle
         if personne is not None:
@@ -149,6 +151,7 @@ class _Constructeur:
             f"M{len(self.masques) + 1}", passage.ref, nom, sexe, f"gw:pers:{cle}"
         )
         self.masques.append(m)
+        self._masques_par_passage[(passage.ref, cle)] = m
         return m
 
     def factoide(
