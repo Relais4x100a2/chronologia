@@ -78,14 +78,15 @@ CREATE TABLE IF NOT EXISTS source_participation (
 CREATE INDEX IF NOT EXISTS ix_participation_masque ON source_participation (masque_id);
 
 CREATE TABLE IF NOT EXISTS source_relation (
+    id INTEGER PRIMARY KEY,
     factoide_id INTEGER NOT NULL REFERENCES source_factoide (id),
     sujet_masque_id INTEGER NOT NULL REFERENCES source_masque (id),
     objet_masque_id INTEGER NOT NULL REFERENCES source_masque (id),
     type_relation TEXT NOT NULL,
     orientation TEXT,
-    degre TEXT NOT NULL DEFAULT 'certain',
-    PRIMARY KEY (factoide_id, sujet_masque_id, objet_masque_id, type_relation)
+    degre TEXT NOT NULL DEFAULT 'certain'
 );
+CREATE INDEX IF NOT EXISTS ix_relation_factoide ON source_relation (factoide_id);
 CREATE INDEX IF NOT EXISTS ix_relation_sujet ON source_relation (sujet_masque_id);
 CREATE INDEX IF NOT EXISTS ix_relation_objet ON source_relation (objet_masque_id);
 

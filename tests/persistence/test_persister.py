@@ -106,3 +106,13 @@ def test_retractation_d_un_factoide_inconnu_est_refusee(con, lot_import):
     lot_id = persister_lot(con, lot_import)
     with pytest.raises(KeyError):
         retracter_factoide(con, lot_id, "F-inconnu", "x")
+
+
+def test_relation_en_double_dans_la_source_est_conservee(con, lot_import):
+    """R13 : la source peut répéter une arête ; on ne la fusionne pas en silence."""
+    r = lot_import.relations[0]
+    doublee = dataclasses.replace(
+        lot_import, relations=lot_import.relations + (r,)
+    )
+    persister_lot(con, doublee)
+    assert _compte(con)["source_relation"] == len(lot_import.relations) + 1
