@@ -227,7 +227,10 @@ class _Constructeur:
             ordre += 1
             m = self.masque(passage, temoin["person_id"], genealogie)
             self.participations.append(
-                Participation(factoide.ref, m.ref, _role_temoin(temoin, type_evt), ordre)
+                Participation(
+                    factoide.ref, m.ref, _role_temoin(temoin, type_evt), ordre,
+                    temoin.get("note"),
+                )
             )
         self.evenement_certain(factoide)
 
@@ -294,7 +297,10 @@ class _Constructeur:
             ordre += 1
             m = self.masque(passage, temoin["person_id"], genealogie)
             self.participations.append(
-                Participation(factoide.ref, m.ref, _role_temoin(temoin, type_evt), ordre)
+                Participation(
+                    factoide.ref, m.ref, _role_temoin(temoin, type_evt), ordre,
+                    temoin.get("note"),
+                )
             )
         self.evenement_certain(factoide)
 

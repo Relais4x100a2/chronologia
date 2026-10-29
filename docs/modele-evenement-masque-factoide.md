@@ -1,7 +1,7 @@
 # Modèle Événement–Masque–Factoïde
 
 **Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb**
-Version 0.7.9, 29 octobre 2026, préparée pour Guillaume Cayeux
+Version 0.7.10, 29 octobre 2026, préparée pour Guillaume Cayeux
 
 > **Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon**
 > PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -28,6 +28,7 @@ Version 0.7.9, 29 octobre 2026, préparée pour Guillaume Cayeux
 | 0.7.7 | **Événements déclarés sur la ligne de personne** (5.3, décision 15) : naissance, baptême, décès et inhumation écrits sur la ligne d'un enfant ou d'un conjoint donnent chacun un factoïde, sans nouvelle règle. |
 | 0.7.8 | **Différentiel de lots** (5.8 étape 6, décision 16) : comparaison pure de deux LOT_IMPORT d'un même corpus (ajouts, invariants, modifications, rétractions). Aucune nouvelle règle d'intégrité. |
 | 0.7.9 | **Différentiel des CONCLUSION** (décision 16 complétée) : les notes de personne sont comparées par cible. Aucune nouvelle règle d'intégrité. |
+| 0.7.10 | **Note de témoin** : PARTICIPATION porte un champ optionnel `note` (le `wnote` GeneWeb, rattaché au témoin qui précède). Le texte nu des blocs `pevt`, `fam` et `fevt` est conservé (R13). Aucune nouvelle règle. |
 
 ## Sommaire
 
@@ -284,7 +285,7 @@ Lecture rapide : passage, factoïde, masque, participation et mention de lieu fo
 | PASSAGE | Endroit cité d'un document, tel que saisi ou importé. | `citation_brute` (texte d'origine), `localisation` (folio, page, ligne), `transcription`, `langue`, `image_uri`, `cle_externe`, `fichier_source` / `ligne_debut` / `ligne_fin` (provenance dans le fichier importé, 1‑indexées, bornes incluses) |
 | FACTOIDE | Événement ou affirmation tel qu'un passage le décrit. Seul point d'ancrage de la couche. | `passage_id`, `type_evenement_id` (type décrit), `enonce`, `date_declaree` (texte), `cle_famille` (clé GeneWeb de la famille d'origine, commune aux factoïdes d'une même famille), `date_brute` (texte exact de la source), `date_min` / `date_max` / `calendrier` (normalisation mécanique du texte), `declarant_masque_id`, `credibilite` (1–6), `saisi_par`, `saisi_le`, `lot_import_id`, `remplace_id` (correction) |
 | MASQUE | Personne telle que le passage la présente. | `passage_id` (un seul), `nom_ecrit`, `nom_normalise`, `sexe`, `age_declare`, `qualification_libre` |
-| PARTICIPATION | Présence d'un masque dans un factoïde, sous un rôle. C'est un nœud à part entière : une conclusion peut la contester. | `factoide_id`, `masque_id`, `role_id`, `ordre` |
+| PARTICIPATION | Présence d'un masque dans un factoïde, sous un rôle. C'est un nœud à part entière : une conclusion peut la contester. | `factoide_id`, `masque_id`, `role_id`, `ordre`, `note` (optionnelle) |
 | QUALITE | Rôle durable unaire (profession, titre, statut). Son lieu éventuel passe par une mention de lieu. | `factoide_id`, `masque_id`, `role_id` (libellé du rôle), `categorie` (profession, titre), `valide_debut`, `valide_fin`, `rang` (rang d'un titre) |
 | RELATION | Rôle durable binaire (parenté, alliance, patronage). | `factoide_id`, `masque_sujet_id`, `masque_objet_id`, `type_relation`, `orientation` |
 | NOM | Formes de nom d'un masque. | `masque_id`, `type` (principal, public, alias, surnom, qualificatif), `prenoms`, `nom`, `forme_ecrite` |

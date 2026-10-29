@@ -91,7 +91,9 @@ def _contenu(ix: _Index, f: Factoide) -> _Contenu:
     return {
         "date": (f.date_brute, f.date_min, f.date_max, f.calendrier, f.date_incertaine),
         "lieu": frozenset((m.fonction, m.forme_ecrite) for m in ix.lieux[f.ref]),
-        "participants": frozenset((cles[p.masque_ref], p.role) for p in ix.participations[f.ref]),
+        "participants": frozenset(
+            (cles[p.masque_ref], p.role, p.note) for p in ix.participations[f.ref]
+        ),
         "relations": frozenset(
             (r.type_relation, r.orientation, cles[r.sujet_masque_ref], cles[r.objet_masque_ref])
             for r in ix.relations[f.ref]

@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.9, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.10, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -233,6 +233,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.9</td>
 <td><strong>Différentiel des CONCLUSION</strong> (décision 16 complétée) : les notes de personne sont comparées par cible. Aucune nouvelle règle d'intégrité.</td>
+</tr>
+<tr>
+<td>0.7.10</td>
+<td><strong>Note de témoin</strong> : PARTICIPATION porte un champ optionnel <code>note</code> (le <code>wnote</code> GeneWeb, rattaché au témoin qui précède). Le texte nu des blocs <code>pevt</code>, <code>fam</code> et <code>fevt</code> est conservé (R13). Aucune nouvelle règle.</td>
 </tr>
 </tbody>
 </table></div>
@@ -592,7 +596,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>PARTICIPATION</td>
 <td>Présence d'un masque dans un factoïde, sous un rôle. C'est un nœud à part entière : une conclusion peut la contester.</td>
-<td><code>factoide_id</code>, <code>masque_id</code>, <code>role_id</code>, <code>ordre</code></td>
+<td><code>factoide_id</code>, <code>masque_id</code>, <code>role_id</code>, <code>ordre</code>, <code>note</code> (optionnelle)</td>
 </tr>
 <tr>
 <td>QUALITE</td>

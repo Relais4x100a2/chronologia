@@ -52,6 +52,7 @@ class Participation:
     masque_ref: str
     role: str
     ordre: int
+    note: Optional[str] = None  # wnote GeneWeb : note d'auteur sur le témoin
 
 
 @dataclass(frozen=True)

@@ -109,3 +109,26 @@ def test_note_ajoutee_et_note_retiree():
     assert aj.nouveau.argument == "Marchand drapier."
     (ret,) = _concl(comparer_lots(avec, vide).retractions)
     assert ret.ancien.argument == "Marchand drapier." and ret.nouveau is None
+
+
+def _lot_wnote(texte_note: str):
+    texte = (
+        "pevt MARTIN Jean\n#bapt 1712\nwit m: LEROY Paul\n"
+        f"wnote {texte_note}\nend pevt\n"
+    )
+    return importer_genealogie(
+        GeneWebParser(validate=False).parse_string(texte), empreinte=texte_note
+    )
+
+
+def test_wnote_devient_note_de_la_participation_du_temoin():
+    lot = _lot_wnote("Parrain venu de Chartres")
+    notes = [p.note for p in lot.participations if p.note]
+    assert notes == ["Parrain venu de Chartres"]
+
+
+def test_wnote_modifiee_est_une_modification_de_factoide():
+    d = comparer_lots(_lot_wnote("Parrain de Chartres"), _lot_wnote("Parrain de Dreux"))
+    assert [e.champs for e in d.modifications if e.genre == "factoide"] == [
+        ("participants",)
+    ]
