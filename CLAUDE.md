@@ -2,6 +2,10 @@
 
 Système à la croisée de la prosopographie, de la généalogie et de l'analyse relationnelle. Modèle de données historique orienté événements et factoïdes, avec saisie assistée par modèles de langage et import depuis GeneWeb.
 
+## Contexte pour les agents
+
+- `AGENTS.md` : état exact du projet, commandes, garde-fous et feuille de route de reprise. À lire en premier.
+
 ## Source de vérité
 
 - `docs/modele-evenement-masque-factoide.md` : le document de référence (version 0.7.13). Toute décision de modèle s'y consigne d'abord : ligne dans le « Journal des versions », section concernée, puis section 9 (décisions et questions ouvertes).
