@@ -6,7 +6,7 @@ données sont attribués à l'insertion.
 """
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 
@@ -18,6 +18,8 @@ class Passage:
     fichier_source: Optional[str] = None
     ligne_debut: Optional[int] = None
     ligne_fin: Optional[int] = None
+    transcription: Optional[str] = None
+    cle_externe: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -98,3 +100,27 @@ class MentionLieu:
     masque_ref: Optional[str] = None
     qualite_ref: Optional[str] = None
     epoque_designation: str = "moderne"
+
+
+@dataclass(frozen=True)
+class Conclusion:
+    """Prose d'auteur importée (note de personne) : un point de vue, pas un fait."""
+
+    ref: str
+    cible_masque_ref: str
+    argument: str
+    valeur: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class Lot:
+    """Provenance d'un import (LOT_IMPORT)."""
+
+    format: str
+    fichier: Optional[str]
+    empreinte: Optional[str]
+    outil: str
+    version: str
+    date: datetime
+    statut: str
+    nb_entites: int

@@ -5,9 +5,10 @@ GeneWeb donne un passage, un factoïde, des masques et des participations, plus
 un EVENEMENT relié par une IDENT_EVENEMENT « certain » (5.2).
 """
 
-from dataclasses import dataclass
-from datetime import date
-from typing import Any, Dict, List, Optional, Tuple
+import hashlib
+from dataclasses import dataclass, replace
+from datetime import date, datetime, timezone
+from typing import Any, Collection, Dict, List, Optional, Sequence, Tuple
 
 from geneweb_py.core.date import Date
 from geneweb_py.core.event import Event, WitnessKind
@@ -17,10 +18,13 @@ from geneweb_py.core.family import Family
 from geneweb_py.core.person import Person, RelationType
 from geneweb_py.core.place import parse_place
 
+from chronologia import __version__
 from chronologia.modele.entites import (
     Evenement,
+    Conclusion,
     Factoide,
     IdentEvenement,
+    Lot,
     Masque,
     MentionLieu,
     Participation,
@@ -65,6 +69,16 @@ class LotImport:
     ident_evenements: Tuple[IdentEvenement, ...]
     qualites: Tuple[Qualite, ...] = ()
     mentions_lieu: Tuple[MentionLieu, ...] = ()
+    conclusions: Tuple[Conclusion, ...] = ()
+    lot: Optional[Lot] = None
+
+
+class LotDejaImporte(Exception):
+    """Un lot d'empreinte identique existe déjà : le réimport est refusé."""
+
+    def __init__(self, empreinte: str) -> None:
+        super().__init__(f"lot déjà importé (empreinte {empreinte})")
+        self.empreinte = empreinte
 
 
 def _bornes(date_gw: Date) -> Tuple[Optional[date], Optional[date]]:
@@ -86,8 +100,10 @@ def _role_temoin(temoin: Dict[str, Any], type_evt: str) -> str:
 
 
 class _Constructeur:
-    def __init__(self, fichier: Optional[str]) -> None:
+    def __init__(self, fichier: Optional[str], empreinte: Optional[str] = None) -> None:
         self.fichier = fichier
+        self.court = empreinte[:12] if empreinte else "local"
+        self.conclusions: List[Conclusion] = []
         self.passages: List[Passage] = []
         self.masques: List[Masque] = []
         self.factoides: List[Factoide] = []
@@ -103,8 +119,13 @@ class _Constructeur:
         citation: Optional[str],
         debut: Optional[int],
         fin: Optional[int],
+        notes: Sequence[str] = (),
     ) -> Passage:
-        p = Passage(f"P{len(self.passages) + 1}", citation, self.fichier, debut, fin)
+        p = Passage(
+            f"P{len(self.passages) + 1}", citation, self.fichier, debut, fin,
+            "\n".join(notes) or None,
+            f"gw:pass:{self.court}:{debut}_{fin}",
+        )
         self.passages.append(p)
         return p
 
@@ -112,14 +133,16 @@ class _Constructeur:
         self, passage: Passage, cle: str, genealogie: Genealogy
     ) -> Masque:
         for m in self.masques:
-            if m.passage_ref == passage.ref and m.cle_externe == cle:
+            if m.passage_ref == passage.ref and m.cle_externe == f"gw:pers:{cle}":
                 return m
         personne = genealogie.persons.get(cle)
         sexe, nom = None, cle
         if personne is not None:
             sexe = personne.gender.name.lower()
             nom = f"{personne.first_name} {personne.last_name}"
-        m = Masque(f"M{len(self.masques) + 1}", passage.ref, nom, sexe, cle)
+        m = Masque(
+            f"M{len(self.masques) + 1}", passage.ref, nom, sexe, f"gw:pers:{cle}"
+        )
         self.masques.append(m)
         return m
 
@@ -178,7 +201,7 @@ class _Constructeur:
         self, personne: Person, evt: Event, genealogie: Genealogy
     ) -> None:
         type_evt = _TYPES_EVENEMENT.get(evt.event_type.name, evt.event_type.name.lower())
-        passage = self.passage(evt.source, evt.start_line, evt.end_line)
+        passage = self.passage(evt.source, evt.start_line, evt.end_line, evt.notes)
         factoide = self.factoide(passage, type_evt, evt.date)
         self.lieu(factoide, evt.place)
         principal = self.masque(passage, personne.unique_id, genealogie)
@@ -216,8 +239,9 @@ class _Constructeur:
         temoins: List[Dict[str, Any]],
         genealogie: Genealogy,
         lieu: Optional[str] = None,
+        notes: Sequence[str] = (),
     ) -> None:
-        passage = self.passage(citation, debut, fin)
+        passage = self.passage(citation, debut, fin, notes)
         factoide = self.factoide(passage, type_evt, date_gw)
         self.lieu(factoide, lieu)
         ordre = 0
@@ -237,6 +261,7 @@ class _Constructeur:
     def famille(self, famille: Family, genealogie: Genealogy) -> None:
         citation = famille.marriage_source or famille.family_source
         debut, fin = famille.start_line, famille.end_line
+        premier = len(self.passages)
         mariages = [
             e for e in famille.events if e.event_type.name == "MARRIAGE"
         ]
@@ -246,6 +271,7 @@ class _Constructeur:
                 self.evenement_familial(
                     famille, "mariage", e.date, e.source or citation,
                     e.start_line, e.end_line, e.witnesses, genealogie, e.place,
+                    e.notes,
                 )
         elif famille.marriage_date or famille.marriage_place or famille.marriage_source:
             self.evenement_familial(
@@ -264,8 +290,34 @@ class _Constructeur:
             self.evenement_familial(
                 famille, type_evt, e.date, e.source or citation,
                 e.start_line, e.end_line, e.witnesses, genealogie, e.place,
+                e.notes,
             )
         self.filiation(famille, genealogie)
+        self.commentaire_famille(famille, premier)
+
+    def commentaire_famille(self, famille: Family, premier: int) -> None:
+        """Le ``comm`` va sur le passage de la ligne ``fam`` (à défaut, le premier)."""
+        if not famille.comments or premier >= len(self.passages):
+            return
+        cibles = range(premier, len(self.passages))
+        i = next(
+            (
+                k for k in cibles
+                if (self.passages[k].ligne_debut, self.passages[k].ligne_fin)
+                == (famille.start_line, famille.end_line)
+            ),
+            premier,
+        )
+        texte = "\n".join(c for c in (self.passages[i].transcription, *famille.comments) if c)
+        self.passages[i] = replace(self.passages[i], transcription=texte)
+
+    def notes_personne(self, personne: Person, genealogie: Genealogy) -> None:
+        for note in personne.notes:
+            passage = self.passage(None, personne.start_line, personne.end_line)
+            masque = self.masque(passage, personne.unique_id, genealogie)
+            self.conclusions.append(
+                Conclusion(f"C{len(self.conclusions) + 1}", masque.ref, note)
+            )
 
     def filiation(self, famille: Family, genealogie: Genealogy) -> None:
         if not famille.children:
@@ -335,18 +387,42 @@ class _Constructeur:
             )
 
 
+def empreinte_texte(texte: str) -> str:
+    """SHA-256 du contenu d'un fichier ``.gw`` (UTF-8)."""
+    return hashlib.sha256(texte.encode("utf-8")).hexdigest()
+
+
 def importer_genealogie(
-    genealogie: Genealogy, fichier: Optional[str] = None
+    genealogie: Genealogy,
+    fichier: Optional[str] = None,
+    empreinte: Optional[str] = None,
+    maintenant: Optional[datetime] = None,
+    lots_connus: Collection[str] = (),
 ) -> LotImport:
-    """Projette une généalogie toldot vers les entités de la couche Source."""
-    c = _Constructeur(fichier)
+    """Projette une généalogie toldot vers les entités de la couche Source.
+
+    Refuse (``LotDejaImporte``) un fichier dont l'empreinte est dans ``lots_connus``.
+    """
+    if empreinte is not None and empreinte in lots_connus:
+        raise LotDejaImporte(empreinte)
+    c = _Constructeur(fichier, empreinte)
     for personne in list(genealogie.persons.values()):
         for evt in personne.events:
             c.evenement_personnel(personne, evt, genealogie)
         c.relations_typees(personne, genealogie)
         c.qualites_personne(personne, genealogie)
+        c.notes_personne(personne, genealogie)
     for famille in list(genealogie.families.values()):
         c.famille(famille, genealogie)
+    effectif = (
+        len(c.passages) + len(c.masques) + len(c.factoides) + len(c.participations)
+        + len(c.relations) + len(c.evenements) + len(c.idents) + len(c.qualites)
+        + len(c.mentions) + len(c.conclusions)
+    )
+    lot = Lot(
+        "gw", fichier, empreinte, "chronologia", __version__,
+        maintenant or datetime.now(timezone.utc), "actif", effectif,
+    )
     return LotImport(
         tuple(c.passages),
         tuple(c.masques),
@@ -357,4 +433,6 @@ def importer_genealogie(
         tuple(c.idents),
         tuple(c.qualites),
         tuple(c.mentions),
+        tuple(c.conclusions),
+        lot,
     )

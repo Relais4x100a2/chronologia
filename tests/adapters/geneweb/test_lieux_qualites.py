@@ -32,7 +32,7 @@ def _lot():
 
 
 def _cles(lot):
-    return {m.ref: m.cle_externe for m in lot.masques}
+    return {m.ref: m.cle_externe.removeprefix("gw:pers:") for m in lot.masques}
 
 
 def _factoide(lot, type_evenement):

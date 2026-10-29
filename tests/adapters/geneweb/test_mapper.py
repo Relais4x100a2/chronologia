@@ -31,7 +31,7 @@ def _passage(lot, factoide):
 def _roles(lot, factoide):
     masques = {m.ref: m for m in lot.masques}
     return {
-        masques[p.masque_ref].cle_externe: p.role
+        masques[p.masque_ref].cle_externe.removeprefix("gw:pers:"): p.role
         for p in lot.participations
         if p.factoide_ref == factoide.ref
     }
@@ -68,7 +68,7 @@ def test_roles_des_participants_du_bapteme(lot):
 def test_un_masque_par_personne_et_par_passage(lot):
     f = _factoide(lot, "bapteme")
     masques = [m for m in lot.masques if m.passage_ref == f.passage_ref]
-    cles = [m.cle_externe for m in masques]
+    cles = [m.cle_externe.removeprefix("gw:pers:") for m in masques]
     assert len(cles) == len(set(cles)) == 5
 
 
@@ -82,7 +82,7 @@ def test_chaque_factoide_d_evenement_a_son_evenement_certain(lot):
 
 
 def test_relations_typees_gardent_les_occurrences(lot):
-    masques = {m.ref: m.cle_externe for m in lot.masques}
+    masques = {m.ref: m.cle_externe.removeprefix("gw:pers:") for m in lot.masques}
     relations = {
         (r.type_relation, r.orientation, masques[r.objet_masque_ref])
         for r in lot.relations
@@ -97,7 +97,7 @@ def test_relations_typees_gardent_les_occurrences(lot):
 
 
 def test_homonymes_restent_distincts(lot):
-    cles = {m.cle_externe for m in lot.masques}
+    cles = {m.cle_externe.removeprefix("gw:pers:") for m in lot.masques}
     assert {"MOREAU_Louis_0", "MOREAU_Louis_1"} <= cles
 
 
