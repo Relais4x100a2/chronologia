@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.3, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.4, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -209,6 +209,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.3</td>
 <td><strong><code>date_brute</code> sur le FACTOÏDE</strong> (4.4, décision 9 en 9.1) : la date telle qu'écrite dans la source est conservée à côté de la date normalisée et des bornes. Aucune nouvelle règle d'intégrité.</td>
+</tr>
+<tr>
+<td>0.7.4</td>
+<td><strong>Import GeneWeb de QUALITE et de MENTION_LIEU</strong> : <code>categorie</code> et <code>rang</code> sur QUALITE (4.4, décision 10) ; désignation « moderne » des lieux importés et IDENT_LIEU différée jusqu'aux référentiels (décision 11). Aucune nouvelle règle d'intégrité.</td>
 </tr>
 </tbody>
 </table></div>
@@ -573,7 +577,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>QUALITE</td>
 <td>Rôle durable unaire (profession, titre, statut). Son lieu éventuel passe par une mention de lieu.</td>
-<td><code>factoide_id</code>, <code>masque_id</code>, <code>role_id</code>, <code>valide_debut</code>, <code>valide_fin</code></td>
+<td><code>factoide_id</code>, <code>masque_id</code>, <code>role_id</code> (libellé du rôle), <code>categorie</code> (profession, titre), <code>valide_debut</code>, <code>valide_fin</code>, <code>rang</code> (rang d'un titre)</td>
 </tr>
 <tr>
 <td>RELATION</td>
@@ -1923,6 +1927,8 @@ let role_of_witness sexe = function
 <li><strong>Le PASSAGE garde sa provenance dans le fichier importé</strong> : <code>fichier_source</code>, <code>ligne_debut</code>, <code>ligne_fin</code>. Pour un événement GeneWeb, de la ligne du tag à la dernière ligne de ses témoins, source et notes ; pour un mariage, de la ligne <code>fam</code> à la fin du bloc. Cela prolonge R13 : on peut toujours retrouver, ligne à ligne, d'où vient une affirmation.</li>
 <li><strong>Témoin <code>#offi</code></strong> : rôle générique <code>officier</code> ; il devient <code>celebrant</code> quand le type d'événement est religieux (baptême, mariage). L'analyseur ne distingue pas officier civil et religieux.</li>
 <li><strong>Dates à l'import GeneWeb</strong> (remplace la version 0.7.2) : <code>date_brute</code> conserve la chaîne exactement comme écrite (<code>3/3/1712</code>, <code>~1712</code>, <code>?1750</code>), par fidélité à R13 ; <code>date_declaree</code> reprend la forme normalisée par l'analyseur (<code>03/03/1712</code>) ; <code>date_min</code> / <code>date_max</code> viennent des bornes calculées et servent à l'interrogation temporelle.</li>
+<li><strong>Qualités à l'import GeneWeb</strong> : <code>#occu</code> et titres <code>[titre:lieu:début:fin:n]</code> donnent une QUALITE (<code>role_id</code> = libellé tel qu'écrit, <code>categorie</code> = profession ou titre, <code>rang</code> = n du titre). Le passage est la ligne de définition de la personne ; un factoïde sans type par personne porte ses qualités (R2). Le lieu d'un titre est une MENTION_LIEU de fonction <code>titre</code>, liée à la qualité.</li>
+<li><strong>Lieux à l'import GeneWeb</strong> : chaque chaîne de lieu donne une MENTION_LIEU de désignation « moderne » (<code>forme_ecrite</code> = chaîne brute, <code>forme_normalisee</code> = nom sans le complément <code>[complément]_-_lieu</code>). L'adaptateur ne crée pas d'IDENT_LIEU : elle suppose les référentiels de lieux, qui viennent après (5.6, étape 4 du lot).</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
