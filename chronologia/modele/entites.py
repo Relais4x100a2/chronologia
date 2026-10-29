@@ -1,0 +1,73 @@
+"""Entités de la couche Source et identifications associées (modèle v0.7.1).
+
+Toutes les entités sont immuables (R10). Les références entre entités sont des
+clés locales à un lot d'import (``P1``, ``M3``…) ; les identifiants de base de
+données sont attribués à l'insertion.
+"""
+
+from dataclasses import dataclass
+from datetime import date
+from typing import Optional
+
+
+@dataclass(frozen=True)
+class Passage:
+    ref: str
+    citation_brute: Optional[str]
+    # Provenance dans le fichier d'import (lignes 1-indexées, bornes incluses).
+    # Hors modèle v0.7.1 : à consigner section 9 si on le retient.
+    fichier: Optional[str] = None
+    ligne_debut: Optional[int] = None
+    ligne_fin: Optional[int] = None
+
+
+@dataclass(frozen=True)
+class Masque:
+    ref: str
+    passage_ref: str
+    nom_ecrit: str
+    sexe: Optional[str]
+    cle_externe: str
+
+
+@dataclass(frozen=True)
+class Factoide:
+    ref: str
+    passage_ref: str
+    type_evenement: Optional[str]
+    date_declaree: Optional[str] = None
+    date_min: Optional[date] = None
+    date_max: Optional[date] = None
+    calendrier: Optional[str] = None
+    date_incertaine: bool = False
+
+
+@dataclass(frozen=True)
+class Participation:
+    factoide_ref: str
+    masque_ref: str
+    role: str
+    ordre: int
+
+
+@dataclass(frozen=True)
+class Relation:
+    factoide_ref: str
+    sujet_masque_ref: str
+    objet_masque_ref: str
+    type_relation: str
+    orientation: Optional[str]
+    degre: str = "certain"
+
+
+@dataclass(frozen=True)
+class Evenement:
+    ref: str
+
+
+@dataclass(frozen=True)
+class IdentEvenement:
+    factoide_ref: str
+    evenement_ref: str
+    degre: str
+    statut: str
