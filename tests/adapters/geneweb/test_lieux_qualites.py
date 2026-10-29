@@ -8,7 +8,7 @@ from chronologia.adapters.geneweb import importer_genealogie
 
 # Fictif. Titre : [nom:type:lieu:début:fin:rang].
 TEXTE = """\
-fam DUPONT Paul 1720 #occu Laboureur [Comte:titre:Chartres:1750:1760:2] +1750 #mp Eglise_-_Chartres MARTIN Anne
+fam DUPONT Paul 1720 #occu Laboureur [Comte:titre:Chartres:1750:1760:2] +1750 #mp [Eglise]_-_Chartres MARTIN Anne
 src BMS Chartres
 beg
 - h Luc 1751 #occu Tisserand
@@ -53,7 +53,7 @@ def test_lieu_du_mariage_garde_la_forme_ecrite_et_le_nom_normalise():
     lot = _lot()
     f = _factoide(lot, "mariage")
     (m,) = [m for m in lot.mentions_lieu if m.factoide_ref == f.ref]
-    assert m.forme_ecrite == "Eglise_-_Chartres"
+    assert m.forme_ecrite == "[Eglise]_-_Chartres"
     assert m.forme_normalisee == "Chartres"
 
 

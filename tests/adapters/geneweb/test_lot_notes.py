@@ -78,7 +78,24 @@ def test_note_d_evenement_et_comm_vont_dans_la_transcription():
 def test_note_de_personne_devient_une_conclusion_sur_le_masque():
     lot = _lot()
     (c,) = lot.conclusions
-    assert c.argument.startswith("Laboureur aisé")
+    assert c.argument == "Laboureur aisé."
     m = next(m for m in lot.masques if m.ref == c.cible_masque_ref)
     assert m.cle_externe == "gw:pers:DUPONT_Paul_0"
     assert c.valeur is None
+
+
+def test_factoides_de_famille_portent_une_cle_deterministe():
+    lot = _lot()
+    cles = {f.cle_famille for f in lot.factoides if f.cle_famille}
+    assert cles == {"gw:fam:DUPONT_Paul_0__MARTIN_Anne_0"}
+    types = {f.type_evenement for f in lot.factoides if f.cle_famille}
+    assert types == {"mariage", None}  # mariage + filiation
+    assert all(f.cle_famille is None for f in lot.factoides if f.type_evenement == "bapteme")
+
+
+def test_parent_inconnu_donne_inconnu():
+    g = GeneWebParser(validate=False).parse_string("fam DUPONT Paul +1750 #mp Chartres ? ?\n")
+    lot = importer_genealogie(g, fichier="y.gw")
+    assert {f.cle_famille for f in lot.factoides if f.cle_famille} == {
+        "gw:fam:DUPONT_Paul_0__inconnu"
+    }

@@ -89,6 +89,11 @@ def _bornes(date_gw: Date) -> Tuple[Optional[date], Optional[date]]:
         return None, None
 
 
+def _cle_famille(famille: Family) -> str:
+    """Clé de réimport stable d'une famille (indépendante de l'ordre du fichier)."""
+    return f"gw:fam:{famille.husband_id or 'inconnu'}__{famille.wife_id or 'inconnu'}"
+
+
 def _role_temoin(temoin: Dict[str, Any], type_evt: str) -> str:
     genre: Optional[str] = temoin.get("type")
     kind = temoin.get("witness_kind")
@@ -147,7 +152,11 @@ class _Constructeur:
         return m
 
     def factoide(
-        self, passage: Passage, type_evenement: Optional[str], date_gw: Optional[Date]
+        self,
+        passage: Passage,
+        type_evenement: Optional[str],
+        date_gw: Optional[Date],
+        cle_famille: Optional[str] = None,
     ) -> Factoide:
         texte = brute = mini = maxi = None
         incertaine = False
@@ -166,6 +175,7 @@ class _Constructeur:
             None,
             incertaine,
             brute,
+            cle_famille,
         )
         self.factoides.append(f)
         return f
@@ -242,7 +252,7 @@ class _Constructeur:
         notes: Sequence[str] = (),
     ) -> None:
         passage = self.passage(citation, debut, fin, notes)
-        factoide = self.factoide(passage, type_evt, date_gw)
+        factoide = self.factoide(passage, type_evt, date_gw, _cle_famille(famille))
         self.lieu(factoide, lieu)
         ordre = 0
         for masque, role in self._conjoints(famille, passage, genealogie):
@@ -328,7 +338,7 @@ class _Constructeur:
             famille.start_line,
             famille.end_line,
         )
-        factoide = self.factoide(passage, None, None)
+        factoide = self.factoide(passage, None, None, _cle_famille(famille))
         for enfant in famille.children:
             sujet = self.masque(passage, enfant.person_id, genealogie)
             for parent, orientation in (

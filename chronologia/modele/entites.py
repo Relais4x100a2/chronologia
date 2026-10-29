@@ -43,6 +43,7 @@ class Factoide:
     date_incertaine: bool = False
     # Chaîne exactement comme écrite dans la source (R13), avant normalisation.
     date_brute: Optional[str] = None
+    cle_famille: Optional[str] = None
 
 
 @dataclass(frozen=True)

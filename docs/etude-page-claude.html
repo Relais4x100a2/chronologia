@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.5, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.7.6, 29 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -217,6 +217,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.5</td>
 <td><strong>LOT_IMPORT, <code>cle_externe</code> et notes à l'import GeneWeb</strong> : <code>nb_entites</code> sur LOT_IMPORT, <code>cle_externe</code> sur PASSAGE (4.4), formats de clés (5.3), réimport idempotent (5.8 étape 6) ; décisions 12 et 13. Aucune nouvelle règle d'intégrité.</td>
+</tr>
+<tr>
+<td>0.7.6</td>
+<td><strong><code>cle_famille</code> sur le FACTOÏDE</strong> (4.4, décision 14) : clé déterministe des familles GeneWeb pour le réimport. Aucune nouvelle règle d'intégrité.</td>
 </tr>
 </tbody>
 </table></div>
@@ -566,7 +570,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>FACTOIDE</td>
 <td>Événement ou affirmation tel qu'un passage le décrit. Seul point d'ancrage de la couche.</td>
-<td><code>passage_id</code>, <code>type_evenement_id</code> (type décrit), <code>enonce</code>, <code>date_declaree</code> (texte), <code>date_brute</code> (texte exact de la source), <code>date_min</code> / <code>date_max</code> / <code>calendrier</code> (normalisation mécanique du texte), <code>declarant_masque_id</code>, <code>credibilite</code> (1–6), <code>saisi_par</code>, <code>saisi_le</code>, <code>lot_import_id</code>, <code>remplace_id</code> (correction)</td>
+<td><code>passage_id</code>, <code>type_evenement_id</code> (type décrit), <code>enonce</code>, <code>date_declaree</code> (texte), <code>cle_famille</code> (clé GeneWeb de la famille d'origine, commune aux factoïdes d'une même famille), <code>date_brute</code> (texte exact de la source), <code>date_min</code> / <code>date_max</code> / <code>calendrier</code> (normalisation mécanique du texte), <code>declarant_masque_id</code>, <code>credibilite</code> (1–6), <code>saisi_par</code>, <code>saisi_le</code>, <code>lot_import_id</code>, <code>remplace_id</code> (correction)</td>
 </tr>
 <tr>
 <td>MASQUE</td>
@@ -1134,7 +1138,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td><code>Nom Prénom.occ</code></td>
 <td>PERSONNE + MASQUE(s) + NOM</td>
-<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> pour les réimports : <code>gw:pers:{nom}_{prénom}_{occ}</code>. Une famille : <code>gw:fam:{identifiant}</code> ; un passage : <code>gw:pass:{empreinte courte}:{ligne_debut}_{ligne_fin}</code>.</td>
+<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> pour les réimports : <code>gw:pers:{nom}_{prénom}_{occ}</code>. Une famille : <code>gw:fam:{clé du père}__{clé de la mère}</code> (<code>inconnu</code> si un parent manque) ; un passage : <code>gw:pass:{empreinte courte}:{ligne_debut}_{ligne_fin}</code>.</td>
 </tr>
 <tr>
 <td><code>(public)</code>, <code>{alias}</code>, <code>#salias</code>, <code>#nick</code></td>
@@ -1696,6 +1700,7 @@ CREATE TABLE source.factoide (
   enonce              text,
   date_declaree       text,
   date_brute          text,   -- chaîne telle qu'écrite dans la source (R13)
+  cle_famille         text,   -- gw:fam:{père}__{mère}, import GeneWeb
   date_min            date,
   date_max            date,
   calendrier          text,
@@ -1935,6 +1940,7 @@ let role_of_witness sexe = function
 <li><strong>Lieux à l'import GeneWeb</strong> : chaque chaîne de lieu donne une MENTION_LIEU de désignation « moderne » (<code>forme_ecrite</code> = chaîne brute, <code>forme_normalisee</code> = nom sans le complément <code>[complément]_-_lieu</code>). L'adaptateur ne crée pas d'IDENT_LIEU : elle suppose les référentiels de lieux, qui viennent après (5.8, étape 4).</li>
 <li><strong>LOT_IMPORT et réimport</strong> : l'adaptateur produit un LOT_IMPORT (fichier, empreinte SHA‑256 du contenu, date, outil, version, <code>nb_entites</code>). Réimporter un fichier d'empreinte déjà connue est refusé (idempotence, R9 et R10) : le lot existant est signalé, rien n'est écrasé ni dupliqué. Les clés ont une forme stable (5.3) ; la comparaison de deux lots d'empreintes différentes (5.8 étape 6) reste à faire.</li>
 <li><strong>Notes à l'import GeneWeb</strong> : une note d'événement et un <code>comm</code> de famille vont dans <code>PASSAGE.transcription</code> (ce qui est écrit sur l'acte). Une note de personne est de la prose d'auteur : elle devient une CONCLUSION (<code>argument</code> = texte, <code>cible</code> = masque, <code>valeur</code> non renseignée), jamais un fait (R2, R18). Limite connue : toldot espace les signes de ponctuation et les crochets de ces textes, qui ne sont donc pas encore restitués à l'identique.</li>
+<li><strong>Clé des familles GeneWeb</strong> : l'identifiant technique de toldot (<code>FAM_001</code>) dépend de l'ordre du fichier ; il est écarté. La clé <code>gw:fam:{père}__{mère}</code> est portée par <code>FACTOIDE.cle_famille</code> sur les factoïdes issus d'une famille (mariage, divorce, filiation, événements familiaux). Deux unions des mêmes conjoints partagent la clé : le réimport les distingue par les passages, pas par la clé seule.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
