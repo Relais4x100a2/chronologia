@@ -2,7 +2,7 @@
 
 Contexte de reprise pour les agents IA. Source de vérité du modèle : `docs/modele-evenement-masque-factoide.md` (voir `CLAUDE.md`).
 
-## État (modèle v0.8)
+## État (modèle v0.8.1)
 
 - **Persistance SQLite** (`chronologia/persistence/`) : schéma portable, schémas PostgreSQL simulés par préfixe de table : `source_*` (lot_import, passage, masque, factoide, participation, relation, qualite, mention_lieu), `interp_*` (evenement, ident_evenement, conclusion), `audit_retractation`. Décision 18.
 - **R10** : insertion seule, appliquée par triggers `BEFORE UPDATE` / `BEFORE DELETE` sur toutes les tables. Une rétractation s'écrit dans `audit_retractation` (motifs `retractation`, `modification`, `reconduction`), jamais par suppression. Vues actives : `source_factoide_actif`, `interp_conclusion_actif`.
@@ -27,5 +27,5 @@ Source unique : dépôt `toldot` (`../toldot`, package `geneweb-py`, dépendance
 ## Reprise : feuille de route
 
 1. Petit reste : `nb_ajouts` dans `BilanApplicationDiff` (tiré de `diff.ajouts`) et dans le résumé de la CLI.
-2. **Identification prosopographique MASQUE → PERSONNE** (couche Interprétation) : schéma arrêté en v0.8 (décision 19, R25). Six tables : `interp_contributeur`, `interp_personne` (coquille, `same_as_id`), `interp_ident_personne` (proposition immuable), `interp_ident_personne_statut` (journal des décisions, vue `interp_ident_personne_actif`), `interp_indice` (faisceau d'indices), `interp_conclusion_effet` (R22) ; `interp_conclusion.cible_masque_id` devient facultatif. Triggers R11 et R18 à l'insertion d'une décision « actif ». Étape suivante : tests du schéma d'abord (`tests/persistence/test_schema_interpretation.py`), puis DDL dans `chronologia/persistence/schema.py`, puis import GeneWeb (identification « certain », contributeur `import`), puis faisceaux et homonymes.
+2. **Identification prosopographique MASQUE → PERSONNE** (couche Interprétation) : schéma arrêté en v0.8 (décision 19, R25). Six tables : `interp_contributeur`, `interp_personne` (coquille, `same_as_id`), `interp_ident_personne` (proposition immuable), `interp_ident_personne_statut` (journal des décisions, vue `interp_ident_personne_actif`), `interp_indice` (faisceau d'indices), `interp_conclusion_effet` (R22) ; `interp_conclusion.cible_masque_id` devient facultatif. Triggers R11 (une identification active par masque) et R18 (un agent ne verse que « proposé ») ; schéma en place et testé (`tests/persistence/test_schema_interpretation.py`). En cours : identifications de l'import GeneWeb (décision 19 : une personne par clé en `ref`, réutilisée au réimport, anciennes identifications retirées par `audit_retractation`, repli en « proposé » si une décision humaine diverge, R24). Ensuite : faisceaux d'indices et homonymes.
 3. Ensuite : normalisation des lieux (MENTION_LIEU → LIEU_HISTORIQUE), saisie assistée, écrans de validation.

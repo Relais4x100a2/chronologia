@@ -2,7 +2,7 @@
 
 ![Tapisserie de Bayeux, scène 50 : un messager annonce le roi Harold à l'armée de Guillaume](docs/img/bayeux.jpg)
 
-> **🚧 Work in progress.** Le modèle (v0.8) est documenté et stable dans ses grandes lignes, le socle exécutable et l'import GeneWeb sont en construction. Rien n'est prêt pour un usage en production ; les interfaces, le schéma et les noms peuvent changer sans préavis.
+> **🚧 Work in progress.** Le modèle (v0.8.1) est documenté et stable dans ses grandes lignes, le socle exécutable et l'import GeneWeb sont en construction. Rien n'est prêt pour un usage en production ; les interfaces, le schéma et les noms peuvent changer sans préavis.
 
 Chronologia est un modèle de données historique **orienté événements et factoïdes**, à la croisée de la **prosopographie**, de la **généalogie** et de l'**analyse relationnelle**. Il est pensé pour exploiter des **documents d'archives** (actes, registres, chartes) avec une saisie assistée par modèles de langage, sous contrôle humain.
 
@@ -26,7 +26,7 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 
 | État | Élément |
 |---|---|
-| ✅ | Document de référence du modèle (v0.8) et maquettes des cinq écrans |
+| ✅ | Document de référence du modèle (v0.8.1) et maquettes des cinq écrans |
 | ✅ | Adaptateur d'import GeneWeb : mapping vers le modèle, clés déterministes, différentiel de deux lots d'import |
 | ✅ | Stockage SQLite immuable : tables `source_*`, `interp_*`, `audit_*`, insertion seule par triggers (R10), rétractations tracées, vues des faits actifs |
 | ✅ | Service d'import : idempotence par empreinte SHA-256, réimport avec application du différentiel, tout-ou-rien |
@@ -79,7 +79,7 @@ uv run pytest
 
 | Chemin | Contenu |
 |---|---|
-| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.8 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
+| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.8.1 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
 | `docs/etude-page-claude.html` | Version page du document, générée par `tools/build_page.py`. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`). |
 | `docs/img/` | Illustrations du README (voir crédits). |

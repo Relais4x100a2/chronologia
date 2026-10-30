@@ -8,7 +8,7 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 
 ## Source de vérité
 
-- `docs/modele-evenement-masque-factoide.md` : le document de référence (version 0.8). Toute décision de modèle s'y consigne d'abord : ligne dans le « Journal des versions », section concernée, puis section 9 (décisions et questions ouvertes).
+- `docs/modele-evenement-masque-factoide.md` : le document de référence (version 0.8.1). Toute décision de modèle s'y consigne d'abord : ligne dans le « Journal des versions », section concernée, puis section 9 (décisions et questions ouvertes).
 - `docs/etude-page-claude.html` est **généré** : ne pas l'éditer à la main. `python3 tools/build_page.py` le régénère.
 - `docs/geneweb/` : références du format GeneWeb (`.gw`, wikitext), à consulter pour le connecteur d'import. Documentation externe, pas une décision de modèle.
 - `maquettes/design/` : copie des cinq écrans de la maquette (format `.dc.html` du canevas Design de claude.ai). Ils ne s'affichent que dans ce canevas ; ici, c'est une archive de référence.

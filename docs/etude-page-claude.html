@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.8, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.8.1, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -253,6 +253,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.8</td>
 <td><strong>Identification prosopographique MASQUE ⇢ PERSONNE</strong> (4.4, décision 19). PERSONNE réduite à une coquille dont tout est calculé (R8), fusion par <code>same_as_id</code>. Le statut d'une identification devient un <strong>journal</strong> (IDENT_PERSONNE_STATUT) : chaque décision est une ligne nouvelle, le statut courant est la dernière (R10 tenue sans exception). <strong>Faisceau d'indices</strong> (INDICE) : chaque indice comparé est une ligne, calculée par une règle versionnée ou jugée par un humain. CONTRIBUTEUR typé (humain, agent, import). CONCLUSION sans cible obligatoire, ses conséquences passant par CONCLUSION_EFFET (R22). Règle R25.</td>
+</tr>
+<tr>
+<td>0.8.1</td>
+<td><strong>Identifications de l'import GeneWeb</strong> (décision 19, 5.3, 5.8). Une personne par clé GeneWeb, portée en <code>ref</code> ; tous les masques de la clé lui sont rattachés. Au réimport, la personne est réutilisée et les identifications du lot ancien sortent de la vue active par <code>audit_retractation</code>, comme les factoïdes. Une décision humaine en désaccord avec l'import n'est jamais écrasée : la nouvelle identification reste « proposé » (R24). R18 précisée : un agent ne verse que des propositions, il ne rejette pas plus qu'il n'active.</td>
 </tr>
 </tbody>
 </table></div>
@@ -788,7 +792,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 </ol>
 <p>Règle ajoutée en v0.8 :</p>
 <ol start="25">
-<li><strong>R25 : le statut d'une identification est un journal.</strong> Une identification (élément écrit, cible, degré, auteur) ne change jamais ; chaque décision à son sujet (proposer, activer, rejeter) est une ligne nouvelle, et le statut courant est la dernière. Deux contrôles s'appliquent à l'insertion d'une décision « actif » : elle est refusée si le même élément a déjà une autre identification active (R11 ; il faut d'abord la rejeter), et elle est refusée si son auteur est un agent (R18 ; l'import d'une base dont l'auteur a déjà identifié ses personnes n'est pas un agent). Appliquée d'abord à IDENT_PERSONNE ; IDENT_EVENEMENT, IDENT_SOURCE et IDENT_LIEU la rejoindront.</li>
+<li><strong>R25 : le statut d'une identification est un journal.</strong> Une identification (élément écrit, cible, degré, auteur) ne change jamais ; chaque décision à son sujet (proposer, activer, rejeter) est une ligne nouvelle, et le statut courant est la dernière. Deux contrôles s'appliquent à l'insertion d'une décision : une décision « actif » est refusée si le même élément a déjà une autre identification active (R11 ; il faut d'abord la rejeter), et toute décision autre que « proposé » est refusée si son auteur est un agent (R18 : rejeter est un jugement au même titre qu'activer ; le désaccord d'un agent s'exprime par un INDICE de sens « contre »). L'import d'une base dont l'auteur a déjà identifié ses personnes n'est pas un agent. Une identification retirée par <code>audit_retractation</code> (lot remplacé ou annulé, R9) sort de la vue active quel que soit son statut. Appliquée d'abord à IDENT_PERSONNE ; IDENT_EVENEMENT, IDENT_SOURCE et IDENT_LIEU la rejoindront.</li>
 </ol>
 <h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
 <blockquote>
@@ -1189,7 +1193,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td><code>Nom Prénom.occ</code></td>
 <td>PERSONNE + MASQUE(s) + NOM</td>
-<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> pour les réimports : <code>gw:pers:{nom}_{prénom}_{occ}</code>. Une famille : <code>gw:fam:{clé du père}__{clé de la mère}</code> (<code>inconnu</code> si un parent manque) ; un passage : <code>gw:pass:{empreinte courte}:{ligne_debut}_{ligne_fin}</code>.</td>
+<td>Clé <code>nom/prénom/occ</code> gardée en <code>cle_externe</code> du masque pour les réimports : <code>gw:pers:{nom}_{prénom}_{occ}</code>. La PERSONNE porte la même clé en <code>ref</code> : une personne par clé, à laquelle sont rattachés tous les masques de la clé (décision 19) ; son <code>cle_externe</code> reste aux référentiels d'autorité. Une famille : <code>gw:fam:{clé du père}__{clé de la mère}</code> (<code>inconnu</code> si un parent manque) ; un passage : <code>gw:pass:{empreinte courte}:{ligne_debut}_{ligne_fin}</code>.</td>
 </tr>
 <tr>
 <td><code>(public)</code>, <code>{alias}</code>, <code>#salias</code>, <code>#nick</code></td>
@@ -1457,7 +1461,7 @@ end pevt
 <li><strong>Charger la couche Source.</strong> Passages, factoïdes, masques, participations, qualités, relations, noms, tous rattachés au lot.</li>
 <li><strong>Créer les identifications du lot.</strong> Une personne par clé GeneWeb, un événement par factoïde, une source par groupe exact, un lieu par correspondance unique, toutes « certain » et attribuées au lot.</li>
 <li><strong>Rapprocher avec l'existant.</strong> Les correspondances avec les personnes, événements, sources et lieux déjà en base sont créées en « proposé » et entrent dans la file de décisions.</li>
-<li><strong>Réimporter sans doublon.</strong> La <code>cle_externe</code> et l'empreinte du fichier permettent de comparer deux lots et de n'appliquer que les différences. Le différentiel est décrit par la décision 16.</li>
+<li><strong>Réimporter sans doublon.</strong> La <code>cle_externe</code> et l'empreinte du fichier permettent de comparer deux lots et de n'appliquer que les différences. Le différentiel est décrit par la décision 16 ; ses effets sur les identifications de personnes, par la décision 19.</li>
 </ol>
 <p>L'export inverse vers GeneWeb est possible mais appauvrissant : une seule valeur par champ, masques fusionnés, incertitude réduite aux symboles de précision. On exporte les vues fondées sur les identifications actives.</p>
 <hr />
@@ -1691,7 +1695,7 @@ end pevt
 </table></div>
 <h3 id="76-règles-de-la-saisie-assistée">7.6 Règles de la saisie assistée</h3>
 <ol start="18">
-<li><strong>R18 : la machine propose, l'humain verse.</strong> Aucun élément extrait n'entre dans la couche Source sans validation humaine, et aucune identification créée par un agent n'est « actif ».</li>
+<li><strong>R18 : la machine propose, l'humain verse.</strong> Aucun élément extrait n'entre dans la couche Source sans validation humaine, et aucune identification créée par un agent n'est « actif ». Un agent ne verse que des propositions : il n'active ni ne rejette une identification, il apporte des indices (R25).</li>
 <li><strong>R19 : pas d'élément sans ancrage.</strong> Tout élément extrait cite sa position dans la transcription ; sans ancrage, il est rejeté automatiquement. C'est la parade contre les inventions.</li>
 <li><strong>R20 : lu ou déduit.</strong> Un élément déduit est marqué comme tel et n'est jamais pré-validé.</li>
 <li><strong>R21 : filtre avant envoi externe.</strong> Documents sous délai de communicabilité, personnes possiblement vivantes et images à réutilisation restreinte ne quittent pas le serveur local.</li>
@@ -1825,8 +1829,10 @@ SELECT ip.*
 FROM interp.ident_personne ip
 JOIN LATERAL (SELECT s.statut FROM interp.ident_personne_statut s
               WHERE s.ident_id = ip.id ORDER BY s.id DESC LIMIT 1) d ON true
-WHERE d.statut = 'actif';
--- R11 et R18 : contrôlés par trigger à l'insertion d'une décision « actif »
+WHERE d.statut = 'actif'
+  AND NOT EXISTS (SELECT 1 FROM audit.retractation r
+                  WHERE r.cible_table = 'interp.ident_personne' AND r.cible_id = ip.id);
+-- R11 (décision « actif ») et R18 (agent : « proposé » seulement) : triggers à l'insertion
 
 -- Vue : participants d'un événement (R8)
 CREATE VIEW interp.participant_evenement AS
@@ -2033,7 +2039,11 @@ let role_of_witness sexe = function
 <li><code>interp_conclusion_effet</code> (<code>conclusion_id</code>, <code>type</code>, <code>cible_type</code>, <code>cible_id</code>) : les conséquences d'une conclusion (R22). <code>interp_conclusion.cible_masque_id</code> devient facultatif : une conclusion peut réunir deux personnes, écarter un homonyme ou borner une date sans porter sur un seul masque.</li>
 </ul>
 <p><strong>Homonymes</strong> : un masque peut avoir plusieurs identifications « proposé » vers des personnes différentes ; c'est le jeu de candidats, chacun avec son faisceau. Écarter un homonyme, c'est verser « rejeté » avec une conclusion, qui reste consultable (R11, R24). Le groupe d'homonymes est une vue sur le nom normalisé, sans table propre.</p>
-<p><strong>Import GeneWeb</strong> : la clé <code>Nom Prénom.occ</code> est l'identification faite par l'auteur de la base. L'import crée une personne par clé et une identification de degré « certain », activée par un contributeur de type <code>import</code> et rattachée au lot (5.3) ; annuler le lot l'annule (R9). Une identification proposée par un agent reste « proposé » (R18).</p>
+<p><strong>Import GeneWeb</strong> : la clé <code>Nom Prénom.occ</code> est l'identification faite par l'auteur de la base.
+- <em>Une personne par clé.</em> L'import crée (ou retrouve) la personne de <code>ref</code> <code>gw:pers:…</code> et rattache chaque masque de la clé par une identification de degré « certain », versée « actif » par le contributeur canonique <code>import_geneweb</code> (type <code>import</code>) et rattachée au lot (5.3). Les masques d'une même personne sont ainsi réunis par construction (R4).
+- <em>Réimport.</em> La personne est réutilisée : les conclusions qui la visent restent valables. Les identifications des masques du lot ancien sont retirées par <code>audit_retractation</code>, avec le motif du différentiel de leur clé : <code>reconduction</code> (masques identiques), <code>modification</code> (nom ou sexe changé), <code>retractation</code> (clé disparue). La personne d'une clé disparue reste, sans identification active. Réécrire les identifications d'un lot déjà traité n'écrit rien.
+- <em>Primauté du chercheur (R24).</em> Si la dernière décision humaine sur les identifications d'une clé est en désaccord avec l'import (rejet d'une identification vers la personne de la clé, ou activation vers une autre personne), les nouvelles identifications de la clé sont versées « proposé », jamais « actif », et le rapport d'import les compte.
+- Une identification proposée par un agent reste « proposé » (R18). Annuler un lot retirera ses identifications (R9) ; la fonction d'annulation reste à écrire.</p>
 <p>L'identification d'événement garde pour l'instant son statut en colonne, posé à l'import ; elle rejoindra le journal dans un lot ultérieur.</p>
 </li>
 </ol>
