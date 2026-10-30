@@ -2,8 +2,9 @@
 
 Les schémas PostgreSQL ``source``, ``interp`` et ``audit`` sont simulés par un
 préfixe de table, pour basculer sans toucher à la logique métier. Les dates sont
-stockées en TEXT ISO-8601 (comparaison directe). Les triggers R10 et la vue des
-factoïdes actifs viennent avec les tests suivants.
+stockées en TEXT ISO-8601 (comparaison directe). Toutes les tables sont en
+insertion seule (R10). L'identification MASQUE → PERSONNE (décision 19) garde ses
+décisions dans un journal (R25), contrôlé à l'insertion par R11 et R18.
 """
 
 import sqlite3
@@ -138,11 +139,80 @@ CREATE TABLE IF NOT EXISTS interp_conclusion (
     id INTEGER PRIMARY KEY,
     lot_id INTEGER NOT NULL REFERENCES source_lot_import (id),
     ref TEXT NOT NULL,
-    cible_masque_id INTEGER NOT NULL REFERENCES source_masque (id),
+    cible_masque_id INTEGER REFERENCES source_masque (id),
     argument TEXT NOT NULL,
     valeur TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_conclusion_cible ON interp_conclusion (cible_masque_id);
+
+CREATE TABLE IF NOT EXISTS interp_conclusion_effet (
+    id INTEGER PRIMARY KEY,
+    conclusion_id INTEGER NOT NULL REFERENCES interp_conclusion (id),
+    type TEXT NOT NULL,
+    cible_type TEXT NOT NULL,
+    cible_id INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_conclusion_effet_conclusion
+    ON interp_conclusion_effet (conclusion_id);
+CREATE INDEX IF NOT EXISTS ix_conclusion_effet_cible
+    ON interp_conclusion_effet (cible_type, cible_id);
+
+CREATE TABLE IF NOT EXISTS interp_contributeur (
+    id INTEGER PRIMARY KEY,
+    nom TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('humain', 'agent', 'import'))
+);
+
+CREATE TABLE IF NOT EXISTS interp_personne (
+    id INTEGER PRIMARY KEY,
+    lot_id INTEGER REFERENCES source_lot_import (id),
+    ref TEXT NOT NULL,
+    uri TEXT,
+    acces TEXT,
+    cle_externe TEXT,
+    same_as_id INTEGER REFERENCES interp_personne (id)
+);
+CREATE INDEX IF NOT EXISTS ix_personne_cle_externe ON interp_personne (cle_externe);
+CREATE INDEX IF NOT EXISTS ix_personne_same_as ON interp_personne (same_as_id);
+
+CREATE TABLE IF NOT EXISTS interp_ident_personne (
+    id INTEGER PRIMARY KEY,
+    masque_id INTEGER NOT NULL REFERENCES source_masque (id),
+    personne_id INTEGER NOT NULL REFERENCES interp_personne (id),
+    degre TEXT NOT NULL CHECK (degre IN ('certain', 'probable', 'possible')),
+    contributeur_id INTEGER NOT NULL REFERENCES interp_contributeur (id),
+    lot_id INTEGER REFERENCES source_lot_import (id),
+    date TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_ident_personne_masque ON interp_ident_personne (masque_id);
+CREATE INDEX IF NOT EXISTS ix_ident_personne_personne
+    ON interp_ident_personne (personne_id);
+
+CREATE TABLE IF NOT EXISTS interp_ident_personne_statut (
+    id INTEGER PRIMARY KEY,
+    ident_id INTEGER NOT NULL REFERENCES interp_ident_personne (id),
+    statut TEXT NOT NULL CHECK (statut IN ('propose', 'actif', 'rejete')),
+    conclusion_id INTEGER REFERENCES interp_conclusion (id),
+    contributeur_id INTEGER NOT NULL REFERENCES interp_contributeur (id),
+    date TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_ident_personne_statut_ident
+    ON interp_ident_personne_statut (ident_id, date, id);
+
+CREATE TABLE IF NOT EXISTS interp_indice (
+    id INTEGER PRIMARY KEY,
+    ident_id INTEGER NOT NULL REFERENCES interp_ident_personne (id),
+    type TEXT NOT NULL,
+    sens TEXT NOT NULL CHECK (sens IN ('pour', 'contre', 'neutre')),
+    poids REAL,
+    valeur_masque TEXT,
+    valeur_personne TEXT,
+    mode TEXT NOT NULL CHECK (mode IN ('calcule', 'juge')),
+    regle_version TEXT,
+    factoide_id INTEGER REFERENCES source_factoide (id),
+    conclusion_id INTEGER REFERENCES interp_conclusion (id)
+);
+CREATE INDEX IF NOT EXISTS ix_indice_ident ON interp_indice (ident_id);
 
 CREATE TABLE IF NOT EXISTS audit_retractation (
     id INTEGER PRIMARY KEY,
@@ -168,6 +238,44 @@ FROM interp_conclusion c
 LEFT JOIN audit_retractation r
   ON r.cible_table = 'interp_conclusion' AND r.cible_id = c.id
 WHERE r.id IS NULL;
+
+-- R25 : le statut courant d'une identification est la dernière ligne de son
+-- journal (date, puis id pour départager deux décisions de même date).
+CREATE VIEW IF NOT EXISTS interp_ident_personne_actif AS
+SELECT ip.*
+FROM interp_ident_personne ip
+JOIN interp_ident_personne_statut s ON s.ident_id = ip.id
+WHERE s.statut = 'actif'
+  AND s.id = (
+    SELECT s2.id FROM interp_ident_personne_statut s2
+    WHERE s2.ident_id = ip.id
+    ORDER BY s2.date DESC, s2.id DESC
+    LIMIT 1
+  );
+
+-- R11 : une seule identification active par masque ; rejeter l'autre d'abord.
+CREATE TRIGGER IF NOT EXISTS trg_r11_ident_personne_actif
+BEFORE INSERT ON interp_ident_personne_statut
+WHEN NEW.statut = 'actif' AND EXISTS (
+  SELECT 1 FROM interp_ident_personne_actif a
+  JOIN interp_ident_personne n ON n.id = NEW.ident_id
+  WHERE a.masque_id = n.masque_id AND a.id <> NEW.ident_id
+)
+BEGIN
+  SELECT RAISE(ABORT, 'R11 violation: le masque a deja une identification active');
+END;
+
+-- R18 : la machine propose, l'humain décide ; un agent ne fait que proposer
+-- (un désaccord s'exprime par un indice « contre », jamais par un rejet).
+CREATE TRIGGER IF NOT EXISTS trg_r18_ident_personne_agent
+BEFORE INSERT ON interp_ident_personne_statut
+WHEN NEW.statut <> 'propose' AND EXISTS (
+  SELECT 1 FROM interp_contributeur c
+  WHERE c.id = NEW.contributeur_id AND c.type = 'agent'
+)
+BEGIN
+  SELECT RAISE(ABORT, 'R18 violation: un agent ne peut que proposer une identification');
+END;
 """
 
 
