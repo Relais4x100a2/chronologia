@@ -287,6 +287,18 @@ WHEN NEW.statut <> 'propose' AND EXISTS (
 BEGIN
   SELECT RAISE(ABORT, 'R18 violation: un agent ne peut que proposer une identification');
 END;
+
+-- R26 : un rapprochement calculé n'est jamais « certain » ; l'exigence d'un
+-- indice, écrit après l'identification, est tenue par le moteur.
+CREATE TRIGGER IF NOT EXISTS trg_r26_ident_personne_agent
+BEFORE INSERT ON interp_ident_personne
+WHEN NEW.degre NOT IN ('possible', 'probable') AND EXISTS (
+  SELECT 1 FROM interp_contributeur c
+  WHERE c.id = NEW.contributeur_id AND c.type = 'agent'
+)
+BEGIN
+  SELECT RAISE(ABORT, 'R26 violation: un agent ne propose que possible ou probable');
+END;
 """
 
 

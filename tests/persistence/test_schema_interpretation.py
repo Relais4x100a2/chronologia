@@ -355,3 +355,27 @@ def test_r18_import_peut_activer(base):
     a = _ident(base, 1, 1, IMPORT)
     _statut(base, a, "actif", IMPORT)
     assert _actifs(base) == {a}
+
+
+def _ident_degre(con, degre, contributeur_id):
+    return con.execute(
+        "INSERT INTO interp_ident_personne (masque_id, personne_id, degre,"
+        " contributeur_id, lot_id, date) VALUES (1, 1, ?, ?, 1, '2026-10-30')",
+        (degre, contributeur_id),
+    ).lastrowid
+
+
+def test_r26_agent_ne_peut_pas_proposer_certain(base):
+    with pytest.raises(sqlite3.DatabaseError, match="R26"):
+        _ident_degre(base, "certain", AGENT)
+    assert base.execute("SELECT COUNT(*) FROM interp_ident_personne").fetchone()[0] == 0
+
+
+@pytest.mark.parametrize("degre", ["possible", "probable"])
+def test_r26_agent_propose_possible_ou_probable(base, degre):
+    assert _ident_degre(base, degre, AGENT)
+
+
+@pytest.mark.parametrize("contributeur", [HUMAIN, IMPORT])
+def test_r26_humain_et_import_peuvent_poser_certain(base, contributeur):
+    assert _ident_degre(base, "certain", contributeur)
