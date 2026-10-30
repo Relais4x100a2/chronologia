@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.7.13, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.8, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -249,6 +249,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.7.13</td>
 <td><strong>Application du différentiel à la base</strong> : décision 18 complétée. <code>appliquer_diff</code> retire de la vue active les occurrences du lot ancien que le lot nouveau remplace, par trois motifs d'audit : <code>retractation</code>, <code>modification</code>, <code>reconduction</code>. Vues actives <code>source_factoide_actif</code> et <code>interp_conclusion_actif</code>. Aucune règle nouvelle.</td>
+</tr>
+<tr>
+<td>0.8</td>
+<td><strong>Identification prosopographique MASQUE ⇢ PERSONNE</strong> (4.4, décision 19). PERSONNE réduite à une coquille dont tout est calculé (R8), fusion par <code>same_as_id</code>. Le statut d'une identification devient un <strong>journal</strong> (IDENT_PERSONNE_STATUT) : chaque décision est une ligne nouvelle, le statut courant est la dernière (R10 tenue sans exception). <strong>Faisceau d'indices</strong> (INDICE) : chaque indice comparé est une ligne, calculée par une règle versionnée ou jugée par un humain. CONTRIBUTEUR typé (humain, agent, import). CONCLUSION sans cible obligatoire, ses conséquences passant par CONCLUSION_EFFET (R22). Règle R25.</td>
 </tr>
 </tbody>
 </table></div>
@@ -558,7 +562,12 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
   LIEU_HISTORIQUE |o--o{ EVENEMENT : &quot;lieu retenu&quot;
   SITE |o--o{ EVENEMENT : &quot;site retenu&quot;
   CONCLUSION ||--o{ IDENT_SOURCE : justifie
-  CONCLUSION ||--o{ IDENT_PERSONNE : justifie
+  IDENT_PERSONNE ||--o{ IDENT_PERSONNE_STATUT : &quot;journal de&quot;
+  CONCLUSION |o--o{ IDENT_PERSONNE_STATUT : justifie
+  CONTRIBUTEUR ||--o{ IDENT_PERSONNE : propose
+  CONTRIBUTEUR ||--o{ IDENT_PERSONNE_STATUT : decide
+  IDENT_PERSONNE ||--o{ INDICE : &quot;faisceau de&quot;
+  PERSONNE |o--o{ PERSONNE : &quot;same as&quot;
   CONCLUSION ||--o{ IDENT_EVENEMENT : justifie
   CONCLUSION ||--o{ IDENT_LIEU : justifie
   CONCLUSION }o--o{ FACTOIDE : &quot;s'appuie sur&quot;
@@ -649,8 +658,8 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 </tr>
 <tr>
 <td>PERSONNE</td>
-<td>Individu reconstruit ; ses données sont calculées à partir de ses masques.</td>
-<td><code>uri</code>, <code>nom_retenu</code> (vue), <code>same_as</code>, <code>acces</code>, <code>cle_externe</code></td>
+<td>Individu reconstruit ; ses données sont calculées à partir de ses masques (R8). Elle ne stocke ni nom, ni date, ni lieu : c'est une coquille.</td>
+<td><code>uri</code>, <code>nom_retenu</code> (vue), <code>same_as_id</code> (personne canonique après fusion, R4), <code>acces</code>, <code>cle_externe</code> (identifiant d'un référentiel externe ; la clé GeneWeb reste portée par le MASQUE)</td>
 </tr>
 <tr>
 <td>EVENEMENT</td>
@@ -685,7 +694,17 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>IDENT_SOURCE · IDENT_PERSONNE · IDENT_EVENEMENT · IDENT_LIEU</td>
 <td>Structure commune : un élément écrit rattaché à une entité conclue. Pour IDENT_LIEU, la cible est un lieu historique ou un site.</td>
-<td><code>de_id</code>, <code>vers_id</code>, <code>degre</code> (certain, probable, possible), <code>statut</code> (proposé, actif, rejeté), <code>conclusion_id</code>, <code>lot_import_id</code></td>
+<td><code>de_id</code>, <code>vers_id</code>, <code>degre</code> (certain, probable, possible), <code>statut</code> (proposé, actif, rejeté), <code>conclusion_id</code>, <code>lot_import_id</code> ; pour IDENT_PERSONNE, depuis la v0.8, <code>statut</code> et <code>conclusion_id</code> sont portés par le journal IDENT_PERSONNE_STATUT (R25), et <code>contributeur_id</code> désigne l'auteur de la proposition</td>
+</tr>
+<tr>
+<td>IDENT_PERSONNE_STATUT</td>
+<td>Une décision sur une identification de personne. Le statut courant est la dernière décision (R25).</td>
+<td><code>ident_id</code>, <code>statut</code> (proposé, actif, rejeté), <code>conclusion_id</code> (facultatif pour une proposition, attendu pour une activation ou un rejet), <code>contributeur_id</code>, <code>date</code></td>
+</tr>
+<tr>
+<td>INDICE</td>
+<td>Un élément d'un faisceau : ce qui a été comparé entre le masque et la personne candidate, et dans quel sens cela pèse.</td>
+<td><code>ident_id</code>, <code>type</code> (nom, sexe, âge, date, lieu, parenté, conjoint, profession, co-présence…), <code>sens</code> (pour, contre, neutre), <code>poids</code>, <code>valeur_masque</code> et <code>valeur_personne</code> (ce qui a été comparé, tel quel), <code>mode</code> (calculé, jugé), <code>regle_version</code> (si calculé), <code>factoide_id</code> (fait d'appui, facultatif), <code>conclusion_id</code> (si jugé)</td>
 </tr>
 <tr>
 <td>CONCLUSION</td>
@@ -727,7 +746,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>CONTRIBUTEUR</td>
 <td>Chercheur ou processus automatique.</td>
-<td><code>nom</code>, <code>type</code></td>
+<td><code>nom</code>, <code>type</code> (humain, agent, import)</td>
 </tr>
 <tr>
 <td>SITE</td>
@@ -766,6 +785,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <li><strong>R22 : une conclusion, plusieurs effets, un seul retrait.</strong> Une décision comme « retenir la chapelle et dater après 1709 » produit plusieurs effets : activer l'identification de la chapelle, rejeter celle de la paroisse, poser une contrainte « début ≥ 1709 » sur l'événement. Ils sont appliqués dans une seule transaction ; retirer la conclusion les retire tous. Une contrainte peut renvoyer à la date d'un autre événement (le changement de territoire) plutôt qu'à une date fixe : si cette date est révisée, la contrainte suit.</li>
 <li><strong>R23 : l'incertitude assumée n'est pas un conflit.</strong> Garder l'enveloppe est une décision, signée et argumentée. L'événement sort de la file de décisions, mais il y revient automatiquement si une nouvelle source lui est rattachée.</li>
 <li><strong>R24 : rien n'est masqué en silence.</strong> Une source écartée d'un calcul (un domicile pris pour un lieu d'événement, par exemple) reste listée et consultable avec la raison de son exclusion. Une exclusion faite par la machine est une proposition (R18) : l'historien peut réintégrer la source.</li>
+</ol>
+<p>Règle ajoutée en v0.8 :</p>
+<ol start="25">
+<li><strong>R25 : le statut d'une identification est un journal.</strong> Une identification (élément écrit, cible, degré, auteur) ne change jamais ; chaque décision à son sujet (proposer, activer, rejeter) est une ligne nouvelle, et le statut courant est la dernière. Deux contrôles s'appliquent à l'insertion d'une décision « actif » : elle est refusée si le même élément a déjà une autre identification active (R11 ; il faut d'abord la rejeter), et elle est refusée si son auteur est un agent (R18 ; l'import d'une base dont l'auteur a déjà identifié ses personnes n'est pas un agent). Appliquée d'abord à IDENT_PERSONNE ; IDENT_EVENEMENT, IDENT_SOURCE et IDENT_LIEU la rejoindront.</li>
 </ol>
 <h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
 <blockquote>
@@ -1775,16 +1798,42 @@ CREATE TABLE interp.ident_evenement (
 -- R11 : une seule identification active par factoïde
 CREATE UNIQUE INDEX ident_evenement_actif
   ON interp.ident_evenement (factoide_id) WHERE statut = 'actif';
--- interp.ident_personne (masque_id → personne_id),
 -- interp.ident_source (passage_id → source_id) et
 -- interp.ident_lieu (mention_lieu_id → lieu_historique_id ou site_id) : même structure
+
+-- Identification de personne (v0.8, R25) : la proposition est immuable,
+-- les décisions forment un journal ; le statut courant est la dernière.
+CREATE TABLE interp.ident_personne (
+  id              bigserial PRIMARY KEY,
+  masque_id       bigint NOT NULL REFERENCES source.masque,
+  personne_id     bigint NOT NULL REFERENCES interp.personne,
+  degre           degre NOT NULL,
+  contributeur_id int NOT NULL REFERENCES ref.contributeur,
+  lot_import_id   int REFERENCES ref.lot_import,
+  date            timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE interp.ident_personne_statut (
+  id              bigserial PRIMARY KEY,
+  ident_id        bigint NOT NULL REFERENCES interp.ident_personne,
+  statut          statut_ident NOT NULL,
+  conclusion_id   bigint REFERENCES interp.conclusion,
+  contributeur_id int NOT NULL REFERENCES ref.contributeur,
+  date            timestamptz NOT NULL DEFAULT now()
+);
+CREATE VIEW interp.ident_personne_actif AS
+SELECT ip.*
+FROM interp.ident_personne ip
+JOIN LATERAL (SELECT s.statut FROM interp.ident_personne_statut s
+              WHERE s.ident_id = ip.id ORDER BY s.id DESC LIMIT 1) d ON true
+WHERE d.statut = 'actif';
+-- R11 et R18 : contrôlés par trigger à l'insertion d'une décision « actif »
 
 -- Vue : participants d'un événement (R8)
 CREATE VIEW interp.participant_evenement AS
 SELECT ie.evenement_id, ip.personne_id, p.role_id, p.factoide_id
 FROM interp.ident_evenement ie
 JOIN source.participation p   ON p.factoide_id = ie.factoide_id
-JOIN interp.ident_personne ip ON ip.masque_id = p.masque_id AND ip.statut = 'actif'
+JOIN interp.ident_personne_actif ip ON ip.masque_id = p.masque_id
 WHERE ie.statut = 'actif';
 
 -- Vue : intervalle et conflit de date d'un événement (R5, R12)
@@ -1953,7 +2002,7 @@ let role_of_witness sexe = function
 </code></pre>
 <hr />
 <h2 id="9-décisions-et-questions-ouvertes">9. Décisions et questions ouvertes</h2>
-<h3 id="91-décisions-prises-v04-à-v072">9.1 Décisions prises (v0.4 à v0.7.2)</h3>
+<h3 id="91-décisions-prises-v04-à-v08">9.1 Décisions prises (v0.4 à v0.8)</h3>
 <ol>
 <li><strong>Les lieux forment une quatrième agrégation</strong> (MENTION_LIEU ⇢ LIEU par IDENT_LIEU), pour que la couche Source reste en insertion seule (R10, R13).</li>
 <li><strong>Le factoïde reste à la granularité de l'acte</strong> (R14). La co-présence des participants est l'information essentielle des registres et minutes, et ce choix rejoint l'<em>Event</em> de niveau record de GEDCOM X. Les affirmations fines d'IPIF existent déjà à l'intérieur du factoïde, sous forme de participations, qualités et relations.</li>
@@ -1973,6 +2022,20 @@ let role_of_witness sexe = function
 <li><strong>Différentiel de lots</strong> : la comparaison de deux lots (<code>comparer_lots(ancien, nouveau)</code>) est une fonction pure qui ne modifie aucun lot. Les masques s'apparient par <code>cle_externe</code>. Un factoïde s'apparie par (type, <code>cle_famille</code>, participant principal, rang d'occurrence) ; sans participant, par son premier lien (relation ou qualité). Les lignes de fichier ne comptent pas dans l'égalité (un ajout en tête les décale toutes). Les CONCLUSION (notes de personne) s'apparient par cible (<code>cle_externe</code> de la personne) : textes identiques d'abord (invariants), puis les notes restantes par ordre (modification avec ancien et nouveau <code>argument</code>), le surplus étant ajout ou rétraction. Quatre issues : <em>ajout</em> (absent de l'ancien), <em>invariant</em> (identique : dates, lieux, participants, relations, qualités, citation et transcription), <em>modification</em> (même fait, valeur changée, avec la liste des champs) et <em>rétraction</em> (présent dans l'ancien seulement). Une rétraction ne supprime rien (R10) : l'application du différentiel la versera comme un retrait d'identification, jamais comme un effacement de la couche Source.</li>
 <li><strong>Événements familiaux et familles sans conjoint</strong> : un bloc <code>fevt</code> ne perd aucun tag (R13). Chaque tag standard a son type Source (table 5.3) ; un tag inconnu devient un type libre à son écriture d'origine. Une ligne <code>fam ? ? + ? ?</code> crée quand même sa famille, avec enfants et événements ; la clé <code>gw:fam:inconnu__inconnu:{clé du premier enfant}</code> distingue ces familles entre elles (sans enfant, la clé reste partagée : cas non rencontré).</li>
 <li><strong>Persistance SQLite</strong> : le DDL est écrit en SQL portable, avec un préfixe de table par schéma PostgreSQL visé (<code>source_*</code>, <code>interp_*</code>, <code>audit_*</code>), pour basculer vers <code>source.*</code> et <code>interp.*</code> (PostgreSQL/PostGIS) sans toucher à la logique métier. Dates en TEXT ISO-8601. Les tables sont en insertion seule (R10, triggers) ; une rétractation s'enregistre dans <code>audit_retractation</code>, jamais par <code>DELETE</code>. <code>personne</code> et <code>ident_personne</code> sont réservées au chantier d'identification MASQUE → PERSONNE. <code>appliquer_diff</code> enregistre, dans <code>audit_retractation</code>, trois motifs : <code>retractation</code> (fait disparu du lot nouveau), <code>modification</code> (ancienne version d'un fait dont le contenu a changé), <code>reconduction</code> (fait identique, le lot nouveau en porte l'occurrence active). Les vues <code>source_factoide_actif</code> et <code>interp_conclusion_actif</code> excluent les cibles retirées ; après application, la vue active équivaut au lot nouveau. Appliquer deux fois le même diff n'écrit rien de plus.</li>
+<li>
+<p><strong>Identification MASQUE ⇢ PERSONNE</strong> (v0.8, R25). Six tables, en insertion seule comme les autres :</p>
+<ul>
+<li><code>interp_contributeur</code> (<code>nom</code>, <code>type</code> : humain, agent, import) : le référentiel CONTRIBUTEUR, préfixé <code>interp_</code> en SQLite faute de schéma <code>ref</code> simulé.</li>
+<li><code>interp_personne</code> : coquille (<code>ref</code>, <code>uri</code>, <code>acces</code>, <code>cle_externe</code>, <code>same_as_id</code>). Nom retenu, dates et fiche sont des vues sur les identifications actives (R8). Une fusion pointe les identifications vers la même personne, ou chaîne une personne vers la canonique par <code>same_as_id</code> (R4) ; la clé GeneWeb reste sur le masque.</li>
+<li><code>interp_ident_personne</code> : la proposition (<code>masque_id</code>, <code>personne_id</code>, <code>degre</code>, <code>contributeur_id</code>, <code>lot_id</code>, <code>date</code>), jamais modifiée.</li>
+<li><code>interp_ident_personne_statut</code> : le journal des décisions (<code>ident_id</code>, <code>statut</code>, <code>conclusion_id</code>, <code>contributeur_id</code>, <code>date</code>). Vue <code>interp_ident_personne_actif</code> : identifications dont la dernière décision est « actif ». Deux triggers à l'insertion : R11 (une autre identification active du même masque bloque l'activation) et R18 (un agent ne peut pas activer).</li>
+<li><code>interp_indice</code> : le faisceau d'indices, une ligne par élément comparé (<code>ident_id</code>, <code>type</code>, <code>sens</code>, <code>poids</code>, <code>valeur_masque</code>, <code>valeur_personne</code>, <code>mode</code>, <code>regle_version</code>, <code>factoide_id</code>, <code>conclusion_id</code>). Un indice calculé cite la version de sa règle, pour être rejoué comme une normalisation de date (R13) ; le score d'un candidat en découle (question 9.2-1).</li>
+<li><code>interp_conclusion_effet</code> (<code>conclusion_id</code>, <code>type</code>, <code>cible_type</code>, <code>cible_id</code>) : les conséquences d'une conclusion (R22). <code>interp_conclusion.cible_masque_id</code> devient facultatif : une conclusion peut réunir deux personnes, écarter un homonyme ou borner une date sans porter sur un seul masque.</li>
+</ul>
+<p><strong>Homonymes</strong> : un masque peut avoir plusieurs identifications « proposé » vers des personnes différentes ; c'est le jeu de candidats, chacun avec son faisceau. Écarter un homonyme, c'est verser « rejeté » avec une conclusion, qui reste consultable (R11, R24). Le groupe d'homonymes est une vue sur le nom normalisé, sans table propre.</p>
+<p><strong>Import GeneWeb</strong> : la clé <code>Nom Prénom.occ</code> est l'identification faite par l'auteur de la base. L'import crée une personne par clé et une identification de degré « certain », activée par un contributeur de type <code>import</code> et rattachée au lot (5.3) ; annuler le lot l'annule (R9). Une identification proposée par un agent reste « proposé » (R18).</p>
+<p>L'identification d'événement garde pour l'instant son statut en colonne, posé à l'import ; elle rejoindra le journal dans un lot ultérieur.</p>
+</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
@@ -1981,7 +2044,7 @@ let role_of_witness sexe = function
 <li><strong>Publication RDF.</strong> Correspondance fine vers CIDOC‑CRM et CRMinf (PC14, I2, I7) à écrire et à tester.</li>
 <li><strong>Types d'événements décrits.</strong> Le type porté par le factoïde (<code>type_evenement_id</code>) est traité comme une normalisation du vocabulaire. Si des classements font débat (un « contrat » qui est en fait une donation), il faudra les traiter par une conclusion sur le factoïde.</li>
 <li><strong>Emprises anciennes.</strong> Les limites des paroisses et seigneuries sont rarement connues avant le cadastre napoléonien. On commence par des points (chef-lieu) avec un rayon d'incertitude, comme le recommande le World Historical Gazetteer, puis on ajoute des polygones à mesure des sources. La zone tampon est calculée à l'affichage (<code>ST_Buffer</code>), jamais stockée ; la précision doit rester visible sur la carte.</li>
-<li><strong>Notion d'organisation.</strong> Faut-il introduire une entité pour les groupes constitués autres que territoriaux (régiment, confrérie, communauté religieuse, corporation, étude notariale, entreprise, association) ? Rien ne l'impose aujourd'hui. Le modèle les traite déjà de trois façons partielles : le LIEU_HISTORIQUE couvre les institutions territoriales (paroisse, bailliage) ; la profession est un rôle durable unaire ; la parenté est un rôle durable binaire. Un « employeur » ou une « appartenance à un régiment » n'a pas de place propre. À instruire lors d'une prochaine itération : (a) un besoin avéré dans le corpus ou les requêtes visées (réseau, prosopographie institutionnelle) ; (b) si oui, la forme : une cinquième agrégation par identification révisable (mention d'organisation ⇢ organisation, sur le patron de IDENT_LIEU), ou un simple type de masque ; (c) le rôle durable binaire masque ↔ organisation, daté, avec intervalle flou ; (d) la frontière avec LIEU_HISTORIQUE pour les institutions à la fois territoriales et personnes morales (une paroisse, une seigneurie) ; (e) la correspondance CIDOC‑CRM (E74 Group) et le traitement des groupes dans GEDCOM X ; (f) l'effet sur l'import GeneWeb. S'il est retenu, une nouvelle règle (R25) devra fixer son statut vis-à-vis de R13 et R18. Aucune décision prise.</li>
+<li><strong>Notion d'organisation.</strong> Faut-il introduire une entité pour les groupes constitués autres que territoriaux (régiment, confrérie, communauté religieuse, corporation, étude notariale, entreprise, association) ? Rien ne l'impose aujourd'hui. Le modèle les traite déjà de trois façons partielles : le LIEU_HISTORIQUE couvre les institutions territoriales (paroisse, bailliage) ; la profession est un rôle durable unaire ; la parenté est un rôle durable binaire. Un « employeur » ou une « appartenance à un régiment » n'a pas de place propre. À instruire lors d'une prochaine itération : (a) un besoin avéré dans le corpus ou les requêtes visées (réseau, prosopographie institutionnelle) ; (b) si oui, la forme : une cinquième agrégation par identification révisable (mention d'organisation ⇢ organisation, sur le patron de IDENT_LIEU), ou un simple type de masque ; (c) le rôle durable binaire masque ↔ organisation, daté, avec intervalle flou ; (d) la frontière avec LIEU_HISTORIQUE pour les institutions à la fois territoriales et personnes morales (une paroisse, une seigneurie) ; (e) la correspondance CIDOC‑CRM (E74 Group) et le traitement des groupes dans GEDCOM X ; (f) l'effet sur l'import GeneWeb. S'il est retenu, une nouvelle règle devra fixer son statut vis-à-vis de R13 et R18. Aucune décision prise.</li>
 </ol>
 <hr />
 <h2 id="10-sources">10. Sources</h2>

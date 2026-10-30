@@ -2,7 +2,7 @@
 
 Contexte de reprise pour les agents IA. Source de vérité du modèle : `docs/modele-evenement-masque-factoide.md` (voir `CLAUDE.md`).
 
-## État (modèle v0.7.13)
+## État (modèle v0.8)
 
 - **Persistance SQLite** (`chronologia/persistence/`) : schéma portable, schémas PostgreSQL simulés par préfixe de table : `source_*` (lot_import, passage, masque, factoide, participation, relation, qualite, mention_lieu), `interp_*` (evenement, ident_evenement, conclusion), `audit_retractation`. Décision 18.
 - **R10** : insertion seule, appliquée par triggers `BEFORE UPDATE` / `BEFORE DELETE` sur toutes les tables. Une rétractation s'écrit dans `audit_retractation` (motifs `retractation`, `modification`, `reconduction`), jamais par suppression. Vues actives : `source_factoide_actif`, `interp_conclusion_actif`.
@@ -19,7 +19,7 @@ Source unique : dépôt `toldot` (`../toldot`, package `geneweb-py`, dépendance
 ## Garde-fous
 
 - Bases réelles (`~/code_dev/TOLDOT/x_archive_GENEWEB_PROJECTS/...`) : lecture seule, jamais copiées, importées ni versionnées ici ; essais par scripts éphémères hors Git ; aucune donnée nominative dans les logs ni comptes-rendus (agrégats seulement).
-- Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R25.
+- Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R26.
 - `docs/etude-page-claude.html` est généré : `uv run --no-project --with markdown python tools/build_page.py`.
 - TDD ; vérifications : `uv run python -m pytest -q` et `uv run mypy` (0 erreur).
 - Pas de `git add -A` ni de push sans accord explicite.
@@ -27,5 +27,5 @@ Source unique : dépôt `toldot` (`../toldot`, package `geneweb-py`, dépendance
 ## Reprise : feuille de route
 
 1. Petit reste : `nb_ajouts` dans `BilanApplicationDiff` (tiré de `diff.ajouts`) et dans le résumé de la CLI.
-2. **Identification prosopographique MASQUE → PERSONNE** (couche Interprétation) : tables `interp_personne` et `interp_ident_personne` (degré certain/probable/possible, statut proposé/actif/rejeté, conclusion), faisceaux d'indices, désambiguïsation d'homonymes. Règles en jeu : R11 (une seule identification active par masque), R18 (la machine propose, l'humain verse), R22, R23, R24. Relire d'abord les sections concernées du document de référence et soumettre un plan de schéma avant tout code.
+2. **Identification prosopographique MASQUE → PERSONNE** (couche Interprétation) : schéma arrêté en v0.8 (décision 19, R25). Six tables : `interp_contributeur`, `interp_personne` (coquille, `same_as_id`), `interp_ident_personne` (proposition immuable), `interp_ident_personne_statut` (journal des décisions, vue `interp_ident_personne_actif`), `interp_indice` (faisceau d'indices), `interp_conclusion_effet` (R22) ; `interp_conclusion.cible_masque_id` devient facultatif. Triggers R11 et R18 à l'insertion d'une décision « actif ». Étape suivante : tests du schéma d'abord (`tests/persistence/test_schema_interpretation.py`), puis DDL dans `chronologia/persistence/schema.py`, puis import GeneWeb (identification « certain », contributeur `import`), puis faisceaux et homonymes.
 3. Ensuite : normalisation des lieux (MENTION_LIEU → LIEU_HISTORIQUE), saisie assistée, écrans de validation.

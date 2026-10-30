@@ -2,7 +2,7 @@
 
 ![Tapisserie de Bayeux, scène 50 : un messager annonce le roi Harold à l'armée de Guillaume](docs/img/bayeux.jpg)
 
-> **🚧 Work in progress.** Le modèle (v0.7.13) est documenté et stable dans ses grandes lignes, le socle exécutable et l'import GeneWeb sont en construction. Rien n'est prêt pour un usage en production ; les interfaces, le schéma et les noms peuvent changer sans préavis.
+> **🚧 Work in progress.** Le modèle (v0.8) est documenté et stable dans ses grandes lignes, le socle exécutable et l'import GeneWeb sont en construction. Rien n'est prêt pour un usage en production ; les interfaces, le schéma et les noms peuvent changer sans préavis.
 
 Chronologia est un modèle de données historique **orienté événements et factoïdes**, à la croisée de la **prosopographie**, de la **généalogie** et de l'**analyse relationnelle**. Il est pensé pour exploiter des **documents d'archives** (actes, registres, chartes) avec une saisie assistée par modèles de langage, sous contrôle humain.
 
@@ -20,13 +20,13 @@ Chronologia est un modèle de données historique **orienté événements et fac
 - **Interprétation** : ce que l'on conclut, révisable ; la machine propose, l'humain verse (R18).
 - **Référentiels** : lieux, types, vocabulaires. Plus un schéma `saisie` pour les brouillons.
 
-Quatre agrégations symétriques, toutes par identification révisable : `PASSAGE → SOURCE`, `MASQUE → PERSONNE`, `FACTOIDE → EVENEMENT`, `MENTION_LIEU → LIEU_HISTORIQUE | SITE`. Les règles d'intégrité R1 à R24 sont décrites dans le document de référence.
+Quatre agrégations symétriques, toutes par identification révisable : `PASSAGE → SOURCE`, `MASQUE → PERSONNE`, `FACTOIDE → EVENEMENT`, `MENTION_LIEU → LIEU_HISTORIQUE | SITE`. Les règles d'intégrité R1 à R25 sont décrites dans le document de référence.
 
 ## Ce qui est en place, ce qui reste à faire
 
 | État | Élément |
 |---|---|
-| ✅ | Document de référence du modèle (v0.7.13) et maquettes des cinq écrans |
+| ✅ | Document de référence du modèle (v0.8) et maquettes des cinq écrans |
 | ✅ | Adaptateur d'import GeneWeb : mapping vers le modèle, clés déterministes, différentiel de deux lots d'import |
 | ✅ | Stockage SQLite immuable : tables `source_*`, `interp_*`, `audit_*`, insertion seule par triggers (R10), rétractations tracées, vues des faits actifs |
 | ✅ | Service d'import : idempotence par empreinte SHA-256, réimport avec application du différentiel, tout-ou-rien |
@@ -79,7 +79,7 @@ uv run pytest
 
 | Chemin | Contenu |
 |---|---|
-| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.7.13 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
+| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.8 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
 | `docs/etude-page-claude.html` | Version page du document, générée par `tools/build_page.py`. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`). |
 | `docs/img/` | Illustrations du README (voir crédits). |
@@ -93,7 +93,7 @@ Régénérer la page : `pip install markdown && python3 tools/build_page.py`.
 
 ## Historique
 
-Conçu de septembre à octobre 2026 dans une conversation Claude (Cowork). Versions 0.1 à 0.7 du modèle : voir le journal des versions en tête du document de référence.
+Conçu de septembre à octobre 2026 dans une conversation Claude (Cowork). Versions 0.1 à 0.8 du modèle : voir le journal des versions en tête du document de référence.
 
 ## Licence
 
