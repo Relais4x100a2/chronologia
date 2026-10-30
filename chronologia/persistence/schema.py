@@ -162,6 +162,7 @@ CREATE TABLE IF NOT EXISTS interp_contributeur (
     nom TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('humain', 'agent', 'import'))
 );
+CREATE UNIQUE INDEX IF NOT EXISTS ux_contributeur_nom ON interp_contributeur (nom);
 
 CREATE TABLE IF NOT EXISTS interp_personne (
     id INTEGER PRIMARY KEY,
@@ -172,6 +173,7 @@ CREATE TABLE IF NOT EXISTS interp_personne (
     cle_externe TEXT,
     same_as_id INTEGER REFERENCES interp_personne (id)
 );
+CREATE INDEX IF NOT EXISTS ix_personne_ref ON interp_personne (ref);
 CREATE INDEX IF NOT EXISTS ix_personne_cle_externe ON interp_personne (cle_externe);
 CREATE INDEX IF NOT EXISTS ix_personne_same_as ON interp_personne (same_as_id);
 
@@ -240,26 +242,35 @@ LEFT JOIN audit_retractation r
 WHERE r.id IS NULL;
 
 -- R25 : le statut courant d'une identification est la dernière ligne de son
--- journal (date, puis id pour départager deux décisions de même date).
+-- journal (date, puis id pour départager deux décisions de même date). Une
+-- identification retirée (lot remplacé ou annulé, R9) sort de la vue.
 CREATE VIEW IF NOT EXISTS interp_ident_personne_actif AS
-SELECT ip.*
-FROM interp_ident_personne ip
-JOIN interp_ident_personne_statut s ON s.ident_id = ip.id
-WHERE s.statut = 'actif'
-  AND s.id = (
-    SELECT s2.id FROM interp_ident_personne_statut s2
-    WHERE s2.ident_id = ip.id
-    ORDER BY s2.date DESC, s2.id DESC
-    LIMIT 1
-  );
+WITH dernier_statut AS (
+    SELECT ident_id, statut,
+           ROW_NUMBER() OVER (PARTITION BY ident_id ORDER BY date DESC, id DESC) AS rang
+    FROM interp_ident_personne_statut
+)
+SELECT i.*
+FROM interp_ident_personne i
+JOIN dernier_statut s ON s.ident_id = i.id AND s.rang = 1 AND s.statut = 'actif'
+LEFT JOIN audit_retractation r
+  ON r.cible_table = 'interp_ident_personne' AND r.cible_id = i.id
+WHERE r.id IS NULL;
 
 -- R11 : une seule identification active par masque ; rejeter l'autre d'abord.
+-- Le contrôle suit les index (masque, puis journal de chaque identification)
+-- plutôt que la vue, dont la fenêtre parcourt tout le journal à chaque ligne.
 CREATE TRIGGER IF NOT EXISTS trg_r11_ident_personne_actif
 BEFORE INSERT ON interp_ident_personne_statut
 WHEN NEW.statut = 'actif' AND EXISTS (
-  SELECT 1 FROM interp_ident_personne_actif a
-  JOIN interp_ident_personne n ON n.id = NEW.ident_id
-  WHERE a.masque_id = n.masque_id AND a.id <> NEW.ident_id
+  SELECT 1
+  FROM interp_ident_personne n
+  JOIN interp_ident_personne a ON a.masque_id = n.masque_id AND a.id <> n.id
+  WHERE n.id = NEW.ident_id
+    AND (SELECT s.statut FROM interp_ident_personne_statut s
+         WHERE s.ident_id = a.id ORDER BY s.date DESC, s.id DESC LIMIT 1) = 'actif'
+    AND NOT EXISTS (SELECT 1 FROM audit_retractation r
+                    WHERE r.cible_table = 'interp_ident_personne' AND r.cible_id = a.id)
 )
 BEGIN
   SELECT RAISE(ABORT, 'R11 violation: le masque a deja une identification active');

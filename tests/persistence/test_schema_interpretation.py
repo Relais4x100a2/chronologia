@@ -102,6 +102,7 @@ def test_vue_active_creee(con):
         ("interp_ident_personne_statut", "ident_id"),
         ("interp_indice", "ident_id"),
         ("interp_personne", "cle_externe"),
+        ("interp_personne", "ref"),
         ("interp_personne", "same_as_id"),
         ("interp_conclusion_effet", "conclusion_id"),
     ],
@@ -156,6 +157,18 @@ def test_vocabulaires_fermes(base, sql):
     _ident(base, 1, 1)
     with pytest.raises(sqlite3.IntegrityError):
         base.execute(sql)
+
+
+def test_nom_de_contributeur_unique(base):
+    with pytest.raises(sqlite3.IntegrityError):
+        base.execute(
+            "INSERT INTO interp_contributeur (nom, type) VALUES ('historien', 'humain')"
+        )
+
+
+def test_ref_de_personne_non_unique(base):
+    """Une clé GeneWeb n'est unique que dans sa base : deux bases peuvent la porter."""
+    base.execute("INSERT INTO interp_personne (lot_id, ref) VALUES (1, 'P1')")
 
 
 # 2. R10 : insertion seule sur les nouvelles tables
@@ -242,6 +255,22 @@ def test_vue_expose_masque_et_personne(base):
     assert row == (2, 2)
 
 
+def _retracter(con, ident_id):
+    con.execute(
+        "INSERT INTO audit_retractation (cible_table, cible_id, lot_id, motif,"
+        " date_retractation) VALUES ('interp_ident_personne', ?, 1, 'reconduction',"
+        " '2026-10-30T12:00')",
+        (ident_id,),
+    )
+
+
+def test_identification_retractee_sort_de_la_vue(base):
+    i = _ident(base, 1, 1)
+    _statut(base, i, "actif")
+    _retracter(base, i)
+    assert _actifs(base) == set()
+
+
 # 4. Triggers métier : R11 et R18
 
 
@@ -283,6 +312,14 @@ def test_r11_reactivation_de_la_meme_identification(base):
     _statut(base, a, "actif", date="2026-10-30T10:00")
     _statut(base, a, "actif", date="2026-10-30T11:00")
     assert _actifs(base) == {a}
+
+
+def test_r11_ignore_une_identification_retractee(base):
+    a, b = _ident(base, 1, 1), _ident(base, 1, 2)
+    _statut(base, a, "actif", date="2026-10-30T10:00")
+    _retracter(base, a)
+    _statut(base, b, "actif", date="2026-10-30T11:00")
+    assert _actifs(base) == {b}
 
 
 def test_r18_agent_ne_peut_pas_activer(base):

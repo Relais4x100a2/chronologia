@@ -54,6 +54,13 @@ def _importer(args: argparse.Namespace) -> int:
             f"différentiel : {b.reconductions} reconductions, "
             f"{b.modifications} modifications, {b.retractions} rétractations"
         )
+    if r.bilan_identification is not None:
+        i = r.bilan_identification
+        print(f"personnes   : {i.personnes_creees} créées, {i.personnes_reutilisees} réutilisées")
+        print(
+            f"identifications : {i.identifications_actives} actives, "
+            f"{i.identifications_proposees} proposées (R24)"
+        )
     return 0
 
 

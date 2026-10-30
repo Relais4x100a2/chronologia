@@ -1,4 +1,4 @@
-"""Service d'import d'un fichier GeneWeb : idempotence, persistance et différentiel."""
+"""Service d'import d'un fichier GeneWeb : idempotence, persistance, différentiel, identifications."""
 
 import sqlite3
 from dataclasses import dataclass
@@ -11,6 +11,10 @@ from chronologia.adapters.geneweb.diff import comparer_lots
 from chronologia.adapters.geneweb.mapper import empreinte_texte, importer_genealogie
 from chronologia.persistence.depot import ecrire_lot, relire_lot
 from chronologia.persistence.diff import BilanApplicationDiff, ecrire_diff
+from chronologia.persistence.identification import (
+    BilanIdentificationImport,
+    ecrire_identifications_import,
+)
 
 _FORMAT = "gw"  # valeur de Lot.format posée par le mapper
 
@@ -22,6 +26,7 @@ class RapportExecutionImport:
     statut: str  # nouveau | identique_ignore | mis_a_jour
     nb_entites: int
     bilan_diff: Optional[BilanApplicationDiff] = None
+    bilan_identification: Optional[BilanIdentificationImport] = None
 
 
 def _lot_precedent(con: sqlite3.Connection, nom: str) -> Optional[int]:
@@ -43,8 +48,9 @@ def importer_fichier_geneweb(
 
     Un fichier d'empreinte déjà connue n'est ni relu ni réécrit. Sinon le lot est
     écrit ; s'il existe un lot antérieur (``lot_precedent_id``, à défaut le dernier
-    lot de même nom de fichier), le différentiel est appliqué. Écriture du lot et
-    du différentiel forment un tout-ou-rien.
+    lot de même nom de fichier), le différentiel est appliqué. Les masques sont
+    ensuite rattachés à leurs personnes (décision 19). Lot, différentiel et
+    identifications forment un tout-ou-rien.
     """
     texte = chemin_fichier.read_text(encoding="utf-8")
     empreinte = empreinte_texte(texte)
@@ -68,6 +74,7 @@ def importer_fichier_geneweb(
         if precedent is not None:
             diff = comparer_lots(relire_lot(con, precedent), lot_nouveau)
             bilan = ecrire_diff(con, diff, precedent, nouveau_id)
+        bilan_ident = ecrire_identifications_import(con, nouveau_id, precedent)
     assert lot_nouveau.lot is not None
     return RapportExecutionImport(
         nouveau_id,
@@ -75,4 +82,5 @@ def importer_fichier_geneweb(
         "nouveau" if precedent is None else "mis_a_jour",
         lot_nouveau.lot.nb_entites,
         bilan,
+        bilan_ident,
     )
