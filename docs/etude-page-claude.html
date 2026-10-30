@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.8.1, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.9, 30 octobre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -257,6 +257,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.8.1</td>
 <td><strong>Identifications de l'import GeneWeb</strong> (décision 19, 5.3, 5.8). Une personne par clé GeneWeb, portée en <code>ref</code> ; tous les masques de la clé lui sont rattachés. Au réimport, la personne est réutilisée et les identifications du lot ancien sortent de la vue active par <code>audit_retractation</code>, comme les factoïdes. Une décision humaine en désaccord avec l'import n'est jamais écrasée : la nouvelle identification reste « proposé » (R24). R18 précisée : un agent ne verse que des propositions, il ne rejette pas plus qu'il n'active.</td>
+</tr>
+<tr>
+<td>0.9</td>
+<td><strong>Rapprochement d'homonymes par faisceau d'indices</strong> (décision 20). Un agent compare les personnes de bases différentes dont le nom normalisé concorde, masque par masque, selon trois familles de règles versionnées (onomastique, chronologie, parenté), et propose une identification « possible » ou « probable » quand le barème le justifie. Logique de calcul pure, séparée de la persistance. Règle R26 : encadrement des rapprochements calculés.</td>
 </tr>
 </tbody>
 </table></div>
@@ -708,7 +712,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>INDICE</td>
 <td>Un élément d'un faisceau : ce qui a été comparé entre le masque et la personne candidate, et dans quel sens cela pèse.</td>
-<td><code>ident_id</code>, <code>type</code> (nom, sexe, âge, date, lieu, parenté, conjoint, profession, co-présence…), <code>sens</code> (pour, contre, neutre), <code>poids</code>, <code>valeur_masque</code> et <code>valeur_personne</code> (ce qui a été comparé, tel quel), <code>mode</code> (calculé, jugé), <code>regle_version</code> (si calculé), <code>factoide_id</code> (fait d'appui, facultatif), <code>conclusion_id</code> (si jugé)</td>
+<td><code>ident_id</code>, <code>type</code> (nom, sexe, âge, date, lieu, parenté, conjoint, profession, co-présence…), <code>sens</code> (pour, contre, neutre), <code>poids</code>, <code>valeur_masque</code> et <code>valeur_personne</code> (ce qui a été comparé, tel quel), <code>mode</code> (calculé, jugé), <code>regle_version</code> (si calculé, par exemple <code>regle:chrono:v1</code>), <code>factoide_id</code> (fait d'appui, facultatif), <code>conclusion_id</code> (si jugé)</td>
 </tr>
 <tr>
 <td>CONCLUSION</td>
@@ -793,6 +797,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <p>Règle ajoutée en v0.8 :</p>
 <ol start="25">
 <li><strong>R25 : le statut d'une identification est un journal.</strong> Une identification (élément écrit, cible, degré, auteur) ne change jamais ; chaque décision à son sujet (proposer, activer, rejeter) est une ligne nouvelle, et le statut courant est la dernière. Deux contrôles s'appliquent à l'insertion d'une décision : une décision « actif » est refusée si le même élément a déjà une autre identification active (R11 ; il faut d'abord la rejeter), et toute décision autre que « proposé » est refusée si son auteur est un agent (R18 : rejeter est un jugement au même titre qu'activer ; le désaccord d'un agent s'exprime par un INDICE de sens « contre »). L'import d'une base dont l'auteur a déjà identifié ses personnes n'est pas un agent. Une identification retirée par <code>audit_retractation</code> (lot remplacé ou annulé, R9) sort de la vue active quel que soit son statut. Appliquée d'abord à IDENT_PERSONNE ; IDENT_EVENEMENT, IDENT_SOURCE et IDENT_LIEU la rejoindront.</li>
+<li><strong>R26 : un rapprochement calculé est encadré.</strong> Une identification proposée par un agent est justifiée par au moins un indice calculé (<code>mode</code> calculé, <code>regle_version</code> renseignée), son degré est « possible » ou « probable », jamais « certain », et elle n'est versée qu'en « proposé » (R18). Un candidat frappé d'un indice « contre » éliminatoire selon le barème en vigueur, ou resté sous le seuil de proposition, n'est pas écrit : il n'apparaît que dans le rapport d'exécution. Un couple masque–personne qui porte déjà une identification, quels qu'en soient le statut et l'auteur, n'est pas reproposé : un rejet humain tient (R24). Le degré est contrôlé à l'insertion ; l'exigence d'un indice l'est par le moteur et ses tests, l'identification étant écrite avant son faisceau.</li>
 </ol>
 <h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
 <blockquote>
@@ -2008,7 +2013,7 @@ let role_of_witness sexe = function
 </code></pre>
 <hr />
 <h2 id="9-décisions-et-questions-ouvertes">9. Décisions et questions ouvertes</h2>
-<h3 id="91-décisions-prises-v04-à-v08">9.1 Décisions prises (v0.4 à v0.8)</h3>
+<h3 id="91-décisions-prises-v04-à-v09">9.1 Décisions prises (v0.4 à v0.9)</h3>
 <ol>
 <li><strong>Les lieux forment une quatrième agrégation</strong> (MENTION_LIEU ⇢ LIEU par IDENT_LIEU), pour que la couche Source reste en insertion seule (R10, R13).</li>
 <li><strong>Le factoïde reste à la granularité de l'acte</strong> (R14). La co-présence des participants est l'information essentielle des registres et minutes, et ce choix rejoint l'<em>Event</em> de niveau record de GEDCOM X. Les affirmations fines d'IPIF existent déjà à l'intérieur du factoïde, sous forme de participations, qualités et relations.</li>
@@ -2046,10 +2051,26 @@ let role_of_witness sexe = function
 - Une identification proposée par un agent reste « proposé » (R18). Annuler un lot retirera ses identifications (R9) ; la fonction d'annulation reste à écrire.</p>
 <p>L'identification d'événement garde pour l'instant son statut en colonne, posé à l'import ; elle rejoindra le journal dans un lot ultérieur.</p>
 </li>
+<li>
+<p><strong>Rapprochement d'homonymes par faisceau d'indices</strong> (v0.9, R26). Premier calcul de la couche Interprétation : un agent, le contributeur canonique <code>apparieur_homonymes</code> (type <code>agent</code>), propose de rattacher les masques d'une personne à une autre personne quand leurs faisceaux d'indices le justifient.</p>
+<ul>
+<li><em>Périmètre.</em> Par défaut, seules des personnes de bases différentes (lignées de fichiers distinctes, décision 19) sont comparées : dans une même base, le numéro d'occurrence (<code>Nom Prénom.occ</code>) est une distinction faite par l'auteur. Une option <code>intra_base</code> étend la recherche aux doublons de saisie d'une même base.</li>
+<li><em>Candidats et granularité.</em> Le regroupement se fait par personne, sur le nom normalisé et la clé phonétique du premier prénom (vue, sans table, 4.4). L'évaluation se fait par masque, conformément à l'INDICE (le masque face à la personne candidate) : chaque masque de la personne la plus récente est évalué contre la plus ancienne, pour ne pas proposer deux fois le même couple. Le faisceau d'un masque ne porte que ce que ce masque montre : sans date, pas d'indice chronologique.</li>
+<li><em>Règles v1</em> (indices <code>mode</code> calculé, <code>regle_version</code> citée) :<ul>
+<li><code>regle:onomastique:nom_prenom:v1</code> : égalité des formes normalisées, « pour », poids 1,0 ; variante phonétique ou prénom secondaire (premier prénom égal, <code>Pierre_Jean</code> et <code>Pierre</code>), « pour », 0,5. La normalisation et la clé phonétique française sont écrites dans le projet, sans dépendance.</li>
+<li><code>regle:chrono:v1</code> : un fait du masque antérieur à la naissance de la personne candidate ou postérieur à son décès, « contre », 2,0 ; un écart de plus de 110 ans entre deux mentions, « contre », 2,0 ; dates compatibles, « neutre », 0 (l'absence d'incompatibilité n'est pas une preuve, mais la vérification reste visible). Seuls les faits où le masque tient un rôle de personne vivante (naissance, baptême, mariage, témoin) sont comparés, pour ne pas compter les mentions posthumes (« fils de feu… ») ; décès et inhumation le sont avec une tolérance d'un an.</li>
+<li><code>regle:reseau:famille:v1</code> : parents concordants (mêmes noms et prénoms normalisés du père et de la mère), « pour », 2,0 ; parents formellement différents, « contre », 1,5 ; même conjoint mentionné, « pour », 1,5.</li>
+</ul>
+</li>
+<li><em>Barème v1.</em> Score = somme des poids « pour » moins somme des poids « contre ». Un indice « contre » de poids 2 ou plus est éliminatoire. Proposition « possible » à partir de 2,0, « probable » à partir de 3,5, jamais « certain ». Le barème est une constante versionnée ; sa calibration sur un échantillon annoté reste ouverte (9.2-1).</li>
+<li><em>Écriture.</em> Pour chaque candidat retenu : une identification <code>interp_ident_personne</code> du degré calculé, sa décision « proposé » au journal, puis ses indices. Un couple masque–personne déjà identifié n'est pas repris, ce qui rend le calcul rejouable et préserve les rejets humains (R24). Candidats éliminés ou sous le seuil : comptés dans le rapport d'exécution, sans écriture (R26).</li>
+<li><em>Architecture.</em> Le calcul est pur, sans SQL (<code>chronologia/interpretation/</code> : normalisation, profils, règles, homonymes) ; la lecture des profils depuis les identifications actives (R8) et l'écriture des propositions relèvent de <code>chronologia/persistence/</code> ; un service orchestre le tout dans une transaction.</li>
+</ul>
+</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
-<li><strong>Score des candidats.</strong> Poids des indices (noms, dates, lieux, réseau) et seuils de proposition : à calibrer sur un échantillon annoté.</li>
+<li><strong>Score des candidats.</strong> Poids des indices (noms, dates, lieux, réseau) et seuils de proposition : à calibrer sur un échantillon annoté. Un barème v1 provisoire est fixé par la décision 20.</li>
 <li><strong>Plusieurs équipes, plusieurs vues de référence ?</strong> R11 suppose une vue de référence par projet. Si plusieurs projets partagent la base, <code>actif</code> devra dépendre du projet.</li>
 <li><strong>Publication RDF.</strong> Correspondance fine vers CIDOC‑CRM et CRMinf (PC14, I2, I7) à écrire et à tester.</li>
 <li><strong>Types d'événements décrits.</strong> Le type porté par le factoïde (<code>type_evenement_id</code>) est traité comme une normalisation du vocabulaire. Si des classements font débat (un « contrat » qui est en fait une donation), il faudra les traiter par une conclusion sur le factoïde.</li>
