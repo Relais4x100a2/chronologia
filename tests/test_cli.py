@@ -89,3 +89,73 @@ def test_rechercher_sans_critere_est_refuse(capsys, gw, db):
 def test_base_absente_est_refusee_en_lecture(capsys, tmp_path):
     code, _ = _lancer(capsys, "info-lot", "--base", tmp_path / "nul.db")
     assert code == 2
+
+
+# --- rapprocher ------------------------------------------------------------
+
+FAMILLE = """fam MARTIN Pierre + DUPONT Marie
+beg
+- h Jean{naissance}
+end
+
+fam MARTIN Jean{vie} +1705 DURAND Claire
+"""
+
+
+def _deux_bases(capsys, tmp_path, db, frere=False):
+    a = tmp_path / "base_a.gw"
+    a.write_text(FAMILLE.format(naissance=" 1680", vie=" 1680 1740"), encoding="utf-8")
+    b = tmp_path / "base_b.gw"
+    texte = (
+        "fam MARTIN Pierre + DUPONT Marie\nbeg\n- h Jean 1745\nend\n"
+        if frere
+        else FAMILLE.format(naissance="", vie="")
+    )
+    b.write_text(texte, encoding="utf-8")
+    _lancer(capsys, "importer", a, "--base", db)
+    _lancer(capsys, "importer", b, "--base", db)
+
+
+def test_rapprocher_affiche_le_bilan(capsys, tmp_path, db):
+    _deux_bases(capsys, tmp_path, db)
+    code, sortie = _lancer(capsys, "rapprocher", "--base", db)
+    assert code == 0
+    assert "personnes comparées : 8" in sortie
+    assert "paires examinées    : 4" in sortie
+    assert "paires éliminées    : 0" in sortie
+    assert "propositions        : 0 probable(s), 3 possible(s)" in sortie
+    assert "déjà identifiés     : 0" in sortie
+
+
+def test_rapprocher_rejoue_sans_reproposer(capsys, tmp_path, db):
+    _deux_bases(capsys, tmp_path, db)
+    _lancer(capsys, "rapprocher", "--base", db)
+    code, sortie = _lancer(capsys, "rapprocher", "--base", db)
+    assert code == 0
+    assert "propositions        : 0 probable(s), 0 possible(s)" in sortie
+    assert "déjà identifiés     : 3" in sortie
+
+
+def test_rapprocher_compte_le_veto(capsys, tmp_path, db):
+    _deux_bases(capsys, tmp_path, db, frere=True)
+    _, sortie = _lancer(capsys, "rapprocher", "--base", db)
+    assert "paires éliminées    : 1" in sortie
+
+
+def test_rapprocher_intra_base(capsys, tmp_path, db):
+    gw = tmp_path / "base_d.gw"
+    gw.write_text(
+        FAMILLE.format(naissance=" 1680", vie=" 1680 1740")
+        + "\nfam MARTIN Jean.1 +1705 DURAND Claire.1\n",
+        encoding="utf-8",
+    )
+    _lancer(capsys, "importer", gw, "--base", db)
+    _, sortie = _lancer(capsys, "rapprocher", "--base", db)
+    assert "paires examinées    : 0" in sortie
+    _, sortie = _lancer(capsys, "rapprocher", "--base", db, "--intra-base")
+    assert "paires examinées    : 2" in sortie
+
+
+def test_rapprocher_base_absente(capsys, db):
+    code, _ = _lancer(capsys, "rapprocher", "--base", db)
+    assert code == 2 and not db.exists()

@@ -1,4 +1,4 @@
-"""Ligne de commande : ``python -m chronologia importer | info-lot | rechercher``."""
+"""Ligne de commande : ``python -m chronologia importer | info-lot | rechercher | rapprocher``."""
 
 import argparse
 import sqlite3
@@ -14,6 +14,7 @@ from chronologia.persistence.requetes import (
 )
 from chronologia.persistence.schema import creer_schema
 from chronologia.services.importation import importer_fichier_geneweb
+from chronologia.services.rapprochement import proposer_rapprochements
 
 _TABLES_DU_LOT = (
     "source_passage", "source_masque", "source_factoide", "source_qualite",
@@ -139,6 +140,26 @@ def _rechercher(args: argparse.Namespace) -> int:
     return 0
 
 
+def _rapprocher(args: argparse.Namespace) -> int:
+    con = _ouvrir_existante(args.base)
+    if con is None:
+        return _erreur(f"base introuvable : {args.base}")
+    try:
+        r = proposer_rapprochements(con, args.intra_base)
+    finally:
+        con.close()
+    print(f"personnes comparées : {r.personnes_comparees}")
+    print(f"paires examinées    : {r.paires_examinees}")
+    print(f"paires éliminées    : {r.paires_eliminees} (veto chronologique)")
+    print(
+        f"propositions        : {r.propositions_probables} probable(s), "
+        f"{r.propositions_possibles} possible(s)"
+    )
+    print(f"sous le seuil       : {r.masques_sous_seuil} masque(s)")
+    print(f"déjà identifiés     : {r.couples_deja_identifies} couple(s) ignoré(s) (R24)")
+    return 0
+
+
 def _parseur() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="chronologia")
     sous = p.add_subparsers(dest="commande", required=True)
@@ -160,6 +181,15 @@ def _parseur() -> argparse.ArgumentParser:
     rech.add_argument("--lieu")
     rech.add_argument("--date", type=int, help="année")
     rech.set_defaults(action=_rechercher)
+
+    rap = sous.add_parser(
+        "rapprocher", help="proposer des rapprochements d'homonymes (décision 20)"
+    )
+    rap.add_argument("--base", type=Path, required=True)
+    rap.add_argument(
+        "--intra-base", action="store_true", help="comparer aussi au sein d'une même base"
+    )
+    rap.set_defaults(action=_rapprocher)
     return p
 
 
