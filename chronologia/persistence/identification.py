@@ -102,25 +102,23 @@ def _cles_divergentes(con: sqlite3.Connection, lot_id: int, lignee: str) -> List
 def _retracter_lot_precedent(
     con: sqlite3.Connection, lot_id: int, lot_precedent_id: int, date: str
 ) -> None:
-    """Retire les identifications des masques du lot précédent, motif par clé."""
+    """Retire les identifications des masques du lot précédent, motif par clé.
+
+    Les formes (nom écrit, sexe) sont comparées une fois par clé, ensemble contre
+    ensemble : une requête corrélée par masque reparcourait tout le lot.
+    """
     con.execute(
         "INSERT INTO audit_retractation (cible_table, cible_id, lot_id, motif,"
         " date_retractation)"
+        " WITH formes_a AS (SELECT cle_externe AS cle, nom_ecrit, sexe"
+        "                   FROM source_masque WHERE lot_id = :ancien),"
+        " formes_n AS (SELECT cle_externe AS cle, nom_ecrit, sexe"
+        "              FROM source_masque WHERE lot_id = :lot),"
+        " modifiees AS (SELECT cle FROM (SELECT * FROM formes_a EXCEPT SELECT * FROM formes_n)"
+        "               UNION SELECT cle FROM (SELECT * FROM formes_n EXCEPT SELECT * FROM formes_a))"
         " SELECT 'interp_ident_personne', i.id, :lot, CASE"
-        "   WHEN NOT EXISTS (SELECT 1 FROM source_masque n"
-        "                    WHERE n.lot_id = :lot AND n.cle_externe = m.cle_externe)"
-        "     THEN 'retractation'"
-        "   WHEN EXISTS (SELECT 1 FROM source_masque a"
-        "                WHERE a.lot_id = :ancien AND a.cle_externe = m.cle_externe"
-        "                  AND NOT EXISTS (SELECT 1 FROM source_masque n"
-        "                    WHERE n.lot_id = :lot AND n.cle_externe = a.cle_externe"
-        "                      AND n.nom_ecrit = a.nom_ecrit AND n.sexe IS a.sexe))"
-        "     OR EXISTS (SELECT 1 FROM source_masque n"
-        "                WHERE n.lot_id = :lot AND n.cle_externe = m.cle_externe"
-        "                  AND NOT EXISTS (SELECT 1 FROM source_masque a"
-        "                    WHERE a.lot_id = :ancien AND a.cle_externe = n.cle_externe"
-        "                      AND a.nom_ecrit = n.nom_ecrit AND a.sexe IS n.sexe))"
-        "     THEN 'modification'"
+        "   WHEN m.cle_externe NOT IN (SELECT cle FROM formes_n) THEN 'retractation'"
+        "   WHEN m.cle_externe IN (SELECT cle FROM modifiees) THEN 'modification'"
         "   ELSE 'reconduction' END, :date"
         " FROM interp_ident_personne i JOIN source_masque m ON m.id = i.masque_id"
         f" WHERE m.lot_id = :ancien AND {_NON_RETRACTEE}",
