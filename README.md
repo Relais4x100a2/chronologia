@@ -30,7 +30,8 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 | ✅ | Adaptateur d'import GeneWeb : mapping vers le modèle, clés déterministes, différentiel de deux lots d'import |
 | ✅ | Stockage SQLite immuable : tables `source_*`, `interp_*`, `audit_*`, insertion seule par triggers (R10), rétractations tracées, vues des faits actifs |
 | ✅ | Service d'import : idempotence par empreinte SHA-256, réimport avec application du différentiel, tout-ou-rien |
-| ✅ | Ligne de commande : `uv run python -m chronologia importer \| info-lot \| rechercher` |
+| ✅ | Rapprochement d'homonymes entre bases par faisceau d'indices : propositions « possible » ou « probable », jamais « certain », à valider par l'humain (R26) |
+| ✅ | Ligne de commande : `uv run python -m chronologia importer \| info-lot \| rechercher \| rapprocher` |
 | 🚧 | Socle exécutable : schéma SQL complet, tests automatiques des règles, rejeu des scénarios du document |
 | 🚧 | Import d'une vraie base GeneWeb (export `gwu`) |
 | ⏳ | Saisie assistée par modèles de langage, évaluée sur ~50 actes annotés à la main |

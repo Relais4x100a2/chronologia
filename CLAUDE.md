@@ -5,6 +5,7 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 ## Contexte pour les agents
 
 - `AGENTS.md` : état exact du projet, commandes, garde-fous et feuille de route de reprise. À lire en premier.
+- CLI : `uv run python -m chronologia importer | info-lot | rechercher | rapprocher` (détails dans `AGENTS.md`).
 
 ## Source de vérité
 
@@ -17,7 +18,7 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 
 - Trois couches : **Source** (ce qui est écrit, insertion seule), **Interprétation** (ce que l'on conclut, révisable), **Référentiels**. Plus un schéma `saisie` pour les brouillons.
 - Quatre agrégations symétriques, toutes par identification révisable (degré certain/probable/possible, statut proposé/actif/rejeté, conclusion) : PASSAGE → SOURCE, MASQUE → PERSONNE, FACTOIDE → EVENEMENT, MENTION_LIEU → LIEU_HISTORIQUE ou SITE.
-- Règles d'intégrité R1 à R26 (sections 4.5 et 7.6). Les plus structurantes pour le code : R2 (pas d'information sans factoïde), R10 (couche Source immuable), R11 (une seule identification active par élément), R13 (aucune résolution dans la couche Source), R18 (la machine propose, l'humain verse), R22 (une conclusion, plusieurs effets, un seul retrait), R23 (incertitude assumée ≠ conflit), R24 (rien n'est masqué en silence).
+- Règles d'intégrité R1 à R26 (sections 4.5 et 7.6). Les plus structurantes pour le code : R2 (pas d'information sans factoïde), R10 (couche Source immuable), R11 (une seule identification active par élément), R13 (aucune résolution dans la couche Source), R18 (la machine propose, l'humain verse), R22 (une conclusion, plusieurs effets, un seul retrait), R23 (incertitude assumée ≠ conflit), R24 (rien n'est masqué en silence), R26 (un rapprochement calculé n'est que « possible » ou « probable »).
 - Prochaine règle : R27. Numérotation continue, jamais réutilisée.
 
 ## Choix techniques retenus
