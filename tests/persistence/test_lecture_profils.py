@@ -1,6 +1,7 @@
 """Lecture des profils de personnes depuis les identifications actives (décision 20, R8)."""
 
 import sqlite3
+import time
 from datetime import date
 
 import pytest
@@ -124,3 +125,32 @@ def test_couples_identifies_tous_statuts(con):
     n = con.execute("SELECT COUNT(*) FROM interp_ident_personne").fetchone()[0]
     assert len(couples) == n
     assert all(isinstance(m, int) and isinstance(p, int) for m, p in couples)
+
+
+def _nom_synthetique(i):
+    """NOM fictif en lettres seules : AAAA, AAAB…"""
+    lettres = ""
+    for _ in range(4):
+        i, r = divmod(i, 26)
+        lettres = chr(65 + r) + lettres
+    return "SYN" + lettres
+
+
+def test_lecture_lineaire_en_nombre_de_personnes(tmp_path):
+    # 3 000 personnes : une jointure quadratique avec la vue des identifications
+    # actives y prend plusieurs dizaines de secondes, une lecture linéaire bien moins.
+    familles = "".join(
+        f"fam {_nom_synthetique(i)} Jean 1680 1740 +1705 {_nom_synthetique(i)} Claire\n"
+        f"beg\n- h Pierre 1710\nend\n\n"
+        for i in range(1000)
+    )
+    c = sqlite3.connect(":memory:")
+    creer_schema(c)
+    chemin = tmp_path / "charge.gw"
+    chemin.write_text(familles, encoding="utf-8")
+    importer_fichier_geneweb(c, chemin)
+    debut = time.perf_counter()
+    profils = lire_profils(c)
+    duree = time.perf_counter() - debut
+    assert len(profils) == 3000
+    assert duree < 2.0, f"lecture des profils : {duree:.1f} s"

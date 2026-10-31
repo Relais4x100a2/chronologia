@@ -18,12 +18,16 @@ from chronologia.interpretation.profils import (
     ProfilPersonne,
 )
 
-# Masques activement identifiés à une personne non fusionnée, et sa base.
+# Masques activement identifiés à une personne non fusionnée, et sa base. La vue
+# est matérialisée d'abord : jointe telle quelle, SQLite la reparcourt pour
+# chaque personne (coût quadratique).
 _ACTIFS = (
-    "WITH actifs AS ("
+    "WITH vue AS MATERIALIZED ("
+    " SELECT masque_id, personne_id FROM interp_ident_personne_actif),"
+    " actifs AS MATERIALIZED ("
     " SELECT a.masque_id, a.personne_id,"
     " COALESCE(l.format || ':' || l.fichier, 'personne:' || p.id) AS base"
-    " FROM interp_ident_personne_actif a"
+    " FROM vue a"
     " JOIN interp_personne p ON p.id = a.personne_id AND p.same_as_id IS NULL"
     " LEFT JOIN source_lot_import l ON l.id = p.lot_id)"
 )
