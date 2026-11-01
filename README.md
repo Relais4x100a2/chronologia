@@ -80,7 +80,7 @@ uv run pytest
 
 | Chemin | Contenu |
 |---|---|
-| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.9 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
+| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.9.1 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
 | `docs/etude-page-claude.html` | Version page du document, générée par `tools/build_page.py`. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`). |
 | `docs/img/` | Illustrations du README (voir crédits). |
