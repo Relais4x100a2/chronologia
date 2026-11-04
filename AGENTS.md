@@ -14,6 +14,13 @@ Contexte de reprise pour les agents IA. Source de vérité du modèle : `docs/mo
 - **CLI** : `uv run python -m chronologia importer <fichier.gw> --base <db>`, `info-lot`, `rechercher --personne/--lieu/--date`, `rapprocher --base <db> [--intra-base]`. Projet en `package = false` (pas de script installé).
 - **Performances mesurées** (plus gros fichier réel, en mémoire) : ~166 000 entités importées en ~8 s, insertion du lot 0,7 s, réimport identique 0,03 s, requêtes de consultation < 3 ms. Rapprochement intra-base (34 744 masques, 8 573 personnes) : import ~7,5 s, rapprochement complet 2,4 s (dont lecture des profils 0,8 s), pic mémoire 270 Mo ; 1 641 paires examinées, 80 % écartées par veto chronologique, 21 propositions « possible ».
 
+## Choix de pile (retenus)
+
+- **Langage du cœur** : Python (backend, import, rapprochement, passerelle vers les modèles de langage). Pas de réécriture : le socle et le parseur `prosopo-gw` sont en Python et testés. OCaml abandonné pour le connecteur GeneWeb (le parseur Python le remplace). Rust seulement en extension isolée (PyO3) si le profilage montre un goulot précis ; Go écarté.
+- **API** : FastAPI (déjà utilisé dans prosopo-gw). Les écrans passent toujours par l'API, jamais autour (R18, R24).
+- **Interface** (dossier `web/`, à créer) : SPA React + TypeScript + Vite, servie en fichiers statiques par FastAPI ou Traefik (aucun serveur Node en production). TanStack Query (appels et cache) et TanStack Table (listes de propositions), Tailwind + composants Radix (ou shadcn/ui), MapLibre GL pour les cartes. Types TypeScript générés depuis l'OpenAPI de FastAPI (`openapi-typescript`) pour éviter la dérive du contrat.
+- **Ordre de développement des écrans** : validation, puis rattachements (feuille de route de `CLAUDE.md`). Une première version HTMX + Jinja de l'écran de validation reste possible pour éviter Node au début, mais serait à réécrire avec les cartes et les frises.
+
 ## Parseur GeneWeb
 
 Source unique : dépôt `prosopo-gw` (`../prosopo-gw`, package `geneweb-py`, dépendance locale éditable). Toute adaptation du format GeneWeb se fait dans prosopo-gw, jamais copiée ici. prosopo-gw est public : fixtures synthétiques seulement.
