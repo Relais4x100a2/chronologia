@@ -126,7 +126,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "geneweb-py", editable = "../toldot/core" }]
+requires-dist = [{ name = "geneweb-py", editable = "../prosopo-gw/core" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -146,7 +146,7 @@ wheels = [
 [[package]]
 name = "geneweb-py"
 version = "0.1.0"
-source = { editable = "../toldot/core" }
+source = { editable = "../prosopo-gw/core" }
 dependencies = [
     { name = "chardet" },
     { name = "typing-extensions" },
@@ -183,7 +183,7 @@ requires-dist = [
 provides-extras = ["dev", "docs", "cli", "validation", "analytics", "api", "parsing"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "geneweb-py", extras = ["dev", "api", "validation"], editable = "../toldot/core" }]
+dev = [{ name = "geneweb-py", extras = ["dev", "api", "validation"], editable = "../prosopo-gw/core" }]
 
 [[package]]
 name = "iniconfig"

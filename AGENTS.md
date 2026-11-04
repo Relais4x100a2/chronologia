@@ -7,7 +7,7 @@ Contexte de reprise pour les agents IA. Source de vérité du modèle : `docs/mo
 - **Persistance SQLite** (`chronologia/persistence/`) : schéma portable, schémas PostgreSQL simulés par préfixe de table : `source_*` (lot_import, passage, masque, factoide, participation, relation, qualite, mention_lieu), `interp_*` (evenement, ident_evenement, conclusion), `audit_retractation`. Décision 18.
 - **R10** : insertion seule, appliquée par triggers `BEFORE UPDATE` / `BEFORE DELETE` sur toutes les tables. Une rétractation s'écrit dans `audit_retractation` (motifs `retractation`, `modification`, `reconduction`), jamais par suppression. Vues actives : `source_factoide_actif`, `interp_conclusion_actif`.
 - **R13** : fidélité textuelle intégrale. Aucune déduplication silencieuse (ex. relations répétées conservées, clé substitut `id`), texte d'origine gardé (`date_brute`).
-- **Adaptateur GeneWeb** (`chronologia/adapters/geneweb/`) : projection de la `Genealogy` de toldot vers la couche Source, différentiel de lots (`comparer_lots`, décision 16).
+- **Adaptateur GeneWeb** (`chronologia/adapters/geneweb/`) : projection de la `Genealogy` de prosopo-gw vers la couche Source, différentiel de lots (`comparer_lots`, décision 16).
 - **Service** (`chronologia/services/importation.py`) : `importer_fichier_geneweb` (empreinte SHA-256, idempotence, lot et différentiel en une transaction). `relire_lot` reconstruit un `LotImport` depuis la base.
 - **Identifications de l'import** (`chronologia/persistence/identification.py`, décision 19) : une personne par clé GeneWeb dans la lignée du fichier, réutilisée au réimport ; triggers R11 et R18.
 - **Rapprochement d'homonymes** (décision 20) : moteur pur dans `chronologia/interpretation/` (normalisation et clé phonétique, profils, règles v1 onomastique, chronologie et réseau familial, barème v1 avec veto à l'échelle de la paire) ; lecture des profils (`persistence/lecture_profils.py`, vue active matérialisée) et écriture des propositions (`persistence/propositions.py`, contributeur agent `apparieur_homonymes`, indices calculés) ; service atomique `proposer_rapprochements` (`services/rapprochement.py`). R26 : un agent ne propose que « possible » ou « probable » (trigger), jamais sans indice, jamais un couple déjà identifié (R24).
@@ -16,7 +16,7 @@ Contexte de reprise pour les agents IA. Source de vérité du modèle : `docs/mo
 
 ## Parseur GeneWeb
 
-Source unique : dépôt `toldot` (`../toldot`, package `geneweb-py`, dépendance locale éditable). Toute adaptation du format GeneWeb se fait dans toldot, jamais copiée ici. Toldot est public : fixtures synthétiques seulement.
+Source unique : dépôt `prosopo-gw` (`../prosopo-gw`, package `geneweb-py`, dépendance locale éditable). Toute adaptation du format GeneWeb se fait dans prosopo-gw, jamais copiée ici. prosopo-gw est public : fixtures synthétiques seulement.
 
 ## Garde-fous
 

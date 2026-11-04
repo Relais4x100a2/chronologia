@@ -45,7 +45,7 @@ def test_naissance_de_l_enfant_avec_lieu_et_passage_de_la_ligne():
     assert role == "ne"
     assert (f.date_brute, f.date_min) == ("3/3/1751", date(1751, 3, 3))
     (m,) = [m for m in lot.mentions_lieu if m.factoide_ref == f.ref]
-    assert m.forme_ecrite == "[Moulin]_-_Dreux" and m.forme_normalisee == "Dreux"
+    assert m.forme_ecrite == "[Moulin] - Dreux" and m.forme_normalisee == "Dreux"
     p = next(p for p in lot.passages if p.ref == f.passage_ref)
     assert (p.citation_brute, p.ligne_debut, p.ligne_fin) == ("Reg N", 4, 4)
 

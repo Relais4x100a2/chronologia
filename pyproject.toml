@@ -8,9 +8,9 @@ dependencies = ["geneweb-py"]
 [dependency-groups]
 dev = ["pytest>=8", "mypy>=1.10"]
 
-# Le parseur GeneWeb vit dans le dépôt toldot (source unique), en dépendance locale.
+# Le parseur GeneWeb vit dans le dépôt prosopo-gw (source unique), en dépendance locale.
 [tool.uv.sources]
-geneweb-py = { path = "../toldot/core", editable = true }
+geneweb-py = { path = "../prosopo-gw/core", editable = true }
 
 [tool.uv]
 package = false

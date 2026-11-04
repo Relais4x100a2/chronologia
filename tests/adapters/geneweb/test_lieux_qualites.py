@@ -53,7 +53,7 @@ def test_lieu_du_mariage_garde_la_forme_ecrite_et_le_nom_normalise():
     lot = _lot()
     f = _factoide(lot, "mariage")
     (m,) = [m for m in lot.mentions_lieu if m.factoide_ref == f.ref]
-    assert m.forme_ecrite == "[Eglise]_-_Chartres"
+    assert m.forme_ecrite == "[Eglise] - Chartres"
     assert m.forme_normalisee == "Chartres"
 
 

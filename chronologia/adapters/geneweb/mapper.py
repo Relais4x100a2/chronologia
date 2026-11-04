@@ -1,10 +1,11 @@
-"""Projection d'une ``Genealogy`` toldot vers la couche Source de Chronologia.
+"""Projection d'une ``Genealogy`` prosopo-gw vers la couche Source de Chronologia.
 
 Règles de la section 5 du modèle. Rien n'est résolu ici (R13) : chaque événement
 GeneWeb donne un passage, un factoïde, des masques et des participations, plus
 un EVENEMENT relié par une IDENT_EVENEMENT « certain » (5.2).
 """
 
+import copy
 import hashlib
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timezone
@@ -242,7 +243,10 @@ class _Constructeur:
         self, personne: Person, evt: Event, genealogie: Genealogy
     ) -> None:
         type_evt = _TYPES_EVENEMENT.get(evt.event_type.name, evt.event_type.name.lower())
-        passage = self.passage(evt.source, evt.start_line, evt.end_line, evt.notes)
+        passage = self.passage(
+            evt.source, evt.start_line or personne.start_line,
+            evt.end_line or personne.end_line, evt.notes,
+        )
         factoide = self.factoide(passage, type_evt, evt.date)
         self.lieu(factoide, evt.place)
         principal = self.masque(passage, personne.unique_id, genealogie)
@@ -333,24 +337,39 @@ class _Constructeur:
         self.evenement_certain(factoide)
 
     def famille(self, famille: Family, genealogie: Genealogy) -> None:
+        # prosopo-gw crée une personne anonyme pour un conjoint `? ?` (comme gwc) :
+        # côté Source, un conjoint inconnu n'est pas un masque.
+        famille = copy.copy(famille)
+        for attr in ("husband_id", "wife_id"):
+            personne = genealogie.persons.get(getattr(famille, attr) or "")
+            if personne is not None and personne.is_anonymous:
+                setattr(famille, attr, None)
         citation = famille.marriage_source or famille.family_source
         debut, fin = famille.start_line, famille.end_line
         premier = len(self.passages)
+        # prosopo-gw synthétise un MARRIAGE même pour un `+` nu : sans date, lieu,
+        # source ni témoin, ce n'est pas un fait écrit, on l'ignore.
         mariages = [
-            e for e in famille.events if e.event_type.name == "MARRIAGE"
+            e for e in famille.events
+            if e.event_type.name == "MARRIAGE"
+            and (e.date or e.place or e.source or e.witnesses or e.notes
+                 or e.start_line)
         ]
         # Un fevt #marr remplace le mariage de la ligne fam (même fait, mieux décrit).
         if mariages:
             for e in mariages:
                 self.evenement_familial(
                     famille, "mariage", e.date, e.source or citation,
-                    e.start_line, e.end_line, e.witnesses, genealogie, e.place,
-                    e.notes,
+                    e.start_line or debut, e.end_line or fin, e.witnesses,
+                    genealogie, e.place, e.notes,
                 )
         elif famille.marriage_date or famille.marriage_place or famille.marriage_source:
+            # `Family.witnesses` agrège aussi ceux des fevt : on écarte ces derniers.
+            deja = [w for e in famille.events for w in e.witnesses]
+            temoins = [w for w in famille.witnesses if w not in deja]
             self.evenement_familial(
                 famille, "mariage", famille.marriage_date, citation,
-                debut, fin, famille.witnesses, genealogie, famille.marriage_place,
+                debut, fin, temoins, genealogie, famille.marriage_place,
             )
         if famille.divorce_date:
             self.evenement_familial(
@@ -473,7 +492,7 @@ def importer_genealogie(
     maintenant: Optional[datetime] = None,
     lots_connus: Collection[str] = (),
 ) -> LotImport:
-    """Projette une généalogie toldot vers les entités de la couche Source.
+    """Projette une généalogie prosopo-gw vers les entités de la couche Source.
 
     Refuse (``LotDejaImporte``) un fichier dont l'empreinte est dans ``lots_connus``.
     """

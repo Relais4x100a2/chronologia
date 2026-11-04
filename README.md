@@ -37,13 +37,13 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 | ⏳ | Saisie assistée par modèles de langage, évaluée sur ~50 actes annotés à la main |
 | ⏳ | Écrans : validation et rattachements d'abord |
 
-## Dépendance : le dépôt toldot
+## Dépendance : le dépôt prosopo-gw
 
-Le parseur GeneWeb n'est **pas** dans ce dépôt. Il vit dans [**toldot**](https://github.com/Relais4x100a2/toldot) (package Python `geneweb-py`), qui en est la source unique. Chronologia le consomme comme dépendance locale éditable, déclarée dans `pyproject.toml` :
+Le parseur GeneWeb n'est **pas** dans ce dépôt. Il vit dans [**prosopo-gw**](https://github.com/Relais4x100a2/prosopo-gw) (package Python `geneweb-py`), qui en est la source unique. Chronologia le consomme comme dépendance locale éditable, déclarée dans `pyproject.toml` :
 
 ```toml
 [tool.uv.sources]
-geneweb-py = { path = "../toldot/core", editable = true }
+geneweb-py = { path = "../prosopo-gw/core", editable = true }
 ```
 
 Il faut donc cloner les deux dépôts côte à côte :
@@ -51,10 +51,10 @@ Il faut donc cloner les deux dépôts côte à côte :
 ```text
 TOLDOT/
 ├── chronologia/
-└── toldot/
+└── prosopo-gw/
 ```
 
-Toute adaptation du parsing requise par Chronologia se fait dans toldot, pas ici.
+Toute adaptation du parsing requise par Chronologia se fait dans prosopo-gw, pas ici.
 
 ## Démarrage rapide
 
@@ -62,7 +62,7 @@ Prérequis : Python ≥ 3.12, [uv](https://docs.astral.sh/uv/), PostgreSQL + Pos
 
 ```bash
 mkdir TOLDOT && cd TOLDOT
-git clone git@github.com:Relais4x100a2/toldot.git
+git clone git@github.com:Relais4x100a2/prosopo-gw.git
 git clone git@github.com:Relais4x100a2/chronologia.git
 cd chronologia
 uv sync

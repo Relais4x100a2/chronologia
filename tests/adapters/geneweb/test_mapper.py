@@ -1,4 +1,4 @@
-"""Mapper GeneWeb -> couche Source, sur l'exemple 5.7 (fixture synthétique de toldot)."""
+"""Mapper GeneWeb -> couche Source, sur l'exemple 5.7 (fixture synthétique de prosopo-gw)."""
 
 from datetime import date
 from pathlib import Path
