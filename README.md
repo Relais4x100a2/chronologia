@@ -2,7 +2,7 @@
 
 ![Tapisserie de Bayeux, scène 50 : un messager annonce le roi Harold à l'armée de Guillaume](docs/img/bayeux.jpg)
 
-> **🚧 Work in progress.** Le modèle (v0.9) est documenté et stable dans ses grandes lignes, le socle exécutable et l'import GeneWeb sont en construction. Rien n'est prêt pour un usage en production ; les interfaces, le schéma et les noms peuvent changer sans préavis.
+> **🚧 Work in progress.** Le modèle (v0.13) est documenté et stable dans ses grandes lignes, le socle exécutable et l'import GeneWeb sont en construction. Rien n'est prêt pour un usage en production ; les interfaces, le schéma et les noms peuvent changer sans préavis.
 
 Chronologia est un modèle de données historique **orienté événements et factoïdes**, à la croisée de la **prosopographie**, de la **généalogie** et de l'**analyse relationnelle**. Il est pensé pour exploiter des **documents d'archives** (actes, registres, chartes) avec une saisie assistée par modèles de langage, sous contrôle humain.
 
@@ -14,19 +14,29 @@ Chronologia est un modèle de données historique **orienté événements et fac
 | ![Arbre généalogique](docs/img/arbre.jpg) | **Les conclusions sont révisables.** Les masques (« Pierre Martin » dans un acte) sont rattachés à des personnes, les factoïdes à des événements, les mentions de lieu à des lieux historiques, par *identification* avec un degré (certain / probable / possible) et un statut. Les désaccords entre sources restent visibles. |
 | ![Réseau](docs/img/reseau.jpg) | **Le tout forme un réseau.** Une fois les personnes, événements et lieux identifiés, on peut interroger les relations : parenté, parrainages, témoins, co-présences, trajectoires dans l'espace et dans le temps. |
 
-### Trois couches
+### Quatre couches
 
 - **Source** : ce qui est écrit, immuable (R10) ; aucune résolution à ce niveau (R13).
 - **Interprétation** : ce que l'on conclut, révisable ; la machine propose, l'humain verse (R18).
 - **Référentiels** : lieux, types, vocabulaires. Plus un schéma `saisie` pour les brouillons.
+- **Travail** : ce que l'on cherche. Dépouillements et lacunes (ce qui a été lu, ce qui ne peut rien dire), notes de travail, questions et hypothèses, bac à sable, délégations à la machine.
 
-Quatre agrégations symétriques, toutes par identification révisable : `PASSAGE → SOURCE`, `MASQUE → PERSONNE`, `FACTOIDE → EVENEMENT`, `MENTION_LIEU → LIEU_HISTORIQUE | SITE`. Les règles d'intégrité R1 à R26 sont décrites dans le document de référence.
+Quatre agrégations symétriques, toutes par identification révisable : `PASSAGE → SOURCE`, `MASQUE → PERSONNE`, `FACTOIDE → EVENEMENT`, `MENTION_LIEU → LIEU_HISTORIQUE | SITE`. Les règles d'intégrité R1 à R34 sont décrites dans le document de référence.
+
+### Le chercheur au centre
+
+**La machine retire la copie, pas la lecture.** Le chercheur garde la main sur la connaissance produite :
+
+- il délègue à la machine **en connaissance de cause** : taux d'erreur mesuré sur un jeu étalon, périmètre, seuil, suspension d'office en cas de dérive ; ce qui n'a pas été lu par un humain reste marqué et compté à part (R33) ;
+- tout comptage montre ses hypothèses : identifications certaines, probables, possibles ; une absence n'est comptée que là où l'on a lu (R29) ;
+- il peut revenir sur un document et le relire à l'aune de la première lecture et des pièces nouvelles, sans effacer la première (R34) ;
+- tout participant peut formuler une question ou une hypothèse et la faire remonter ; le responsable scientifique l'arbitre, et aucune n'est enterrée (R32) ; une hypothèse se teste à part, dans un bac à sable (R31).
 
 ## Ce qui est en place, ce qui reste à faire
 
 | État | Élément |
 |---|---|
-| ✅ | Document de référence du modèle (v0.9.3) et maquettes des cinq écrans |
+| ✅ | Document de référence du modèle (v0.13) et maquettes des cinq écrans |
 | ✅ | Adaptateur d'import GeneWeb : mapping vers le modèle, clés déterministes, différentiel de deux lots d'import |
 | ✅ | Stockage SQLite immuable : tables `source_*`, `interp_*`, `audit_*`, insertion seule par triggers (R10), rétractations tracées, vues des faits actifs |
 | ✅ | Import de vraies bases GeneWeb (`.gw` exporté par `gwu`) : ~166 000 entités en ~8 s sur le plus gros fichier testé |
@@ -38,6 +48,7 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 | ⏳ | Lieux : normalisation des mentions, articulation avec l'atelier de lieux de prosopo-gw |
 | ⏳ | Saisie assistée par modèles de langage, évaluée sur ~50 actes annotés à la main |
 | ⏳ | Écrans : validation et rattachements d'abord |
+| ⏳ | Couche Travail : dépouillements, notes, questions du projet, délégation mesurée, relecture (décisions 39 à 56) |
 
 ## Dépendance : le dépôt prosopo-gw
 
@@ -73,7 +84,7 @@ uv run pytest
 
 ## Choix techniques
 
-- PostgreSQL + PostGIS + `btree_gist` ; schémas `saisie`, `source`, `interp`, `ref`.
+- PostgreSQL + PostGIS + `btree_gist` ; schémas `saisie`, `source`, `interp`, `ref`, `travail`.
 - Coordonnées en WGS 84 (EPSG:4326), calculs métriques en Lambert‑93 (EPSG:2154).
 - Backend Python (API FastAPI) ; interface React + TypeScript prévue.
 - Connecteur GeneWeb : parseur Python `geneweb-py` (prosopo-gw) sur le `.gw` exporté par `gwu` ; la voie OCaml est abandonnée (décision 22).
@@ -83,21 +94,23 @@ uv run pytest
 
 | Chemin | Contenu |
 |---|---|
-| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.9.1 : corpus, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
+| `docs/modele-evenement-masque-factoide.md` | Document de référence v0.13 : corpus, travail du chercheur, modèle Événement–Masque–Factoïde, lieux historiques et sites, import GeneWeb, interface, saisie assistée, implémentation. |
 | `docs/etude-page-claude.html` | Version page du document, générée par `tools/build_page.py`. |
+| `docs/etude-*.md` | Études d'autres logiciels (Heurist ; nodegoat, Arches, ResearchSpace ; cinq autres) et ce que le modèle leur emprunte. |
+| `docs/relecture-oncle-neveu.md`, `docs/travail-du-chercheur.md` | Relecture critique du modèle et vision du travail du chercheur, d'où viennent les décisions 39 à 56. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`). |
 | `docs/img/` | Illustrations du README (voir crédits). |
-| `chronologia/adapters/geneweb/` | Adaptateur d'import GeneWeb. |
+| `chronologia/` | Code : modèle, adaptateur d'import GeneWeb, persistance, rapprochement d'homonymes, ligne de commande. |
 | `maquettes/design/` | Les cinq écrans de la maquette (dépôt et lecture à voix haute, validation d'un acte, rattachements, conflit de date, conflit de lieu). |
 | `tests/` | Tests automatiques. |
 | `tools/` | Script de génération de la page. |
 | `CLAUDE.md` | Contexte du projet pour Claude Code. |
 
-Régénérer la page : `pip install markdown && python3 tools/build_page.py`.
+Régénérer la page : `uv run --no-project --with markdown python tools/build_page.py`.
 
 ## Historique
 
-Conçu de septembre à octobre 2026 dans une conversation Claude (Cowork). Versions 0.1 à 0.8 du modèle : voir le journal des versions en tête du document de référence.
+Conçu de septembre à octobre 2026 dans une conversation Claude (Cowork). Versions successives du modèle : voir le journal des versions en tête du document de référence.
 
 ## Licence
 
