@@ -26,20 +26,22 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 
 | État | Élément |
 |---|---|
-| ✅ | Document de référence du modèle (v0.9) et maquettes des cinq écrans |
+| ✅ | Document de référence du modèle (v0.9.3) et maquettes des cinq écrans |
 | ✅ | Adaptateur d'import GeneWeb : mapping vers le modèle, clés déterministes, différentiel de deux lots d'import |
 | ✅ | Stockage SQLite immuable : tables `source_*`, `interp_*`, `audit_*`, insertion seule par triggers (R10), rétractations tracées, vues des faits actifs |
+| ✅ | Import de vraies bases GeneWeb (`.gw` exporté par `gwu`) : ~166 000 entités en ~8 s sur le plus gros fichier testé |
 | ✅ | Service d'import : idempotence par empreinte SHA-256, réimport avec application du différentiel, tout-ou-rien |
 | ✅ | Rapprochement d'homonymes entre bases par faisceau d'indices : propositions « possible » ou « probable », jamais « certain », à valider par l'humain (R26) |
 | ✅ | Ligne de commande : `uv run python -m chronologia importer \| info-lot \| rechercher \| rapprocher` |
 | 🚧 | Socle exécutable : schéma SQL complet, tests automatiques des règles, rejeu des scénarios du document |
-| 🚧 | Import d'une vraie base GeneWeb (export `gwu`) |
+| 🚧 | Validation des propositions d'identification et calibration du barème |
+| ⏳ | Lieux : normalisation des mentions, articulation avec l'atelier de lieux de prosopo-gw |
 | ⏳ | Saisie assistée par modèles de langage, évaluée sur ~50 actes annotés à la main |
 | ⏳ | Écrans : validation et rattachements d'abord |
 
 ## Dépendance : le dépôt prosopo-gw
 
-Le parseur GeneWeb n'est **pas** dans ce dépôt. Il vit dans [**prosopo-gw**](https://github.com/Relais4x100a2/prosopo-gw) (package Python `geneweb-py`), qui en est la source unique. Chronologia le consomme comme dépendance locale éditable, déclarée dans `pyproject.toml` :
+Le parseur GeneWeb n'est **pas** dans ce dépôt. Il vit dans [**prosopo-gw**](https://github.com/Relais4x100a2/prosopo-gw), qui en est la source unique. prosopo-gw est un monorepo `uv` à deux paquets : `core` (paquet Python `geneweb-py` : parseur, modèle objet, organisations, API) et `atelier` (`prosopo-gw-atelier`, atelier local de nettoyage des lieux, qui produit un export « pivot »). Chronologia ne dépend que de `core`. Chronologia le consomme comme dépendance locale éditable, déclarée dans `pyproject.toml` :
 
 ```toml
 [tool.uv.sources]
@@ -73,7 +75,8 @@ uv run pytest
 
 - PostgreSQL + PostGIS + `btree_gist` ; schémas `saisie`, `source`, `interp`, `ref`.
 - Coordonnées en WGS 84 (EPSG:4326), calculs métriques en Lambert‑93 (EPSG:2154).
-- Backend Python ; connecteur GeneWeb via l'export `gwu` (une voie OCaml reste envisagée).
+- Backend Python (API FastAPI) ; interface React + TypeScript prévue.
+- Connecteur GeneWeb : parseur Python `geneweb-py` (prosopo-gw) sur le `.gw` exporté par `gwu` ; la voie OCaml est abandonnée (décision 22).
 - Modèles de langage derrière une passerelle (contrat JSON) ; déploiement hybride (serveur local, services en ligne, petits modèles locaux).
 
 ## Contenu du dépôt

@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.9.2, 4 novembre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.9.3, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -270,6 +270,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td>0.9.2</td>
 <td><strong>Alignement sur prosopo-gw</strong> (ex-toldot, renommé) et sur ses corrections de l'analyseur (décision 21). Aucune nouvelle règle d'intégrité.</td>
 </tr>
+<tr>
+<td>0.9.3</td>
+<td><strong>Connecteur GeneWeb en Python</strong> (décision 22) : le parseur <code>geneweb-py</code> du monorepo prosopo-gw lit le <code>.gw</code> ; la voie OCaml (8.3) est abandonnée et la section 8 devient « PostgreSQL et Python ». Nouveaux éléments de prosopo-gw versés aux questions ouvertes : organisations déduites (9.2-6) et atelier de nettoyage des lieux (9.2-9). Aucun changement de modèle ni de règle.</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="sommaire">Sommaire</h2>
@@ -281,7 +285,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <li><a href="#5-import-depuis-geneweb">Import depuis GeneWeb</a></li>
 <li><a href="#6-interface-de-validation">Interface de validation</a></li>
 <li><a href="#7-saisie-assistée-par-modèles-de-langage">Saisie assistée par modèles de langage</a></li>
-<li><a href="#8-implémentation-postgresql-et-ocaml">Implémentation : PostgreSQL et OCaml</a></li>
+<li><a href="#8-implémentation-postgresql-et-python">Implémentation : PostgreSQL et Python</a></li>
 <li><a href="#9-décisions-et-questions-ouvertes">Décisions et questions ouvertes</a></li>
 <li><a href="#10-sources">Sources</a></li>
 </ol>
@@ -1469,7 +1473,7 @@ end pevt
 </table></div>
 <h3 id="58-chaîne-dimport">5.8 Chaîne d'import</h3>
 <ol>
-<li><strong>Extraire.</strong> Lire la base <code>.gwb</code> en OCaml avec la bibliothèque de GeneWeb (option A, sans perte), ou analyser l'export <code>gwu</code> (option B). Le GEDCOM de <code>gwb2ged</code> reste un plan C : il risque d'aplatir les types de témoins et les notes.</li>
+<li><strong>Extraire.</strong> Analyser le fichier <code>.gw</code> (export <code>gwu</code>) avec le parseur Python <code>geneweb-py</code> du dépôt prosopo-gw, qui finalise comme <code>gwc</code> (décisions 21 et 22). La lecture directe de la base <code>.gwb</code> en OCaml, envisagée jusqu'en v0.9.2, est abandonnée. Le GEDCOM de <code>gwb2ged</code> reste écarté : il risque d'aplatir les types de témoins et les notes.</li>
 <li><strong>Normaliser.</strong> Dates en intervalles, graphies de lieux, chaînes de source découpées (5.5). Les cas ambigus partent dans la file de décisions.</li>
 <li><strong>Charger la couche Source.</strong> Passages, factoïdes, masques, participations, qualités, relations, noms, tous rattachés au lot.</li>
 <li><strong>Créer les identifications du lot.</strong> Une personne par clé GeneWeb, un événement par factoïde, une source par groupe exact, un lieu par correspondance unique, toutes « certain » et attribuées au lot.</li>
@@ -1748,7 +1752,7 @@ end pevt
 </tbody>
 </table></div>
 <hr />
-<h2 id="8-implémentation-postgresql-et-ocaml">8. Implémentation : PostgreSQL et OCaml</h2>
+<h2 id="8-implémentation-postgresql-et-python">8. Implémentation : PostgreSQL et Python</h2>
 <h3 id="81-choix-darchitecture">8.1 Choix d'architecture</h3>
 <ul>
 <li><strong>PostgreSQL pour le cœur.</strong> Tout est réifié : une participation est une ligne, qu'une conclusion peut désigner. Une base de graphe n'apporte donc pas d'avantage décisif, car dans Neo4j un lien ne peut pas pointer vers un autre lien et la participation y serait de toute façon un nœud. PostgreSQL garantit l'intégrité transactionnelle de la couche Source.</li>
@@ -1758,7 +1762,7 @@ end pevt
 <li><strong>Vues pour les calculs.</strong> Participants d'un événement, intervalle d'un événement, fiche consolidée ; en vues matérialisées si le volume l'exige.</li>
 <li><strong>Projection en graphe pour l'analyse.</strong> Apache AGE (extension de graphe pour PostgreSQL) ou un export vers Neo4j en lecture seule, pour la centralité et les plus courts chemins sur le réseau de personnes.</li>
 <li><strong>Backend Python</strong> pour l'API, la file de décisions et la publication RDF (CIDOC‑CRM, avec PC14 pour les participations).</li>
-<li><strong>OCaml pour le connecteur GeneWeb</strong> (8.3).</li>
+<li><strong>Python pour le connecteur GeneWeb</strong> : le parseur <code>geneweb-py</code> de prosopo-gw (8.3, décision 22).</li>
 <li><strong>Passerelle de modèles</strong> pour la saisie assistée, et déploiement hybride (section 7).</li>
 </ul>
 <h3 id="82-esquisse-sql">8.2 Esquisse SQL</h3>
@@ -1973,7 +1977,10 @@ WHERE s.id = :chapelle AND e.id = :emprise_paroisse_1706;
 -- Index sur la géométrie projetée, pour que ces calculs restent rapides
 CREATE INDEX ON interp.emprise USING gist (ST_Transform(geom, 2154));
 </code></pre>
-<h3 id="83-ocaml-le-connecteur-geneweb">8.3 OCaml : le connecteur GeneWeb</h3>
+<h3 id="83-le-connecteur-geneweb">8.3 Le connecteur GeneWeb</h3>
+<blockquote>
+<p><strong>Abandonné en v0.9.3 (décision 22).</strong> Le connecteur est le parseur Python <code>geneweb-py</code> (dépôt prosopo-gw), consommé par l'adaptateur <code>chronologia/adapters/geneweb/</code>. L'analyse OCaml ci-dessous est conservée pour mémoire.</p>
+</blockquote>
 <p><strong>Forces pour ce projet</strong></p>
 <ul>
 <li><strong>Types somme et filtrage exhaustif.</strong> Ajouter un rôle ou un type d'événement fait signaler par le compilateur chaque traitement qui l'oublie.</li>
@@ -2085,6 +2092,12 @@ let role_of_witness sexe = function
 <li><em>Provenance de ligne et témoins.</em> Un événement sans numéros de ligne propres hérite de ceux de sa personne ou de sa famille (décision 7). Les témoins agrégés au niveau de la famille ne sont pas comptés deux fois quand un <code>fevt</code> les porte déjà.</li>
 </ul>
 </li>
+<li><strong>Connecteur GeneWeb en Python</strong> (v0.9.3). Le parseur <code>geneweb-py</code> (paquet <code>core</code> du monorepo prosopo-gw) est la source unique de l'analyse du <code>.gw</code> ; Chronologia le consomme en dépendance locale éditable et n'en copie aucun code. Raisons : il est testé, finalise comme <code>gwc</code>, et tient le plus gros fichier réel en quelques secondes ; la voie OCaml (8.3) n'apporterait que la lecture directe du <code>.gwb</code>. Conséquences, sans changement de modèle :<ul>
+<li><em>Compléments de lieu.</em> Un complément entre crochets qui contient « - » reste entier : <code>[Rue X - Petit séminaire] - Arras</code> donne le nom normalisé <code>Arras</code>, la forme écrite restant intégrale (R13).</li>
+<li><em>Organisations et expériences partagées.</em> prosopo-gw déduit des organisations probables (préfixes d'événements, professions, notes) et des « expériences partagées » (même nature, même période, même lieu). Ce sont des calculs sur la généalogie, pas des faits écrits : l'adaptateur ne les importe pas. Ils nourrissent la question 9.2-6.</li>
+<li><em>Atelier de nettoyage des lieux.</em> L'atelier de prosopo-gw produit un export « pivot » (<code>lieux</code>, <code>niveaux_lieux</code>, <code>ecritures_lieux</code>) : chaînes de niveaux validées par l'utilisateur, avec identifiants INSEE, DicoTopo ou GeoNames. Son articulation avec MENTION_LIEU ⇢ LIEU_HISTORIQUE est ouverte (9.2-9).</li>
+</ul>
+</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
@@ -2093,9 +2106,10 @@ let role_of_witness sexe = function
 <li><strong>Publication RDF.</strong> Correspondance fine vers CIDOC‑CRM et CRMinf (PC14, I2, I7) à écrire et à tester.</li>
 <li><strong>Types d'événements décrits.</strong> Le type porté par le factoïde (<code>type_evenement_id</code>) est traité comme une normalisation du vocabulaire. Si des classements font débat (un « contrat » qui est en fait une donation), il faudra les traiter par une conclusion sur le factoïde.</li>
 <li><strong>Emprises anciennes.</strong> Les limites des paroisses et seigneuries sont rarement connues avant le cadastre napoléonien. On commence par des points (chef-lieu) avec un rayon d'incertitude, comme le recommande le World Historical Gazetteer, puis on ajoute des polygones à mesure des sources. La zone tampon est calculée à l'affichage (<code>ST_Buffer</code>), jamais stockée ; la précision doit rester visible sur la carte.</li>
-<li><strong>Notion d'organisation.</strong> Faut-il introduire une entité pour les groupes constitués autres que territoriaux (régiment, confrérie, communauté religieuse, corporation, étude notariale, entreprise, association) ? Rien ne l'impose aujourd'hui. Le modèle les traite déjà de trois façons partielles : le LIEU_HISTORIQUE couvre les institutions territoriales (paroisse, bailliage) ; la profession est un rôle durable unaire ; la parenté est un rôle durable binaire. Un « employeur » ou une « appartenance à un régiment » n'a pas de place propre. À instruire lors d'une prochaine itération : (a) un besoin avéré dans le corpus ou les requêtes visées (réseau, prosopographie institutionnelle) ; (b) si oui, la forme : une cinquième agrégation par identification révisable (mention d'organisation ⇢ organisation, sur le patron de IDENT_LIEU), ou un simple type de masque ; (c) le rôle durable binaire masque ↔ organisation, daté, avec intervalle flou ; (d) la frontière avec LIEU_HISTORIQUE pour les institutions à la fois territoriales et personnes morales (une paroisse, une seigneurie) ; (e) la correspondance CIDOC‑CRM (E74 Group) et le traitement des groupes dans GEDCOM X ; (f) l'effet sur l'import GeneWeb. S'il est retenu, une nouvelle règle devra fixer son statut vis-à-vis de R13 et R18. Aucune décision prise.</li>
+<li><strong>Notion d'organisation.</strong> Faut-il introduire une entité pour les groupes constitués autres que territoriaux (régiment, confrérie, communauté religieuse, corporation, étude notariale, entreprise, association) ? Rien ne l'impose aujourd'hui. Le modèle les traite déjà de trois façons partielles : le LIEU_HISTORIQUE couvre les institutions territoriales (paroisse, bailliage) ; la profession est un rôle durable unaire ; la parenté est un rôle durable binaire. Un « employeur » ou une « appartenance à un régiment » n'a pas de place propre. À instruire lors d'une prochaine itération : (a) un besoin avéré dans le corpus ou les requêtes visées (réseau, prosopographie institutionnelle) ; (b) si oui, la forme : une cinquième agrégation par identification révisable (mention d'organisation ⇢ organisation, sur le patron de IDENT_LIEU), ou un simple type de masque ; (c) le rôle durable binaire masque ↔ organisation, daté, avec intervalle flou ; (d) la frontière avec LIEU_HISTORIQUE pour les institutions à la fois territoriales et personnes morales (une paroisse, une seigneurie) ; (e) la correspondance CIDOC‑CRM (E74 Group) et le traitement des groupes dans GEDCOM X ; (f) l'effet sur l'import GeneWeb. S'il est retenu, une nouvelle règle devra fixer son statut vis-à-vis de R13 et R18. Élément nouveau (v0.9.3, décision 22) : prosopo-gw dispose d'une entité <code>Organization</code> et en déduit des candidates (préfixes d'événements, professions nommant une compagnie, témoins, notes), exportées dans un fichier compagnon <code>org.json</code>. Ces déductions pourraient servir d'agent proposant (R18, R26) si l'entité est retenue ; elles ne sont pas des faits écrits. Aucune décision prise.</li>
 <li><strong>Supports autres que le manuscrit.</strong> La section 7 ne prévoit en entrée que l'image d'un manuscrit (ou un PDF) ; la voix n'y est qu'une aide de lecture de l'utilisateur. Or le corpus visé comprend aussi des <strong>imprimés</strong> (journaux) et des <strong>enregistrements audio et vidéo</strong>, à la fois des témoignages récents (entretiens, avec des personnes vivantes) et des archives sonores anciennes (radio, discours). À instruire : (a) un <strong>type de support</strong> sur le PASSAGE (manuscrit, imprimé, audio, vidéo) qui pilote la chaîne de traitement et le type d'ancrage ; (b) pour l'imprimé, l'OCR et surtout la <strong>segmentation en articles</strong> (colonnes, titres, annonces), l'article devenant l'unité de découpage à la place de l'acte, avec des gabarits d'extraction adaptés à un texte narratif ; (c) le <strong>bruit d'OCR</strong> : garder la confiance par mot et ne pas confondre une erreur de lecture machine avec une graphie d'époque (7.7) ; (d) les <strong>deux dates</strong> d'un article (parution et événement rapporté) ; (e) un <strong>ancrage polymorphe</strong> : positions dans le texte, polygone sur l'image, intervalle de temps dans un enregistrement (et image clé pour la vidéo), R19 restant inchangée sur le principe ; (f) les <strong>locuteurs</strong> : diarisation (qui parle quand), place du narrateur, des personnes évoquées et de l'enquêteur, le locuteur étant à la fois un masque et une source à noter (fiabilité × crédibilité, 2.3) ; (g) le <strong>statut de la transcription d'un enregistrement</strong>, qui est déjà une lecture et non une graphie : version du modèle conservée, correction humaine prévue ; (h) pour la vidéo, d'abord la piste audio, puis éventuellement l'OCR du texte à l'écran ; (i) le <strong>droit</strong> : voix et images de personnes vivantes (RGPD applicable, données potentiellement biométriques, consentement des témoins), droit d'auteur et droits voisins pour la presse et les archives sonores ; extension probable de R21 ; (j) le <strong>périmètre de la première version</strong> : registres paroissiaux d'abord, puis l'imprimé, l'audio ensuite. Aucune décision prise.</li>
 <li><strong>Outils d'annotation externes et données d'entraînement.</strong> Le document ne dit pas si l'annotation s'appuie sur des outils existants ni si les annotations doivent servir à entraîner des modèles (petits modèles en particulier) hors du système. Orientation pressentie, à confirmer : ne pas réinventer les outils, garder la base comme source de vérité des annotations. À instruire : (a) <strong>eScriptorium</strong> (et Kraken) pour l'écriture et la mise en page des manuscrits comme des imprimés, avec un contrat d'import ALTO ou PAGE XML vers les transcriptions et les zones du PASSAGE ; (b) <strong>Label Studio</strong> pour constituer le jeu de référence (les ~50 actes de la feuille de route) avant que l'écran de validation n'existe, et pour annoter audio et vidéo par plages de temps ; un convertisseur vers le brouillon <code>saisie</code> ; (c) l'<strong>écran de validation maison</strong> (7.4) maintenu, car valider, c'est verser dans la couche Source et décider d'identifications (R18 à R20), ce qu'un outil générique ne fait pas ; (d) un <strong>journal des corrections enrichi</strong> : éléments rejetés (exemples négatifs), mode lu ou déduit, version du gabarit, lien avec le LOT_SAISIE ; (e) une <strong>transcription figée</strong> ou versionnée, faute de quoi les ancrages dérivent à chaque correction ; (f) des <strong>exports par adaptateurs</strong> (JSONL, CoNLL, Label Studio, ALTO ou PAGE XML), produits à la demande et non stockés en base ; (g) des <strong>jeux exportés versionnés</strong>, avec un manifeste (actes retenus, état de validation) ; (h) une séparation apprentissage / évaluation <strong>par document ou par registre</strong>, non par acte, pour éviter que des formulaires quasi identiques se retrouvent des deux côtés ; (i) l'application de <strong>R21 à tout export d'entraînement</strong>, à fixer éventuellement par une règle nouvelle (prochain numéro libre) ; (j) le sens de « améliorer les modèles » en 7.4 : la correction humaine sert-elle seulement à évaluer, ou aussi à réentraîner ? Les capacités prêtées à eScriptorium et Label Studio sont à vérifier par un essai sur quelques documents. Aucune décision prise.</li>
+<li><strong>Articulation avec l'atelier de lieux de prosopo-gw.</strong> L'atelier nettoie les lieux d'une base GeneWeb hors de Chronologia et produit un export « pivot » : <code>lieux</code>, <code>niveaux_lieux</code> (une chaîne de niveaux validés, du plus précis au plus large, avec nature, identifiant INSEE, DicoTopo ou GeoNames, période et coordonnées), <code>ecritures_lieux</code> (les graphies rattachées) et <code>precisions_occurrences</code> (arrondissement désigné par une occurrence). Ses principes rejoignent le modèle : une ancienne commune est un lieu distinct de la commune actuelle, une proposition reste « proposée » tant qu'elle n'est pas validée. À instruire : (a) importer le pivot comme <strong>référentiel</strong> (<code>ref</code>) de lieux et de sites, ou comme lot de <strong>propositions</strong> d'identification MENTION_LIEU ⇢ LIEU_HISTORIQUE, décidées par l'utilisateur dans l'atelier mais versées par un agent (R18) ; (b) la clé de jointure entre une écriture du pivot et une <code>forme_ecrite</code> de MENTION_LIEU (même décodage des <code>_</code>, décision 21) ; (c) la correspondance entre les niveaux (commune, ancienne commune, arrondissement, lieu-dit) et les types de LIEU_HISTORIQUE et de SITE, et entre la période d'un niveau et celle d'un lieu historique ; (d) les licences : DicoTopo est en CC BY-NC-ND, GeoNames en CC BY, le COG en Licence Ouverte ; l'attribution et les restrictions d'usage doivent suivre la donnée jusqu'aux exports et publications ; (e) le réimport d'un pivot révisé, sur le patron du différentiel de lots (décision 16). Aucune décision prise.</li>
 </ol>
 <hr />
 <h2 id="10-sources">10. Sources</h2>

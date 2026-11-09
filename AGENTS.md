@@ -23,11 +23,16 @@ Contexte de reprise pour les agents IA. Source de vérité du modèle : `docs/mo
 
 ## Parseur GeneWeb
 
-Source unique : dépôt `prosopo-gw` (`../prosopo-gw`, package `geneweb-py`, dépendance locale éditable). Toute adaptation du format GeneWeb se fait dans prosopo-gw, jamais copiée ici. prosopo-gw est public : fixtures synthétiques seulement.
+Source unique : dépôt `prosopo-gw` (`../prosopo-gw`), monorepo `uv` (Python ≥ 3.11) à deux membres : `core` (package `geneweb-py`, seule dépendance de Chronologia, en locale éditable `../prosopo-gw/core`) et `atelier` (`prosopo-gw-atelier`, nettoyage des lieux, export « pivot »). Toute adaptation du format GeneWeb se fait dans prosopo-gw, jamais copiée ici. prosopo-gw est public : fixtures synthétiques seulement.
+
+- Le parseur finalise comme `gwc` (décision 21) et garde entier un complément de lieu entre crochets qui contient « - » (décision 22, test `test_complement_entre_crochets_avec_tiret_reste_entier`).
+- `core` déduit aussi des organisations (`Organization`, fichier compagnon `org.json`) et des « expériences partagées » : calculs, non importés (question ouverte §9.2-6).
+- L'export pivot de l'atelier (`lieux`, `niveaux_lieux`, `ecritures_lieux`) est un candidat pour les lieux historiques ; articulation ouverte (§9.2-9).
+- Après une évolution de prosopo-gw : `uv sync`, puis `uv run python -m pytest -q` et `uv run mypy`.
 
 ## Garde-fous
 
-- Bases réelles (`~/code_dev/TOLDOT/x_archive_GENEWEB_PROJECTS/...`) : lecture seule, jamais copiées, importées ni versionnées ici ; essais par scripts éphémères hors Git ; aucune donnée nominative dans les logs ni comptes-rendus (agrégats seulement).
+- Bases réelles (`~/code_dev/TOLDOT/xxx_archive_GENEWEB_PROJECTS/...`) : lecture seule, jamais copiées, importées ni versionnées ici ; essais par scripts éphémères hors Git ; aucune donnée nominative dans les logs ni comptes-rendus (agrégats seulement).
 - Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R27.
 - `docs/etude-page-claude.html` est généré : `uv run --no-project --with markdown python tools/build_page.py`.
 - TDD ; vérifications : `uv run python -m pytest -q` et `uv run mypy` (0 erreur).
@@ -38,4 +43,4 @@ Source unique : dépôt `prosopo-gw` (`../prosopo-gw`, package `geneweb-py`, dé
 1. Petits restes : `nb_ajouts` dans `BilanApplicationDiff` (tiré de `diff.ajouts`) et dans le résumé de la CLI ; règle B905 (`zip` sans `strict=`) et formatage en attente dans `chronologia/cli.py` et `tests/test_cli.py`.
 2. ✅ **Identification prosopographique MASQUE → PERSONNE** (couche Interprétation, achevée en v0.9) : schéma arrêté en v0.8 (décision 19, R25). Six tables : `interp_contributeur`, `interp_personne` (coquille, `same_as_id`), `interp_ident_personne` (proposition immuable), `interp_ident_personne_statut` (journal des décisions, vue `interp_ident_personne_actif`), `interp_indice` (faisceau d'indices), `interp_conclusion_effet` (R22) ; `interp_conclusion.cible_masque_id` devient facultatif. Triggers R11 (une identification active par masque) et R18 (un agent ne verse que « proposé ») ; schéma en place et testé (`tests/persistence/test_schema_interpretation.py`). Identifications de l'import GeneWeb faites (`chronologia/persistence/identification.py`, décision 19 : une personne par clé en `ref` dans la lignée du fichier, réutilisée au réimport, anciennes identifications retirées par `audit_retractation`, repli en « proposé » si une décision humaine diverge, R24 ; réimport complet du plus gros fichier réel en ~4 s). Rapprochement d'homonymes par faisceau d'indices fait (décision 20, R26, voir l'état ci-dessus).
 3. **Validation des propositions** : écran ou commande pour accepter (« actif ») ou rejeter les identifications proposées par l'agent, avec leur faisceau d'indices ; calibration du barème v1 sur un échantillon annoté (§9.2-1).
-4. Ensuite : normalisation des lieux (MENTION_LIEU → LIEU_HISTORIQUE), exports, saisie assistée.
+4. Ensuite : normalisation des lieux (MENTION_LIEU → LIEU_HISTORIQUE, en s'appuyant sur l'export pivot de l'atelier de prosopo-gw si §9.2-9 est tranchée), exports, saisie assistée.

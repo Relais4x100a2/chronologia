@@ -106,3 +106,14 @@ def test_relation_rel_garde_sa_ligne_de_provenance():
     f = next(f for f in lot.factoides if f.ref == r.factoide_ref)
     p = next(p for p in lot.passages if p.ref == f.passage_ref)
     assert (p.ligne_debut, p.ligne_fin, p.fichier_source) == (13, 13, "x.gw")
+
+
+def test_complement_entre_crochets_avec_tiret_reste_entier():
+    # prosopo-gw garde entier un complément entre crochets qui contient « - ».
+    texte = "fam DUPONT Paul +1750 #mp [Rue_Fictive_-_Petit_seminaire]_-_Chartres MARTIN Anne\n"
+    lot = importer_genealogie(
+        GeneWebParser(validate=False).parse_string(texte), fichier="x.gw"
+    )
+    (m,) = lot.mentions_lieu
+    assert m.forme_ecrite == "[Rue Fictive - Petit seminaire] - Chartres"
+    assert m.forme_normalisee == "Chartres"

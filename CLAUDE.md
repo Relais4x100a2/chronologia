@@ -9,7 +9,7 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 
 ## Source de vérité
 
-- `docs/modele-evenement-masque-factoide.md` : le document de référence (version 0.9.2). Toute décision de modèle s'y consigne d'abord : ligne dans le « Journal des versions », section concernée, puis section 9 (décisions et questions ouvertes).
+- `docs/modele-evenement-masque-factoide.md` : le document de référence (version 0.9.3). Toute décision de modèle s'y consigne d'abord : ligne dans le « Journal des versions », section concernée, puis section 9 (décisions et questions ouvertes).
 - `docs/etude-page-claude.html` est **généré** : ne pas l'éditer à la main. `python3 tools/build_page.py` le régénère.
 - `docs/geneweb/` : références du format GeneWeb (`.gw`, wikitext), à consulter pour le connecteur d'import. Documentation externe, pas une décision de modèle.
 - `maquettes/design/` : copie des cinq écrans de la maquette (format `.dc.html` du canevas Design de claude.ai). Ils ne s'affichent que dans ce canevas ; ici, c'est une archive de référence.
@@ -25,18 +25,21 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 
 - PostgreSQL + PostGIS + btree_gist ; schémas `saisie`, `source`, `interp`, `ref`.
 - Coordonnées stockées en WGS 84 (EPSG:4326) ; calculs métriques en Lambert‑93 (EPSG:2154).
-- Backend Python. Connecteur GeneWeb en OCaml (bibliothèque de GeneWeb) ou, d'abord, analyse de l'export `gwu`.
+- Backend Python (API FastAPI, interface React + TypeScript : voir `AGENTS.md`). Connecteur GeneWeb : le parseur Python `geneweb-py` du monorepo `prosopo-gw` (`../prosopo-gw/core`), qui lit le `.gw` exporté par `gwu` (décision 22 ; voie OCaml abandonnée).
 - Modèles de langage derrière une passerelle (contrat JSON) ; déploiement hybride (serveur local, services en ligne, petits modèles locaux).
 
 ## Prochaine étape (section 9 et feuille de route)
 
-1. Rendre le socle exécutable : schéma SQL complet + tests automatiques des règles + rejeu des scénarios du document (baptême aux deux dates, Pierre Martin, chapelle de 1709).
-2. Import d'une vraie base GeneWeb (export `gwu`).
-3. Test de la saisie assistée sur ~50 actes annotés à la main.
-4. Développement des écrans : validation et rattachements d'abord.
+Fait : import de vraies bases GeneWeb (SQLite immuable), identifications MASQUE → PERSONNE, rapprochement d'homonymes (état détaillé dans `AGENTS.md`).
+
+1. Validation des propositions d'identification (écran ou commande), calibration du barème v1.
+2. Rendre le socle exécutable en PostgreSQL : schéma SQL complet + tests automatiques des règles + rejeu des scénarios du document (baptême aux deux dates, Pierre Martin, chapelle de 1709).
+3. Lieux : normalisation MENTION_LIEU → LIEU_HISTORIQUE, articulation avec l'export pivot de l'atelier de prosopo-gw (§9.2-9).
+4. Test de la saisie assistée sur ~50 actes annotés à la main.
+5. Développement des écrans : validation et rattachements d'abord.
 
 ## Conventions
 
 - Langue du projet : français (documentation, noms de tables et de colonnes sans accents).
-- Les esquisses SQL et OCaml du document ne sont pas testées : les traiter comme des intentions, pas comme du code acquis.
+- Les esquisses SQL et OCaml (8.3, pour mémoire) du document ne sont pas testées : les traiter comme des intentions, pas comme du code acquis.
 - Les exemples (Saint‑Aubin, Pierre Martin, Les Essarts, chapelle de la Croix‑Blanche) sont fictifs.
