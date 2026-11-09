@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.9.4, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.10, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -277,6 +277,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.9.4</td>
 <td><strong>Mode de détermination et calendrier de la date</strong> (4.4, 5.6, décision 23), repris de l'étude de Heurist (<code>docs/etude-heurist.md</code>) : le FACTOIDE porte <code>determination_date</code> (attestée, déduite, estimée, inconnue) ; <code>calendrier</code> prend une liste fermée qui inclut le républicain. <strong>Connecteurs Heurist</strong> inscrits à la feuille de route, après le socle PostgreSQL (décision 24). <strong>R27</strong> (décision 25) : la non‑reproposition d'une identification déjà décidée, posée par R26 pour les personnes, s'étend aux quatre agrégations.</td>
+</tr>
+<tr>
+<td>0.10</td>
+<td><strong>Reprises de nodegoat, Arches et ResearchSpace</strong> (<code>docs/etude-nodegoat-arches-researchspace.md</code>, décisions 26 à 32) : CONTRAINTE_TEMPORELLE porte une direction et un écart (4.4) ; CONCLUSION porte un <code>mode</code> (observation, adoption, inférence) et peut reposer sur d'autres conclusions (nouvelle entité CONCLUSION_PREMISSE, 4.4, 4.7) ; ANOMALIE_IMPORT garde les anomalies de chaque lot (4.4, 5.8) ; FORME_LIEU retient les résolutions des formes écrites de lieux (4.4, 4.8) ; EDTF comme syntaxe de saisie et d'export (5.6) ; cycle de publication à préciser avec les connecteurs (décision 32). <strong>R28</strong> : pas de raisonnement circulaire, pas de retrait en cascade silencieux.</td>
 </tr>
 </tbody>
 </table></div>
@@ -600,9 +604,14 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
   CONTRIBUTEUR ||--o{ CONCLUSION : soutient
   CONCLUSION ||--o{ CONCLUSION_EFFET : produit
   CONCLUSION ||--o{ CONTRAINTE_TEMPORELLE : impose
+  CONCLUSION ||--o{ CONCLUSION_PREMISSE : &quot;repose sur&quot;
+  CONCLUSION ||--o{ CONCLUSION_PREMISSE : &quot;sert de premisse&quot;
   EVENEMENT ||--o{ CONTRAINTE_TEMPORELLE : borne
   EVENEMENT |o--o{ CONTRAINTE_TEMPORELLE : &quot;date de reference&quot;
   LOT_IMPORT |o--o{ FACTOIDE : produit
+  LOT_IMPORT ||--o{ ANOMALIE_IMPORT : signale
+  LIEU_HISTORIQUE |o--o{ FORME_LIEU : &quot;resolution habituelle&quot;
+  SITE |o--o{ FORME_LIEU : &quot;resolution habituelle&quot;
   LIEU_HISTORIQUE ||--o{ NOM_LIEU : nomme
   LIEU_HISTORIQUE ||--o{ EMPRISE : &quot;etendue datee&quot;
   LIEU_HISTORIQUE ||--o{ APPARTENANCE : partie
@@ -716,6 +725,11 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td><code>lieu_historique_id</code>, <code>site_id</code>, <code>fonction</code> (chef-lieu, église paroissiale, château), <code>validite</code></td>
 </tr>
 <tr>
+<td>FORME_LIEU</td>
+<td>Forme écrite d'un lieu déjà rencontrée, et sa résolution habituelle (4.8, décision 30).</td>
+<td><code>forme_normalisee</code>, <code>contexte</code> (lieu englobant ou source, pour distinguer deux homonymes), <code>lieu_historique_id</code> ou <code>site_id</code>, ou <code>marque</code> (sans référence, à ignorer), <code>contributeur_id</code>, <code>date</code></td>
+</tr>
+<tr>
 <td>IDENT_SOURCE · IDENT_PERSONNE · IDENT_EVENEMENT · IDENT_LIEU</td>
 <td>Structure commune : un élément écrit rattaché à une entité conclue. Pour IDENT_LIEU, la cible est un lieu historique ou un site.</td>
 <td><code>de_id</code>, <code>vers_id</code>, <code>degre</code> (certain, probable, possible), <code>statut</code> (proposé, actif, rejeté), <code>conclusion_id</code>, <code>lot_import_id</code> ; pour IDENT_PERSONNE, depuis la v0.8, <code>statut</code> et <code>conclusion_id</code> sont portés par le journal IDENT_PERSONNE_STATUT (R25), et <code>contributeur_id</code> désigne l'auteur de la proposition</td>
@@ -733,7 +747,12 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>CONCLUSION</td>
 <td>Point de vue argumenté (CRMinf I2 Belief, I5 Inference Making).</td>
-<td><code>contributeur_id</code>, <code>date</code>, <code>valeur</code> (vrai, faux, incertain), <code>motifs[]</code> (liste prédéfinie), <code>argument</code> (texte libre), <code>factoides[]</code>, <code>cible</code> (élément contesté, facultatif) ; ses conséquences sont listées dans CONCLUSION_EFFET</td>
+<td><code>contributeur_id</code>, <code>date</code>, <code>valeur</code> (vrai, faux, incertain), <code>mode</code> (observation : lu dans la source ; adoption : opinion d'un auteur reprise ; inférence : raisonnement, décision 27), <code>motifs[]</code> (liste prédéfinie), <code>argument</code> (texte libre), <code>factoides[]</code>, <code>cible</code> (élément contesté, facultatif) ; ses conséquences sont listées dans CONCLUSION_EFFET, ses appuis sur d'autres conclusions dans CONCLUSION_PREMISSE. Une <strong>adoption</strong> s'appuie sur les factoïdes d'une SOURCE publiée (ouvrage, article, notice) qui exprime l'opinion reprise : l'auteur cité est une source, pas un contributeur</td>
+</tr>
+<tr>
+<td>CONCLUSION_PREMISSE</td>
+<td>Appui d'une conclusion sur une autre (CRMinf J1 used as premise).</td>
+<td><code>conclusion_id</code>, <code>premisse_id</code> ; jamais circulaire, et le retrait d'une prémisse signale la conclusion qui en dépend sans la retirer (R28, décision 28)</td>
 </tr>
 <tr>
 <td>CONCLUSION_EFFET</td>
@@ -743,7 +762,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>CONTRAINTE_TEMPORELLE</td>
 <td>Borne imposée à un événement par une conclusion, qui s'ajoute à l'intersection des factoïdes.</td>
-<td><code>evenement_id</code>, <code>borne</code> (début min, début max, fin min, fin max), <code>valeur</code> (date fixe) ou <code>evenement_reference_id</code> (borne liée à la date d'un autre événement, par exemple un changement de territoire), <code>conclusion_id</code></td>
+<td><code>evenement_id</code>, <code>borne</code> (début min, début max, fin min, fin max), <code>valeur</code> (date fixe) ou <code>evenement_reference_id</code> (borne liée à la date d'un autre événement, par exemple un changement de territoire) avec <code>direction</code> (avant ou après le début ou la fin de l'événement de référence), <code>ecart_min</code> et <code>ecart_max</code> (facultatifs) et <code>unite</code> (jour, mois, an), <code>conclusion_id</code>. « Baptême au plus trois jours après la naissance » : borne début max, référence la naissance, après le début, écart 0 à 3 jours. Une borne relative est recalculée quand l'événement de référence change ; une chaîne circulaire est refusée (R28, décision 26)</td>
 </tr>
 </tbody>
 </table></div>
@@ -782,6 +801,11 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td>Provenance d'un import.</td>
 <td><code>format</code>, <code>fichier</code>, <code>empreinte</code> (SHA‑256), <code>outil</code>, <code>version</code>, <code>date</code>, <code>statut</code> (actif, annulé), <code>nb_entites</code> (entités produites par le lot)</td>
 </tr>
+<tr>
+<td>ANOMALIE_IMPORT</td>
+<td>Ce que l'import n'a pas pu lire ou a refusé de deviner (5.8, décision 29). Insertion seule.</td>
+<td><code>lot_import_id</code>, <code>cle_externe</code> ou position dans le fichier, <code>champ</code>, <code>valeur_brute</code>, <code>type</code> (date ambiguë, lieu illisible, ligne ignorée…), <code>message</code> ; chaque anomalie entre dans la file de décisions (R24)</td>
+</tr>
 </tbody>
 </table></div>
 <h3 id="45-règles-dintégrité">4.5 Règles d'intégrité</h3>
@@ -818,6 +842,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <p>Règle ajoutée en v0.9.4 :</p>
 <ol start="27">
 <li><strong>R27 : une question tranchée n'est pas reposée par la machine.</strong> La clause de non‑reproposition de R26 vaut pour les quatre agrégations (IDENT_SOURCE, IDENT_PERSONNE, IDENT_EVENEMENT, IDENT_LIEU). Un couple élément écrit – cible qui porte déjà une identification, quels qu'en soient le statut et l'auteur, n'est pas reproposé par un agent. Un indice nouveau ne rouvre pas la question de lui‑même : il est ajouté au faisceau de l'identification existante et signalé dans la file de décisions, et seul un humain la rouvre, par une nouvelle ligne de son journal (R25). Comme pour l'incertitude assumée (R23), une question close peut revenir dans la file, mais jamais changer de statut sans décision humaine (R18, R24).</li>
+</ol>
+<p>Règle ajoutée en v0.10 :</p>
+<ol start="28">
+<li><strong>R28 : pas de raisonnement circulaire, pas de retrait en cascade silencieux.</strong> Deux chaînes de dépendance sont surveillées : les prémisses d'une conclusion (CONCLUSION_PREMISSE) et les bornes relatives d'un événement (CONTRAINTE_TEMPORELLE liée à un <code>evenement_reference_id</code>). Aucune ne peut boucler sur elle‑même : l'insertion qui fermerait un cycle est refusée. Quand un maillon est retiré ou change (conclusion rétractée, date de référence modifiée), ce qui en dépend n'est ni retiré ni recalculé en silence : les bornes sont recalculées, et chaque conclusion qui perd un appui est signalée dans la file de décisions avec la chaîne qui la reliait au maillon retiré (R22, R24).</li>
 </ol>
 <h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
 <blockquote>
@@ -1000,7 +1028,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 </tr>
 <tr>
 <td>CONCLUSION</td>
-<td>I2 Belief, I5 Inference Making</td>
+<td>I2 Belief ; selon <code>mode</code> : S4 Observation (CRMsci), I7 Belief Adoption, I5 Inference Making ; CONCLUSION_PREMISSE : J1 used as premise</td>
 <td>Attribution + confidence</td>
 <td>—</td>
 <td>—</td>
@@ -1089,6 +1117,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <li>« en l'église de Saint‑Aubin » → deux mentions (R17), l'une vers le site, l'autre vers la paroisse.</li>
 </ul>
 <p>Les règles R15 à R17 (4.5) encadrent ces rattachements : cohérence avec la date du factoïde, présent calculé et jamais saisi, une mention pour un seul référent.</p>
+<p><strong>Mémoire des formes écrites</strong> (décision 30, reprise de nodegoat). Quand l'historien rattache une mention, sa forme normalisée et son contexte sont retenus dans FORME_LIEU. Une nouvelle mention de même forme, dans le même contexte, reçoit d'emblée la même cible, en « proposé » seulement (R18). Les marques « sans référence » et « à ignorer » sont retenues de la même façon, pour ne pas reposer la question à chaque lot (esprit de R27). Le contexte évite d'appliquer à « Saint‑Aubin » d'un diocèse la résolution de « Saint‑Aubin » d'un autre.</p>
 <h4 id="deux-questions-deux-chemins">Deux questions, deux chemins</h4>
 <div class="tbl"><table>
 <thead>
@@ -1435,6 +1464,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <li><strong>inconnue</strong> : on ne sait pas. C'est la valeur de l'import GeneWeb, car une base GeneWeb ne dit pas si la date a été lue dans un acte ou calculée par le généalogiste.</li>
 </ul>
 <p>L'import ne devine jamais : une forme ambiguë (<code>1564/5</code>, <code>1525-6</code>) ou un <code>?</code> ne sont pas normalisés en silence ; le texte reste dans <code>date_brute</code> et la question part dans la file de décisions (R24). Les règles chronologiques du rapprochement (décision 20) pourront élargir leur tolérance pour une date déduite ou estimée : à calibrer avec le barème (9.2-1).</p>
+<p><strong>EDTF en saisie et en export</strong> (décision 31, reprise d'Arches). La syntaxe EDTF (ISO 8601‑2) sert à écrire et à échanger les bornes d'une date grégorienne : <code>1709?</code> (incertain), <code>1709~</code> (approximatif), <code>[1708..1710]</code> (l'une de ces années), <code>17XX</code> (siècle connu). Elle remplit <code>date_min</code> et <code>date_max</code>, jamais <code>date_brute</code>, qui garde le texte de la source, ni <code>calendrier</code>, car EDTF ne connaît que le grégorien. Les marques <code>?</code> et <code>~</code> ne remplacent pas <code>determination_date</code> : une date peut être <code>1709~</code> et « déduite ». La bibliothèque Python <code>edtf</code> n'est retenue que si sa licence le permet.</p>
 <h3 id="57-exemple-dimport">5.7 Exemple d'import</h3>
 <p>Extrait <code>.gw</code> illustratif, tel qu'un export <code>gwu</code> pourrait le produire :</p>
 <pre class="code"><code class="language-text">fam MARTIN Pierre +1705 #mp Saint-Aubin DUBOIS Marie
@@ -1497,7 +1527,7 @@ end pevt
 <h3 id="58-chaîne-dimport">5.8 Chaîne d'import</h3>
 <ol>
 <li><strong>Extraire.</strong> Analyser le fichier <code>.gw</code> (export <code>gwu</code>) avec le parseur Python <code>geneweb-py</code> du dépôt prosopo-gw, qui finalise comme <code>gwc</code> (décisions 21 et 22). La lecture directe de la base <code>.gwb</code> en OCaml, envisagée jusqu'en v0.9.2, est abandonnée. Le GEDCOM de <code>gwb2ged</code> reste écarté : il risque d'aplatir les types de témoins et les notes.</li>
-<li><strong>Normaliser.</strong> Dates en intervalles, graphies de lieux, chaînes de source découpées (5.5). Les cas ambigus partent dans la file de décisions.</li>
+<li><strong>Normaliser.</strong> Dates en intervalles, graphies de lieux, chaînes de source découpées (5.5). Les cas ambigus sont consignés dans ANOMALIE_IMPORT, rattachés au lot, et partent dans la file de décisions (décision 29). Un lot entier s'annule par une commande (R9), sans suppression.</li>
 <li><strong>Charger la couche Source.</strong> Passages, factoïdes, masques, participations, qualités, relations, noms, tous rattachés au lot.</li>
 <li><strong>Créer les identifications du lot.</strong> Une personne par clé GeneWeb, un événement par factoïde, une source par groupe exact, un lieu par correspondance unique, toutes « certain » et attribuées au lot.</li>
 <li><strong>Rapprocher avec l'existant.</strong> Les correspondances avec les personnes, événements, sources et lieux déjà en base sont créées en « proposé » et entrent dans la file de décisions.</li>
@@ -2054,7 +2084,7 @@ let role_of_witness sexe = function
 </code></pre>
 <hr />
 <h2 id="9-décisions-et-questions-ouvertes">9. Décisions et questions ouvertes</h2>
-<h3 id="91-décisions-prises-v04-à-v09">9.1 Décisions prises (v0.4 à v0.9)</h3>
+<h3 id="91-décisions-prises-v04-à-v010">9.1 Décisions prises (v0.4 à v0.10)</h3>
 <ol>
 <li><strong>Les lieux forment une quatrième agrégation</strong> (MENTION_LIEU ⇢ LIEU par IDENT_LIEU), pour que la couche Source reste en insertion seule (R10, R13).</li>
 <li><strong>Le factoïde reste à la granularité de l'acte</strong> (R14). La co-présence des participants est l'information essentielle des registres et minutes, et ce choix rejoint l'<em>Event</em> de niveau record de GEDCOM X. Les affirmations fines d'IPIF existent déjà à l'intérieur du factoïde, sous forme de participations, qualités et relations.</li>
@@ -2124,12 +2154,19 @@ let role_of_witness sexe = function
 <li><strong>Mode de détermination et calendrier de la date</strong> (v0.9.4), repris de l'objet temporel de Heurist (<code>docs/etude-heurist.md</code>, 5.1). Le FACTOIDE porte <code>determination_date</code> (attestée, déduite, estimée, inconnue) et <code>calendrier</code> devient une liste fermée (grégorien, julien, républicain, hébreu), la date d'origine restant dans <code>date_brute</code> (5.6). Raisons : une date déduite d'un âge n'a pas la même valeur qu'une date écrite, et le calendrier républicain compte pour les registres de 1793 à 1805. Pas de nouvelle règle : R5 (intervalles) et R20 (lu ou déduit) suffisent. Non repris de Heurist : le profil de probabilité des bornes, utile seulement pour des calculs de densité.</li>
 <li><strong>Connecteurs Heurist</strong> (v0.9.4), inscrits à la feuille de route après le socle PostgreSQL (<code>docs/etude-heurist.md</code>, section 7) : (a) <strong>import</strong> d'une base Heurist (export JSON ou HML, ou API REST) sur le patron du connecteur GeneWeb, chaque enregistrement Personne devenant un masque, chaque valeur de champ un factoïde rattaché à un passage « base Heurist X, enregistrement N », chaque relation un factoïde de participation, avec un LOT_IMPORT ; (b) <strong>export</strong> des vues actives vers Heurist pour publier par ses sites web hébergés par Huma‑Num, export appauvrissant signalé comme tel (comme vers GeneWeb, 5.8). La correspondance détaillée sera arrêtée au moment de l'implémentation. Aucun code de Heurist n'est repris (GPL‑3).</li>
 <li><strong>Une question tranchée n'est pas reposée par la machine</strong> (v0.9.4, R27). Repris de la mémoire des non‑doublons de Heurist (<code>recSimilarButNotDupes</code>, <code>docs/etude-heurist.md</code>, 5.3), déjà acquis par R26 pour MASQUE ⇢ PERSONNE, et étendu aux sources, événements et lieux avant que leurs rapprocheurs n'existent. Plus strict que Heurist sur un point : un indice nouveau est montré à l'historien, il ne déclenche pas une nouvelle proposition.</li>
+<li><strong>Écart et direction dans les contraintes temporelles</strong> (v0.10, R28), repris de la chronologie de nodegoat (<code>docs/etude-nodegoat-arches-researchspace.md</code>, 1.2). Une borne relative dit avant ou après le début ou la fin de l'événement de référence, avec un écart minimal et maximal. Les bornes relatives sont recalculées quand la référence change, et une chaîne circulaire est refusée.</li>
+<li><strong>Nature de l'argument</strong> (v0.10), reprise de ResearchSpace et de CRMinf (étude, 3.2). CONCLUSION porte un <code>mode</code> : observation, adoption ou inférence. Une adoption reprend l'opinion d'un auteur publié ; la publication est une SOURCE et la conclusion s'appuie sur ses factoïdes, ce qui respecte R2 sans ajouter de type de contributeur.</li>
+<li><strong>Conclusions enchaînées</strong> (v0.10, R28), reprises de ResearchSpace (étude, 3.3). Une conclusion peut reposer sur d'autres conclusions (CONCLUSION_PREMISSE). Le retrait d'une prémisse signale les conclusions qui en dépendent, sans les retirer : l'historien décide.</li>
+<li><strong>Anomalies d'import</strong> (v0.10), reprises de la zone d'attente d'Arches (étude, 2.4). ANOMALIE_IMPORT garde, pour chaque lot, ce que l'import n'a pas pu lire ou a refusé de deviner ; chaque anomalie entre dans la file de décisions. L'annulation d'un lot (R9) devient une commande.</li>
+<li><strong>Mémoire des formes écrites des lieux</strong> (v0.10), reprise de nodegoat (étude, 1.5). FORME_LIEU retient la résolution d'une forme dans son contexte, et les marques « sans référence » et « à ignorer » ; une nouvelle mention identique reçoit une proposition, jamais une identification active. Mise en œuvre avec l'étape « Lieux ».</li>
+<li><strong>EDTF en saisie et en export</strong> (v0.10), repris d'Arches (étude, 2.5). Format d'entrée et de sortie des bornes grégoriennes, à côté de <code>date_brute</code>, <code>calendrier</code> et <code>determination_date</code>, qu'il ne remplace pas.</li>
+<li><strong>Cycle de publication</strong> (v0.10), repris d'Arches (étude, 2.3). Les entités exportées porteront un état de publication (en cours, publiable, publié), distinct du statut des identifications. Ses colonnes et son effet sur les exports seront arrêtés avec les connecteurs (décision 24).</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
 <li><strong>Score des candidats.</strong> Poids des indices (noms, dates, lieux, réseau) et seuils de proposition : à calibrer sur un échantillon annoté. Un barème v1 provisoire est fixé par la décision 20.</li>
 <li><strong>Plusieurs équipes, plusieurs vues de référence ?</strong> R11 suppose une vue de référence par projet. Si plusieurs projets partagent la base, <code>actif</code> devra dépendre du projet.</li>
-<li><strong>Publication RDF.</strong> Correspondance fine vers CIDOC‑CRM et CRMinf (PC14, I2, I7) à écrire et à tester.</li>
+<li><strong>Publication RDF.</strong> Correspondance fine vers CIDOC‑CRM et CRMinf (PC14, I2, I7) à écrire et à tester. Préparée par les décisions 27 et 28 (<code>mode</code> et prémisses, 4.7) ; ResearchSpace peut servir de banc d'essai.</li>
 <li><strong>Types d'événements décrits.</strong> Le type porté par le factoïde (<code>type_evenement_id</code>) est traité comme une normalisation du vocabulaire. Si des classements font débat (un « contrat » qui est en fait une donation), il faudra les traiter par une conclusion sur le factoïde.</li>
 <li><strong>Emprises anciennes.</strong> Les limites des paroisses et seigneuries sont rarement connues avant le cadastre napoléonien. On commence par des points (chef-lieu) avec un rayon d'incertitude, comme le recommande le World Historical Gazetteer, puis on ajoute des polygones à mesure des sources. La zone tampon est calculée à l'affichage (<code>ST_Buffer</code>), jamais stockée ; la précision doit rester visible sur la carte.</li>
 <li><strong>Notion d'organisation.</strong> Faut-il introduire une entité pour les groupes constitués autres que territoriaux (régiment, confrérie, communauté religieuse, corporation, étude notariale, entreprise, association) ? Rien ne l'impose aujourd'hui. Le modèle les traite déjà de trois façons partielles : le LIEU_HISTORIQUE couvre les institutions territoriales (paroisse, bailliage) ; la profession est un rôle durable unaire ; la parenté est un rôle durable binaire. Un « employeur » ou une « appartenance à un régiment » n'a pas de place propre. À instruire lors d'une prochaine itération : (a) un besoin avéré dans le corpus ou les requêtes visées (réseau, prosopographie institutionnelle) ; (b) si oui, la forme : une cinquième agrégation par identification révisable (mention d'organisation ⇢ organisation, sur le patron de IDENT_LIEU), ou un simple type de masque ; (c) le rôle durable binaire masque ↔ organisation, daté, avec intervalle flou ; (d) la frontière avec LIEU_HISTORIQUE pour les institutions à la fois territoriales et personnes morales (une paroisse, une seigneurie) ; (e) la correspondance CIDOC‑CRM (E74 Group) et le traitement des groupes dans GEDCOM X ; (f) l'effet sur l'import GeneWeb. S'il est retenu, une nouvelle règle devra fixer son statut vis-à-vis de R13 et R18. Élément nouveau (v0.9.3, décision 22) : prosopo-gw dispose d'une entité <code>Organization</code> et en déduit des candidates (préfixes d'événements, professions nommant une compagnie, témoins, notes), exportées dans un fichier compagnon <code>org.json</code>. Ces déductions pourraient servir d'agent proposant (R18, R26) si l'entité est retenue ; elles ne sont pas des faits écrits. Aucune décision prise.</li>

@@ -33,7 +33,7 @@ Source unique : dépôt `prosopo-gw` (`../prosopo-gw`), monorepo `uv` (Python �
 ## Garde-fous
 
 - Bases réelles (`~/code_dev/TOLDOT/xxx_archive_GENEWEB_PROJECTS/...`) : lecture seule, jamais copiées, importées ni versionnées ici ; essais par scripts éphémères hors Git ; aucune donnée nominative dans les logs ni comptes-rendus (agrégats seulement).
-- Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R28.
+- Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R29.
 - `docs/etude-page-claude.html` est généré : `uv run --no-project --with markdown python tools/build_page.py`.
 - TDD ; vérifications : `uv run python -m pytest -q` et `uv run mypy` (0 erreur).
 - Pas de `git add -A` ni de push sans accord explicite.
@@ -46,3 +46,9 @@ Source unique : dépôt `prosopo-gw` (`../prosopo-gw`), monorepo `uv` (Python �
 4. Ensuite : normalisation des lieux (MENTION_LIEU → LIEU_HISTORIQUE, en s'appuyant sur l'export pivot de l'atelier de prosopo-gw si §9.2-9 est tranchée), exports, saisie assistée.
 5. **Dates (décision 23, v0.9.4)** : colonne `determination_date` (attestée, déduite, estimée, inconnue ; « inconnue » pour l'import GeneWeb) et liste fermée pour `calendrier`, dont le républicain (suffixe `F` de GeneWeb, déjà converti par `geneweb-py` pour les ans I à XIV ; l'hébreu reste sans bornes, texte gardé). À faire avec le socle PostgreSQL.
 6. **Connecteurs Heurist (décision 24)** : import d'une base Heurist et export vers Heurist pour la publication, après le socle PostgreSQL.
+7. **Reprises de nodegoat, Arches et ResearchSpace (décisions 26 à 32, v0.10, `docs/etude-nodegoat-arches-researchspace.md`)** :
+   - avec le socle PostgreSQL : direction et écart dans CONTRAINTE_TEMPORELLE (26), `mode` de CONCLUSION (27), table CONCLUSION_PREMISSE (28), et R28 (pas de cycle, retrait signalé et non appliqué en cascade) ;
+   - avant la validation des propositions : table ANOMALIE_IMPORT et commande d'annulation d'un lot, R9 (29) ;
+   - avec l'étape « Lieux » : FORME_LIEU, mémoire des formes écrites (30) ;
+   - avec les exports et la saisie : EDTF (31, licence de `edtf` à vérifier) ;
+   - avec les connecteurs : cycle de publication (32).
