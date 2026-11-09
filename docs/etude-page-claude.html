@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.9.3, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.9.4, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -273,6 +273,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>0.9.3</td>
 <td><strong>Connecteur GeneWeb en Python</strong> (décision 22) : le parseur <code>geneweb-py</code> du monorepo prosopo-gw lit le <code>.gw</code> ; la voie OCaml (8.3) est abandonnée et la section 8 devient « PostgreSQL et Python ». Nouveaux éléments de prosopo-gw versés aux questions ouvertes : organisations déduites (9.2-6) et atelier de nettoyage des lieux (9.2-9). Aucun changement de modèle ni de règle.</td>
+</tr>
+<tr>
+<td>0.9.4</td>
+<td><strong>Mode de détermination et calendrier de la date</strong> (4.4, 5.6, décision 23), repris de l'étude de Heurist (<code>docs/etude-heurist.md</code>) : le FACTOIDE porte <code>determination_date</code> (attestée, déduite, estimée, inconnue) ; <code>calendrier</code> prend une liste fermée qui inclut le républicain. <strong>Connecteurs Heurist</strong> inscrits à la feuille de route, après le socle PostgreSQL (décision 24). <strong>R27</strong> (décision 25) : la non‑reproposition d'une identification déjà décidée, posée par R26 pour les personnes, s'étend aux quatre agrégations.</td>
 </tr>
 </tbody>
 </table></div>
@@ -627,7 +631,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>FACTOIDE</td>
 <td>Événement ou affirmation tel qu'un passage le décrit. Seul point d'ancrage de la couche.</td>
-<td><code>passage_id</code>, <code>type_evenement_id</code> (type décrit), <code>enonce</code>, <code>date_declaree</code> (texte), <code>cle_famille</code> (clé GeneWeb de la famille d'origine, commune aux factoïdes d'une même famille), <code>date_brute</code> (texte exact de la source), <code>date_min</code> / <code>date_max</code> / <code>calendrier</code> (normalisation mécanique du texte), <code>declarant_masque_id</code>, <code>credibilite</code> (1–6), <code>saisi_par</code>, <code>saisi_le</code>, <code>lot_import_id</code>, <code>remplace_id</code> (correction)</td>
+<td><code>passage_id</code>, <code>type_evenement_id</code> (type décrit), <code>enonce</code>, <code>date_declaree</code> (texte), <code>cle_famille</code> (clé GeneWeb de la famille d'origine, commune aux factoïdes d'une même famille), <code>date_brute</code> (texte exact de la source, dans son calendrier d'origine), <code>date_min</code> / <code>date_max</code> (normalisation mécanique du texte, en grégorien), <code>calendrier</code> (calendrier du texte : grégorien, julien, républicain, hébreu ; décision 23), <code>determination_date</code> (attestée, déduite, estimée, inconnue ; décision 23), <code>declarant_masque_id</code>, <code>credibilite</code> (1–6), <code>saisi_par</code>, <code>saisi_le</code>, <code>lot_import_id</code>, <code>remplace_id</code> (correction)</td>
 </tr>
 <tr>
 <td>MASQUE</td>
@@ -810,6 +814,10 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <ol start="25">
 <li><strong>R25 : le statut d'une identification est un journal.</strong> Une identification (élément écrit, cible, degré, auteur) ne change jamais ; chaque décision à son sujet (proposer, activer, rejeter) est une ligne nouvelle, et le statut courant est la dernière. Deux contrôles s'appliquent à l'insertion d'une décision : une décision « actif » est refusée si le même élément a déjà une autre identification active (R11 ; il faut d'abord la rejeter), et toute décision autre que « proposé » est refusée si son auteur est un agent (R18 : rejeter est un jugement au même titre qu'activer ; le désaccord d'un agent s'exprime par un INDICE de sens « contre »). L'import d'une base dont l'auteur a déjà identifié ses personnes n'est pas un agent. Une identification retirée par <code>audit_retractation</code> (lot remplacé ou annulé, R9) sort de la vue active quel que soit son statut. Appliquée d'abord à IDENT_PERSONNE ; IDENT_EVENEMENT, IDENT_SOURCE et IDENT_LIEU la rejoindront.</li>
 <li><strong>R26 : un rapprochement calculé est encadré.</strong> Une identification proposée par un agent est justifiée par au moins un indice calculé (<code>mode</code> calculé, <code>regle_version</code> renseignée), son degré est « possible » ou « probable », jamais « certain », et elle n'est versée qu'en « proposé » (R18). Un candidat frappé d'un indice « contre » éliminatoire selon le barème en vigueur, ou resté sous le seuil de proposition, n'est pas écrit : il n'apparaît que dans le rapport d'exécution. Un couple masque–personne qui porte déjà une identification, quels qu'en soient le statut et l'auteur, n'est pas reproposé : un rejet humain tient (R24). Le degré est contrôlé à l'insertion ; l'exigence d'un indice l'est par le moteur et ses tests, l'identification étant écrite avant son faisceau.</li>
+</ol>
+<p>Règle ajoutée en v0.9.4 :</p>
+<ol start="27">
+<li><strong>R27 : une question tranchée n'est pas reposée par la machine.</strong> La clause de non‑reproposition de R26 vaut pour les quatre agrégations (IDENT_SOURCE, IDENT_PERSONNE, IDENT_EVENEMENT, IDENT_LIEU). Un couple élément écrit – cible qui porte déjà une identification, quels qu'en soient le statut et l'auteur, n'est pas reproposé par un agent. Un indice nouveau ne rouvre pas la question de lui‑même : il est ajouté au faisceau de l'identification existante et signalé dans la file de décisions, et seul un humain la rouvre, par une nouvelle ligne de son journal (R25). Comme pour l'incertitude assumée (R23), une question close peut revenir dans la file, mais jamais changer de statut sans décision humaine (R18, R24).</li>
 </ol>
 <h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
 <blockquote>
@@ -1404,6 +1412,13 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td><code>calendrier</code> = julien, texte d'origine gardé</td>
 </tr>
 <tr>
+<td>Calendrier républicain</td>
+<td><code>12/8/2F</code> (12 floréal an II)</td>
+<td>1794‑05‑01</td>
+<td>1794‑05‑01</td>
+<td><code>calendrier</code> = républicain ; suffixe <code>F</code> de GeneWeb, <code>H</code> pour l'hébreu</td>
+</tr>
+<tr>
 <td>Date texte</td>
 <td><code>0(Pâques 1712)</code></td>
 <td>vide ou estimée</td>
@@ -1412,6 +1427,14 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 </tr>
 </tbody>
 </table></div>
+<p><strong>Mode de détermination</strong> (décision 23). Il dit d'où vient la date, indépendamment de sa précision :</p>
+<ul>
+<li><strong>attestée</strong> : la date est écrite dans la source, même approximative (« vers 1712 », « avant la Saint‑Martin ») ;</li>
+<li><strong>déduite</strong> : elle est calculée à partir d'autre chose (un âge déclaré, la date d'un autre acte, une formule comme « il y a environ vingt ans ») ; l'élément est marqué « déduit » au sens de R20 ;</li>
+<li><strong>estimée</strong> : une fenêtre posée par l'historien ou par une convention (la fenêtre de ±5 ans d'un <code>~</code> GeneWeb) ;</li>
+<li><strong>inconnue</strong> : on ne sait pas. C'est la valeur de l'import GeneWeb, car une base GeneWeb ne dit pas si la date a été lue dans un acte ou calculée par le généalogiste.</li>
+</ul>
+<p>L'import ne devine jamais : une forme ambiguë (<code>1564/5</code>, <code>1525-6</code>) ou un <code>?</code> ne sont pas normalisés en silence ; le texte reste dans <code>date_brute</code> et la question part dans la file de décisions (R24). Les règles chronologiques du rapprochement (décision 20) pourront élargir leur tolérance pour une date déduite ou estimée : à calibrer avec le barème (9.2-1).</p>
 <h3 id="57-exemple-dimport">5.7 Exemple d'import</h3>
 <p>Extrait <code>.gw</code> illustratif, tel qu'un export <code>gwu</code> pourrait le produire :</p>
 <pre class="code"><code class="language-text">fam MARTIN Pierre +1705 #mp Saint-Aubin DUBOIS Marie
@@ -2098,6 +2121,9 @@ let role_of_witness sexe = function
 <li><em>Atelier de nettoyage des lieux.</em> L'atelier de prosopo-gw produit un export « pivot » (<code>lieux</code>, <code>niveaux_lieux</code>, <code>ecritures_lieux</code>) : chaînes de niveaux validées par l'utilisateur, avec identifiants INSEE, DicoTopo ou GeoNames. Son articulation avec MENTION_LIEU ⇢ LIEU_HISTORIQUE est ouverte (9.2-9).</li>
 </ul>
 </li>
+<li><strong>Mode de détermination et calendrier de la date</strong> (v0.9.4), repris de l'objet temporel de Heurist (<code>docs/etude-heurist.md</code>, 5.1). Le FACTOIDE porte <code>determination_date</code> (attestée, déduite, estimée, inconnue) et <code>calendrier</code> devient une liste fermée (grégorien, julien, républicain, hébreu), la date d'origine restant dans <code>date_brute</code> (5.6). Raisons : une date déduite d'un âge n'a pas la même valeur qu'une date écrite, et le calendrier républicain compte pour les registres de 1793 à 1805. Pas de nouvelle règle : R5 (intervalles) et R20 (lu ou déduit) suffisent. Non repris de Heurist : le profil de probabilité des bornes, utile seulement pour des calculs de densité.</li>
+<li><strong>Connecteurs Heurist</strong> (v0.9.4), inscrits à la feuille de route après le socle PostgreSQL (<code>docs/etude-heurist.md</code>, section 7) : (a) <strong>import</strong> d'une base Heurist (export JSON ou HML, ou API REST) sur le patron du connecteur GeneWeb, chaque enregistrement Personne devenant un masque, chaque valeur de champ un factoïde rattaché à un passage « base Heurist X, enregistrement N », chaque relation un factoïde de participation, avec un LOT_IMPORT ; (b) <strong>export</strong> des vues actives vers Heurist pour publier par ses sites web hébergés par Huma‑Num, export appauvrissant signalé comme tel (comme vers GeneWeb, 5.8). La correspondance détaillée sera arrêtée au moment de l'implémentation. Aucun code de Heurist n'est repris (GPL‑3).</li>
+<li><strong>Une question tranchée n'est pas reposée par la machine</strong> (v0.9.4, R27). Repris de la mémoire des non‑doublons de Heurist (<code>recSimilarButNotDupes</code>, <code>docs/etude-heurist.md</code>, 5.3), déjà acquis par R26 pour MASQUE ⇢ PERSONNE, et étendu aux sources, événements et lieux avant que leurs rapprocheurs n'existent. Plus strict que Heurist sur un point : un indice nouveau est montré à l'historien, il ne déclenche pas une nouvelle proposition.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
