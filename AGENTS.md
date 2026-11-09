@@ -52,3 +52,9 @@ Source unique : dépôt `prosopo-gw` (`../prosopo-gw`), monorepo `uv` (Python �
    - avec l'étape « Lieux » : FORME_LIEU, mémoire des formes écrites (30) ;
    - avec les exports et la saisie : EDTF (31, licence de `edtf` à vérifier) ;
    - avec les connecteurs : cycle de publication (32).
+8. **Reprises de Gramps, WHG, Recogito et FactGrid (décisions 33 à 38, v0.10.1, `docs/etude-cinq-logiciels.md`)** :
+   - avec la validation des propositions : contrôles de vraisemblance des personnes reconstruites (33, §6.7) et statut « reporté » dans la file de décisions (36, §6.8) ;
+   - avant tout envoi externe et tout export : calcul « possiblement vivant » qui alimente `acces` et R21 (34) ;
+   - avec l'étape « Lieux » : Linked Places Format et candidats de lieux venus du WHG, de GeoNames et de Wikidata (35) ;
+   - avec la saisie assistée : ancrage au format W3C Web Annotation, import d'annotations Recogito (37) ;
+   - après le connecteur Heurist : connecteur Wikibase / FactGrid (38).
