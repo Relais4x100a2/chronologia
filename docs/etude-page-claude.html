@@ -151,7 +151,7 @@ pre.code .c{color:var(--muted)}
 <main class="doc">
 <h1 id="modèle-événementmasquefactoïde">Modèle Événement–Masque–Factoïde</h1>
 <p><strong>Étude documentaire, modèle conceptuel et stratégie d'import GeneWeb</strong>
-Version 0.10.1, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
+Version 0.13, 9 novembre 2026, préparée pour Guillaume Cayeux</p>
 <blockquote>
 <p><strong>Principe du modèle, depuis la v0.4 : quatre agrégations construites de la même façon</strong>
 PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTION DE LIEU ⇢ LIEU HISTORIQUE ou SITE
@@ -286,6 +286,18 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td>0.10.1</td>
 <td><strong>Reprises de Gramps, World Historical Gazetteer, Recogito et FactGrid</strong> (<code>docs/etude-cinq-logiciels.md</code>, décisions 33 à 38) : contrôles de vraisemblance des personnes reconstruites (6.7) ; calcul « possiblement vivant » qui alimente <code>acces</code> et R21 (4.4, 7.3) ; Linked Places Format et candidats de lieux venus de référentiels externes (4.8) ; statut « reporté » dans la file de décisions (6.8) ; ancrage au format W3C Web Annotation (4.4, 7.6) ; connecteur Wikibase / FactGrid à la feuille de route. Questions ouvertes : 9.2‑6 enrichie (groupes dans APIS), nouvelle 9.2‑10 (valeur inconnue ou absence attestée). Aucune nouvelle règle d'intégrité.</td>
 </tr>
+<tr>
+<td>0.11</td>
+<td><strong>Le travail du chercheur</strong> (<code>docs/relecture-oncle-neveu.md</code>, décisions 39 à 43) : nouvelle couche <strong>Travail</strong> (4.2, 4.4, schéma <code>travail</code> en 8.1) avec DEPOUILLEMENT et LACUNE (ce qui a été lu, ce qui ne peut rien dire) et NOTE de travail ; table de tri des homonymes (6.9) ; comptages à trois étages (6.10) ; carnet de notes (6.11) ; saisie en sténo (7.8). Nouvelles règles : R29 (un comptage montre ses hypothèses) et R30 (pas de texte libre sans statut). 9.2‑10 éclairée par la décision 39.</td>
+</tr>
+<tr>
+<td>0.12</td>
+<td><strong>Le chercheur et le responsable scientifique</strong> (<code>docs/travail-du-chercheur.md</code>, décisions 44 à 54) : doctrine « la machine retire la copie, pas la lecture », cinq gestes, rôles et parcours du chercheur (1.1) ; trois modes de dépouillement et part minimale de lecture humaine (7.9) ; travail hors ligne et reprise (7.10) ; tableau des curiosités (6.12) ; hypothèses testables, bac à sable « et si », résultats négatifs conservés (6.13) ; questions et hypothèses remontées par tout participant, arbitrées par le responsable scientifique (6.14). Nouvelles entités ARBITRAGE et SCENARIO ; rôle du CONTRIBUTEUR. Nouvelles règles : R31 (une hypothèse se teste à part) et R32 (une question remontée n'est jamais enterrée).</td>
+</tr>
+<tr>
+<td>0.13</td>
+<td><strong>Dominer la machine, revenir sur ses pas</strong> (décisions 55 et 56, à la demande du porteur du projet) : délégation mesurée à la machine, sur un jeu étalon, avec un taux d'erreur connu, un périmètre, un seuil et une suspension automatique (7.11, R33, R18 précisée) ; relecture d'un document à l'aune de la première lecture et des pièces nouvelles (7.12, R34). Nouvelle entité DELEGATION ; attributs <code>validation</code> du passage et <code>relit_id</code> du dépouillement. Doctrine du 1.1 précisée.</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="sommaire">Sommaire</h2>
@@ -311,6 +323,87 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <li><strong>Contrainte d'import :</strong> une partie des données viendra de bases <strong>GeneWeb</strong>.</li>
 </ul>
 <p>Précision de vocabulaire : IBM écrit <strong>ELP</strong> (Entity, Link, Property), et non EPL. Dans Analyst's Notebook, un <em>item type</em> désigne un type d'entité ou un type de lien. Les attributs forment une notion à part (<em>attribute classes</em>), et un événement n'y est pas une classe distincte : c'est un type d'entité affiché en <em>event frame</em> sur la vue chronologique.</p>
+<h3 id="11-le-travail-du-chercheur-v012">1.1 Le travail du chercheur (v0.12)</h3>
+<p>Le modèle garantit la preuve ; il doit aussi servir le travail qui la produit (<code>docs/travail-du-chercheur.md</code>, décisions 44 à 54).</p>
+<p><strong>Doctrine (décision 44) : la machine retire la copie, pas la lecture.</strong> Le chercheur n'est ni écarté du dépouillement ni dispensé de le faire : la découverte naît de la lecture, on ne juge bien que ce qu'on sait faire, et la machine ne se mesure que contre une lecture humaine. Rien n'interdit à un humain une tâche « de petite main ».</p>
+<p><strong>Dominer la machine (décision 55).</strong> On ne pourra pas tout relire : on délègue donc à la machine, mais <strong>en connaissance de cause</strong>. Une délégation se mesure d'abord sur un jeu étalon lu par des humains ; elle a un périmètre, un taux d'erreur connu et un seuil ; elle est signée par le responsable scientifique, contrôlée en continu, et suspendue d'office si la machine dérive (7.11, R33). Ce qui a été versé sans lecture humaine reste marqué comme tel, se compte à part et peut toujours être relu. Le chercheur connaît ainsi ses propres limites (le même étalon mesure les lecteurs humains) et impose les siennes à l'outil : hors délégation, la machine ne fait que proposer, et le jugement ne se délègue jamais (R18). Valider sans avoir lu n'est permis que sous une délégation en cours.</p>
+<p><strong>Revenir sur ses pas (décision 56).</strong> On découvre souvent en relisant. L'outil permet de rouvrir un document déjà dépouillé pour une nouvelle lecture, à l'aune de la première et des pièces trouvées depuis ; la première lecture n'est jamais effacée (7.12, R34).</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Geste</th>
+<th>Ce qu'il produit</th>
+<th>Couche</th>
+<th>Rôle de la machine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lire</strong> : déchiffrer, relever, transcrire</td>
+<td>Ce que dit la source</td>
+<td>Source</td>
+<td>Elle prépare, ou relit en second (7, 7.8, 7.9).</td>
+</tr>
+<tr>
+<td><strong>Relier</strong> : rapprocher masques, actes, lieux</td>
+<td>Des identifications</td>
+<td>Interprétation</td>
+<td>Elle propose des candidats et des piles (R18, R26, 6.9).</td>
+</tr>
+<tr>
+<td><strong>Juger</strong> : trancher, argumenter, assumer une incertitude</td>
+<td>Des conclusions</td>
+<td>Interprétation</td>
+<td>Aucun : elle signale, elle ne décide jamais (R18, R25).</td>
+</tr>
+<tr>
+<td><strong>Chercher</strong> : remarquer, supposer, vérifier</td>
+<td>Des notes, des hypothèses, des questions</td>
+<td>Travail</td>
+<td>Elle montre ce qui détonne et calcule les conséquences (6.12, 6.13).</td>
+</tr>
+<tr>
+<td><strong>Écrire</strong> : notices, tableaux, publication</td>
+<td>Des vues et des instantanés</td>
+<td>Vues</td>
+<td>Elle met en forme et produit l'apparat de notes.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Rôles (décision 52).</strong> Le rôle d'un contributeur est déclaré pour le projet (CONTRIBUTEUR, 4.4).</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Rôle</th>
+<th>Ce qu'il fait</th>
+<th>Ce qui lui revient en propre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Responsable scientifique</strong></td>
+<td>Définit les questions et le périmètre du corpus ; fixe la méthode de dépouillement, les abréviations et les seuils (barème, vraisemblance, « possiblement vivant ») ; choisit le mode de chaque dépouillement (7.9) ; suit la qualité (taux de correction, accord entre lecteurs, couverture) ; forme.</td>
+<td>Désigner la vue de référence quand des chercheurs divergent (R11, l'avis écarté restant conservé) ; arbitrer les questions et hypothèses remontées (6.14, R32) ; signer les instantanés publiés ; décider de ce que la machine fait en premier.</td>
+</tr>
+<tr>
+<td><strong>Chercheur</strong></td>
+<td>Dépouille, trie (6.9), note, formule et teste des hypothèses (6.13), argumente, rédige.</td>
+<td>Ses conclusions, signées ; le droit de faire à la main ce que la machine sait faire ; le droit de garder son désaccord.</td>
+</tr>
+<tr>
+<td><strong>Contributeur en formation</strong></td>
+<td>Dépouille, d'abord sur des actes déjà validés, puis sur des sources réelles.</td>
+<td>Ses saisies, relues avant validation (<code>relecteur_id</code> du dépouillement).</td>
+</tr>
+<tr>
+<td><strong>Agent</strong></td>
+<td>Lit en premier ou en second, propose, calcule contrôles, comptages et curiosités.</td>
+<td>Rien : il ne décide, ne rejette ni n'écrit de note (R18, R25, R30).</td>
+</tr>
+</tbody>
+</table></div>
+<p>Tout participant, quel que soit son rôle, peut formuler une question ou une hypothèse et la faire remonter au projet (décision 54, 6.14).</p>
+<p><strong>Parcours d'une journée (décision 53).</strong> 1. Le carnet : notes ouvertes, hypothèses réveillées, questions arbitrées (6.11, 6.14). 2. La couverture : ce qui reste à lire, les lacunes (6.10). 3. Le dépouillement : en sténo, depuis l'image, ou hors ligne (7.8 à 7.10). 4. Le tri : les homonymes en piles (6.9) et la file de décisions, par séances. 5. La recherche : curiosités, hypothèses, bac à sable (6.12, 6.13). 6. L'écriture : notices et comptages à trois étages (6.10).</p>
 <hr />
 <h2 id="2-corpus-de-référence">2. Corpus de référence</h2>
 <p>Treize références en quatre familles.</p>
@@ -545,6 +638,11 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td>Vocabulaires contrôlés (alignés sur CIDOC‑CRM et Bio CRM), provenance des imports et sites topographiques (coordonnées immuables).</td>
 </tr>
 <tr>
+<td><strong>Travail</strong> (ce que l'on cherche, v0.11)</td>
+<td>DEPOUILLEMENT, LACUNE, NOTE, ARBITRAGE, SCENARIO, DELEGATION</td>
+<td>Révisable et journalisé. Décrit le travail de l'équipe, pas le passé : ce qui a été lu, ce qui ne peut rien dire, les pistes en cours. N'entre dans aucune vue de l'interprétation, à une exception près : la couverture des dépouillements donne leur sens aux absences (R29).</td>
+</tr>
+<tr>
 <td><strong>Vues dérivées</strong></td>
 <td>Participants d'un événement, intervalle d'un événement, fiche consolidée d'une personne, réseau</td>
 <td>Calculées à partir des identifications actives, jamais saisies à la main.</td>
@@ -639,7 +737,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>PASSAGE</td>
 <td>Endroit cité d'un document, tel que saisi ou importé.</td>
-<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne ; l'ancrage précis dans la transcription ou l'image suit les sélecteurs W3C Web Annotation, décision 37), <code>transcription</code>, <code>langue</code>, <code>image_uri</code>, <code>cle_externe</code>, <code>fichier_source</code> / <code>ligne_debut</code> / <code>ligne_fin</code> (provenance dans le fichier importé, 1‑indexées, bornes incluses)</td>
+<td><code>citation_brute</code> (texte d'origine), <code>localisation</code> (folio, page, ligne ; l'ancrage précis dans la transcription ou l'image suit les sélecteurs W3C Web Annotation, décision 37), <code>transcription</code>, <code>langue</code>, <code>image_uri</code>, <code>cle_externe</code>, <code>fichier_source</code> / <code>ligne_debut</code> / <code>ligne_fin</code> (provenance dans le fichier importé, 1‑indexées, bornes incluses), <code>validation</code> (lue par un humain, déléguée, importée ; décision 55), <code>delegation_id</code> (si déléguée)</td>
 </tr>
 <tr>
 <td>FACTOIDE</td>
@@ -793,7 +891,7 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <tr>
 <td>CONTRIBUTEUR</td>
 <td>Chercheur ou processus automatique.</td>
-<td><code>nom</code>, <code>type</code> (humain, agent, import)</td>
+<td><code>nom</code>, <code>type</code> (humain, agent, import), <code>role</code> dans le projet pour un humain (responsable scientifique, chercheur, en formation), daté (décision 52)</td>
 </tr>
 <tr>
 <td>SITE</td>
@@ -809,6 +907,48 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <td>ANOMALIE_IMPORT</td>
 <td>Ce que l'import n'a pas pu lire ou a refusé de deviner (5.8, décision 29). Insertion seule.</td>
 <td><code>lot_import_id</code>, <code>cle_externe</code> ou position dans le fichier, <code>champ</code>, <code>valeur_brute</code>, <code>type</code> (date ambiguë, lieu illisible, ligne ignorée…), <code>message</code> ; chaque anomalie entre dans la file de décisions (R24)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Couche Travail (révisable, journalisée ; décisions 39 et 43)</strong></p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Définition</th>
+<th>Attributs principaux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEPOUILLEMENT</td>
+<td>Lecture systématique d'une source, ou d'une partie de source, selon une méthode déclarée. C'est l'unité de travail et de couverture.</td>
+<td><code>source_id</code>, <code>plage</code> (folios, pages ou vues ; années couvertes), <code>types_actes</code> couverts (baptêmes seuls, BMS complets…), <code>methode</code> (description et version : abréviations, graphies, actes retenus), <code>mode</code> (lecteur premier, machine première, échantillonné ; décision 45), <code>saisie</code> (manuelle, sténo, image), <code>part_lecture_humaine</code> (décision 46), <code>questions</code> (questions retenues que le dépouillement sert, décision 54), <code>delegation_id</code> (si des passages sont versés sous délégation, décision 55), <code>relit_id</code> (dépouillement antérieur que celui-ci relit) et <code>motif_relecture</code> (pièce nouvelle, hypothèse, question, doute, reprise de méthode ; décision 56), <code>contributeur_id</code>, <code>relecteur_id</code>, <code>etat</code> (à faire, en cours, fait, relu), <code>date_debut</code>, <code>date_fin</code></td>
+</tr>
+<tr>
+<td>LACUNE</td>
+<td>Partie d'une source dépouillée qui ne peut rien dire.</td>
+<td><code>depouillement_id</code>, <code>plage</code>, <code>type</code> (feuillets manquants, illisible, déficit constaté, hors du champ du dépouillement), <code>motif</code>, <code>conclusion_id</code> facultative (un déficit interprété : registre perdu, curé absent, épidémie)</td>
+</tr>
+<tr>
+<td>NOTE</td>
+<td>Note de travail : piste, doute, question à vérifier, hypothèse, question de recherche. Ni un fait ni une conclusion (R30).</td>
+<td><code>cibles</code> (une ou plusieurs entités, au moins une ; facultatives pour une question de recherche), <code>type</code> (à vérifier, question, hypothèse, piste, question de recherche), <code>texte</code>, <code>attentes</code> (pour une hypothèse : ce qui la confirmerait, ce qui l'infirmerait, en requêtes enregistrées si possible, décision 48), <code>contributeur_id</code>, <code>visibilite</code> (privée, équipe), <code>soumise</code> (date de remontée au projet, décision 54), <code>etat</code> (ouverte, close, promue), <code>motif_cloture</code> (dont « infirmée », avec ce qui l'infirme, décision 51), <code>conclusion_id</code> (si promue)</td>
+</tr>
+<tr>
+<td>ARBITRAGE</td>
+<td>Réponse du responsable scientifique à une question ou une hypothèse remontée (décision 54, R32). Insertion seule ; la dernière ligne fait foi, comme pour R25.</td>
+<td><code>note_id</code>, <code>decision</code> (retenue, non retenue, à reformuler, rattachée à une autre), <code>motif</code> (obligatoire), <code>contributeur_id</code> (rôle responsable scientifique), <code>date</code></td>
+</tr>
+<tr>
+<td>SCENARIO</td>
+<td>Bac à sable « et si » : un ensemble de décisions hypothétiques testées dans une vue privée (décision 49, R31).</td>
+<td><code>note_id</code> (hypothèse testée), <code>contributeur_id</code>, <code>decisions</code> (identifications, rejets, contraintes hypothétiques), <code>etat_base</code> (état de la base au calcul), <code>etat</code> (ouvert, promu, abandonné), <code>conclusion_id</code> (si promu)</td>
+</tr>
+<tr>
+<td>DELEGATION</td>
+<td>Autorisation, signée et mesurée, de verser sans lecture humaine ce que la machine extrait dans un périmètre donné (décision 55, R33). Insertion seule : suspendre, reprendre ou retirer ajoute une ligne.</td>
+<td><code>perimetre</code> (sources ou types de source, types d'actes, champs), <code>agent_id</code> et <code>version</code> (modèle, invite, règles), <code>jeu_etalon</code> (passages lus d'abord par des humains, effectif), <code>taux_erreur</code> (par champ, avec son intervalle et l'effectif), <code>taux_erreur_humain</code> (sur le même étalon), <code>seuil</code> (par champ), <code>part_controle</code> (part tirée au hasard et relue en continu), <code>contributeur_id</code> (responsable scientifique), <code>date</code>, <code>etat</code> (en cours, suspendue, retirée), <code>motif</code></td>
 </tr>
 </tbody>
 </table></div>
@@ -850,6 +990,21 @@ PASSAGE ⇢ SOURCE · MASQUE ⇢ PERSONNE · FACTOÏDE ⇢ ÉVÉNEMENT · MENTIO
 <p>Règle ajoutée en v0.10 :</p>
 <ol start="28">
 <li><strong>R28 : pas de raisonnement circulaire, pas de retrait en cascade silencieux.</strong> Deux chaînes de dépendance sont surveillées : les prémisses d'une conclusion (CONCLUSION_PREMISSE) et les bornes relatives d'un événement (CONTRAINTE_TEMPORELLE liée à un <code>evenement_reference_id</code>). Aucune ne peut boucler sur elle‑même : l'insertion qui fermerait un cycle est refusée. Quand un maillon est retiré ou change (conclusion rétractée, date de référence modifiée), ce qui en dépend n'est ni retiré ni recalculé en silence : les bornes sont recalculées, et chaque conclusion qui perd un appui est signalée dans la file de décisions avec la chaîne qui la reliait au maillon retiré (R22, R24).</li>
+</ol>
+<p>Règles ajoutées en v0.11 :</p>
+<ol start="29">
+<li><strong>R29 : un comptage montre ses hypothèses.</strong> Tout agrégat (effectif, moyenne, taux, carte de densité) est calculé à trois étages : identifications certaines seules ; certaines et probables ; toutes. Les événements en incertitude assumée et les valeurs non bornées sont comptés à part, jamais répartis en silence entre les hypothèses (R23, R24). Une absence (« aucune sépulture connue ») n'est comptée comme telle qu'à l'intérieur d'un dépouillement fait, hors de ses lacunes ; ailleurs, elle est « non observée ».</li>
+<li><strong>R30 : pas de texte libre sans statut.</strong> Tout texte saisi a une place et un statut : transcription (couche Source : ce qui est écrit), argument d'une conclusion (couche Interprétation : ce que l'on conclut) ou note de travail (couche Travail : ce que l'on cherche). Il n'existe aucun champ « commentaire » ou « remarque » générique. Une note a au moins une cible, un type et un état ; aucun calcul, aucune vue de l'interprétation ni aucun export de données ne la lit ; elle reste listée tant qu'elle n'est pas close, avec un motif, ou promue en conclusion.</li>
+</ol>
+<p>Règles ajoutées en v0.12 :</p>
+<ol start="31">
+<li><strong>R31 : une hypothèse se teste à part.</strong> Un scénario du bac à sable n'écrit rien dans les journaux d'identification ni de conclusion, et n'apparaît dans aucune vue de référence, aucun comptage ni aucun export de données. Il n'en sort que par une promotion, faite par un humain nommé, qui crée identifications et conclusion comme toute décision (R18, R25), les éléments du test devenant ses prémisses (R28). Si la base a changé depuis le calcul du scénario, il est recalculé et la différence montrée avant la promotion.</li>
+<li><strong>R32 : une question remontée n'est jamais enterrée.</strong> Toute question ou hypothèse soumise au projet par un participant reste listée dans la file du responsable scientifique jusqu'à son arbitrage. Un refus est motivé et conservé, consultable par l'auteur et l'équipe (R24). Il ne supprime rien et n'empêche pas l'auteur de poursuivre sa piste en note personnelle ; une hypothèse non retenue peut être soumise de nouveau si un élément nouveau la touche.</li>
+</ol>
+<p>Règles ajoutées en v0.13 :</p>
+<ol start="33">
+<li><strong>R33 : une délégation est mesurée, bornée et réversible.</strong> La machine ne verse sans lecture humaine que dans le périmètre d'une DELEGATION en cours, signée par le responsable scientifique après mesure sur un jeu étalon. Ne se délèguent jamais : les champs déduits (R20), les dates signalées (7.7), les identifications et les conclusions (R18, R25). Un changement de modèle, d'invite ou de règles rend la délégation caduque jusqu'à une nouvelle mesure. Si le contrôle continu fait passer un taux d'erreur au-dessus du seuil, la délégation est suspendue d'office (c'est la seule décision que la machine prend seule, et elle va toujours dans le sens de la restriction) et les passages versés depuis le dernier contrôle passent « à relire ». Un passage délégué reste marqué comme tel ; les comptages disent quelle part de leurs données n'a pas été lue par un humain et l'erreur attendue qui en découle (R29) ; retirer une délégation ne supprime rien (R24).</li>
+<li><strong>R34 : une relecture s'ajoute à la première, elle ne l'efface pas.</strong> Rouvrir un document crée un nouveau DEPOUILLEMENT qui renvoie au précédent (<code>relit_id</code>). Ce que la relecture corrige passe par R10 (<code>remplace_id</code>) ; ce qu'elle ajoute est daté et rattaché à elle. La différence entre les deux lectures (corrigé, ajouté, relu sans changement) est consultable et citable : une découverte faite en revenant sur ses pas garde sa trace.</li>
 </ol>
 <h3 id="46-exemple-un-baptême-raconté-par-deux-sources-fictif">4.6 Exemple : un baptême raconté par deux sources (fictif)</h3>
 <blockquote>
@@ -1639,9 +1794,62 @@ end pevt
 </ul>
 <h3 id="68-reporter-une-question">6.8 Reporter une question</h3>
 <p>Une entrée de la file de décisions peut être <strong>reportée</strong> avec un motif (« à revoir avec les registres de la paroisse voisine ») : repris du statut « reporté » du World Historical Gazetteer (décision 36). Elle quitte la tête de file et reste listée dans une vue des questions reportées. Elle revient d'elle-même si un élément nouveau la touche, comme le réveil de 6.5. Un report n'est pas une décision : il ne change le statut d'aucune identification, et R27 ne s'y applique pas. Il se distingue de l'incertitude assumée (6.5, R23), qui tranche.</p>
+<h3 id="69-table-de-tri">6.9 Table de tri</h3>
+<p>Pour démêler un groupe d'homonymes, la comparaison par paires ne suffit pas. La table de tri (décision 41) reprend le geste du travail sur fiches : étaler toutes les fiches « Martin » d'une paroisse et en faire des tas.</p>
+<ul>
+<li><strong>Cartes</strong> : chaque masque du groupe est une carte (date, rôle, qualités, conjoint, parents, lieu, signature), regroupables par source.</li>
+<li><strong>Une pile vaut une personne</strong> : ranger une carte dans une pile crée son identification vers la personne de la pile ; une pile porte une seule conclusion commune (R22). Retirer une carte rejette son identification. Rien n'est appliqué sans geste humain (R18).</li>
+<li><strong>Pile « à revoir »</strong> : pour les cartes douteuses. C'est un report (6.8), pas une décision.</li>
+<li><strong>La machine propose des piles, pas des paires</strong> : un regroupement de masques justifié par ses indices, en « proposé » (R26). L'historien l'accepte en bloc, en partie, ou le défait.</li>
+<li><strong>Vraisemblance en direct</strong> : les contrôles de 6.7 s'exécutent à chaque déplacement. Une pile impossible (baptisé après son inhumation, père à 9 ans) est signalée sur-le-champ, sur une frise propre à la pile.</li>
+<li><strong>Portée</strong> : le groupe d'homonymes de la décision 19 (vue sur le nom normalisé) ; la table s'ouvre aussi sur une famille ou une paroisse. La comparaison par paires (6, point 2) reste l'outil des doutes précis.</li>
+</ul>
+<h3 id="610-comptages-à-trois-étages">6.10 Comptages à trois étages</h3>
+<p>Toute analyse sérielle (âge au premier mariage, endogamie, mobilité, durée des carrières) suit R29 (décision 40).</p>
+<ul>
+<li><strong>Trois résultats par agrégat</strong> : certain ; certain et probable ; tout. En tableau, une fourchette ; en graphique, trois barres ou une bande.</li>
+<li><strong>Sensibilité signalée</strong> : quand les étages divergent nettement, le résultat dépend des rapprochements. Les identifications qui le font basculer sont listées en lien, pour être revues en priorité.</li>
+<li><strong>À part</strong> : événements en incertitude assumée (6.5), dates non bornées, lieux non résolus, chacun avec son effectif.</li>
+<li><strong>Absences et couverture</strong> : « aucune sépulture » ne vaut que dans un dépouillement fait, hors lacunes (décision 39) ; sinon, « non observé ». La couverture s'affiche à côté du résultat : un ruban des folios ou des années par état (fait, en cours, lacune, non vu), et l'histogramme des actes par mois, qui fait ressortir les creux.</li>
+<li><strong>Export</strong> : les trois étages et la couverture accompagnent toujours le chiffre.</li>
+</ul>
+<h3 id="611-carnet-de-notes">6.11 Carnet de notes</h3>
+<p>La marge du chercheur (décision 43, R30). Ce n'est pas un champ « commentaire » : une note est typée, ciblée, et elle se termine.</p>
+<ul>
+<li><strong>Épingler</strong> : une note s'attache à toute entité, des quatre couches comme de la couche Travail : passage, masque, personne, événement, lieu, dépouillement, folio.</li>
+<li><strong>Carnet</strong> : la liste des notes ouvertes de l'auteur et de l'équipe, filtrable par type et par cible. C'est souvent par là que commence la journée de travail.</li>
+<li><strong>Promouvoir</strong> : une note mûre devient, d'un geste, une conclusion pré-remplie (argument, cibles). La note passe en « promue » et pointe vers sa conclusion.</li>
+<li><strong>Clore</strong> : avec un motif court (« vérifié : sans suite »). Une note close reste consultable.</li>
+<li><strong>Sans effet</strong> : une note ne change aucune vue ni aucun calcul. Seul l'export du carnet la contient.</li>
+</ul>
+<h3 id="612-tableau-des-curiosités">6.12 Tableau des curiosités</h3>
+<p>La machine voit bien ce qui détonne, à condition de ne pas prétendre l'expliquer (décision 50). Le tableau des curiosités liste des <strong>signaux</strong> calculés, chacun avec ses éléments, son effectif et ses étages de certitude (R29) :</p>
+<ul>
+<li><strong>creux et ruptures</strong> : déficit d'actes dans la couverture, changement brusque de formules ou de scripteur, lieu qui cesse d'apparaître ;</li>
+<li><strong>récurrences</strong> : parrain choisi par de nombreuses familles sans lien connu, témoins venus toujours d'une autre paroisse, notaire qui concentre une catégorie de contrats ;</li>
+<li><strong>écarts</strong> : valeur très éloignée de celle de son groupe, comptage dont les étages divergent (6.10) ;</li>
+<li><strong>contradictions</strong> : avertissements de vraisemblance (6.7), conflits de date et de lieu (6.3, 6.4).</li>
+</ul>
+<p>Un signal n'est ni une conclusion ni une proposition d'identification, et il n'entre pas dans la file de décisions. Le chercheur l'écarte ou en fait une note. Un modèle de langage peut suggérer une piste de lecture : elle entre comme un signal, marqué comme tel, jamais comme la note d'un chercheur. Seul l'historien nomme une explication.</p>
+<h3 id="613-hypothèses-et-bac-à-sable">6.13 Hypothèses et bac à sable</h3>
+<ul>
+<li><strong>Hypothèse testable</strong> (décision 48) : une NOTE de type « hypothèse » porte ses attentes, ce qui la confirmerait et ce qui l'infirmerait, écrites si possible comme requêtes enregistrées. L'outil dit à tout moment lesquelles sont vérifiées, contredites ou sans réponse, et si l'absence de réponse tient à une lacune ou à un registre non dépouillé (R29).</li>
+<li><strong>Bac à sable « et si »</strong> (décision 49, R31) : un SCENARIO applique des identifications et contraintes hypothétiques dans une vue privée, puis recalcule les personnes reconstruites et leurs contrôles (6.7), les comptages (6.10) et les attentes de l'hypothèse. Le résultat se lit comme une <strong>différence</strong> avec la vue de référence : ce qui devient impossible, ce qui devient cohérent, ce qui change dans les chiffres.</li>
+<li><strong>Conclure</strong> : une hypothèse confirmée est promue en conclusion, avec ses prémisses (CONCLUSION_PREMISSE, R28).</li>
+<li><strong>Renoncer</strong> (décision 51) : une hypothèse infirmée est close avec le motif « infirmée » et ce qui l'infirme. Un résultat négatif est un résultat : il reste consultable et se publie avec le carnet.</li>
+<li><strong>Réveil</strong> : une hypothèse ouverte ou infirmée se réveille quand une source nouvelle touche ses cibles ou change la réponse d'une attente, comme une incertitude assumée (6.5).</li>
+</ul>
+<h3 id="614-questions-du-projet">6.14 Questions du projet</h3>
+<p>Tout participant, quel que soit son rôle, peut formuler une question de recherche ou une hypothèse et la <strong>faire remonter</strong> au projet, dans l'outil (décision 54).</p>
+<ul>
+<li><strong>Soumettre</strong> : la note passe en « soumise » ; elle entre dans la file du responsable scientifique, distincte de la file de décisions.</li>
+<li><strong>Arbitrer</strong> : le responsable scientifique répond par un ARBITRAGE motivé : retenue, non retenue, à reformuler, rattachée à une question existante. Aucune question n'est enterrée (R32).</li>
+<li><strong>Programme du projet</strong> : les questions retenues forment une vue partagée. Un dépouillement peut déclarer les questions qu'il sert, ce qui dit à chacun pourquoi on lit ce registre.</li>
+<li><strong>Liberté de chercher</strong> : une question non retenue reste la note de son auteur, qui peut poursuivre sa piste et la soumettre à nouveau si un élément nouveau la touche.</li>
+</ul>
 <hr />
 <h2 id="7-saisie-assistée-par-modèles-de-langage">7. Saisie assistée par modèles de langage</h2>
-<p>Principe : <strong>l'utilisateur fournit le document, la machine prépare, l'humain décide.</strong> Le but est d'obtenir une base aussi complète que possible sans la fatigue de saisie qui, champ après champ, finit par en dégrader la qualité.</p>
+<p>Principe : <strong>l'utilisateur fournit le document, la machine prépare, l'humain décide.</strong> Doctrine (décision 44, 1.1) : <strong>la machine retire la copie, pas la lecture.</strong> Le but est d'obtenir une base aussi complète que possible sans la fatigue de saisie qui, champ après champ, finit par en dégrader la qualité.</p>
 <p>Le modèle s'y prête naturellement : ce qu'une machine sait extraire correspond exactement à la couche Source (texte tel qu'écrit, masques, rôles, dates et lieux déclarés). Les rattachements aux personnes, événements, sources et lieux restent des décisions humaines (R13).</p>
 <h3 id="71-le-circuit">7.1 Le circuit</h3>
 <div class="tbl"><table>
@@ -1784,7 +1992,7 @@ end pevt
 </table></div>
 <h3 id="76-règles-de-la-saisie-assistée">7.6 Règles de la saisie assistée</h3>
 <ol start="18">
-<li><strong>R18 : la machine propose, l'humain verse.</strong> Aucun élément extrait n'entre dans la couche Source sans validation humaine, et aucune identification créée par un agent n'est « actif ». Un agent ne verse que des propositions : il n'active ni ne rejette une identification, il apporte des indices (R25).</li>
+<li><strong>R18 : la machine propose, l'humain verse.</strong> Aucun élément extrait n'entre dans la couche Source sans validation humaine : celle d'un lecteur, acte par acte, ou celle du responsable scientifique, par une délégation mesurée (R33, v0.13). Aucune identification créée par un agent n'est « actif ». Un agent ne verse que des propositions : il n'active ni ne rejette une identification, il apporte des indices (R25).</li>
 <li><strong>R19 : pas d'élément sans ancrage.</strong> Tout élément extrait cite sa position dans la transcription ; sans ancrage, il est rejeté automatiquement. C'est la parade contre les inventions. L'ancrage s'écrit avec les sélecteurs du modèle W3C Web Annotation (décision 37).</li>
 <li><strong>R20 : lu ou déduit.</strong> Un élément déduit est marqué comme tel et n'est jamais pré-validé.</li>
 <li><strong>R21 : filtre avant envoi externe.</strong> Documents sous délai de communicabilité, personnes possiblement vivantes et images à réutilisation restreinte ne quittent pas le serveur local.</li>
@@ -1811,6 +2019,10 @@ end pevt
 <td>Champs incertains qui exigent une action ; une part des actes validés est présentée à nouveau pour contrôle par sondage ; taux de correction suivi par utilisateur.</td>
 </tr>
 <tr>
+<td>Engloutissement : la machine produit plus que l'équipe ne peut contrôler</td>
+<td>Délégation mesurée, bornée, suspendue d'office en cas de dérive ; passages délégués marqués et comptés à part (7.11, R33).</td>
+</tr>
+<tr>
 <td>Dates (calendrier julien, « l'an que dessus », fêtes religieuses)</td>
 <td>Toujours signalées pour vérification.</td>
 </tr>
@@ -1820,12 +2032,81 @@ end pevt
 </tr>
 </tbody>
 </table></div>
+<h3 id="78-saisie-en-sténo">7.8 Saisie en sténo</h3>
+<p>Deuxième entrée du circuit 7.1, à côté de l'image (décision 42). Le chercheur tape l'acte comme sur sa fiche, avec les abréviations déclarées par le projet (liste versionnée, citée par la méthode du dépouillement) :</p>
+<pre class="code"><code class="language-text">3.3.1712 bapt Jean f. Pierre MARTIN lab. &amp; Marie DUBOIS ; parr. Jean LEROY ; marr. Anne MARTIN ; tém. Claude PETIT m. d'école (sig.) — f°42v
+</code></pre>
+<ul>
+<li><strong>Analyse à la frappe</strong> : un analyseur à règles pour les formules déclarées, un modèle de langage pour le reste, derrière la passerelle (7.2). Le brouillon structuré s'affiche sous la ligne ; seules les incertitudes demandent un geste.</li>
+<li><strong>La ligne n'est jamais réécrite</strong> : elle est gardée comme transcription du passage, en mode « sténo », et sert d'ancrage aux éléments extraits (R19).</li>
+<li><strong>Mêmes règles</strong> que la saisie depuis l'image : même brouillon (7.5), R18 à R20 ; la validation verse dans la couche Source.</li>
+<li><strong>Hors de l'outil</strong> : les lignes peuvent être tapées ailleurs (fichier texte, tableur, carnet sur tablette) puis chargées comme un lot de saisie rattaché à un dépouillement.</li>
+<li><strong>Priorité</strong> : c'est la première entrée à tester, car elle ne dépend ni de la reconnaissance d'écriture ni de la voix.</li>
+</ul>
+<h3 id="79-trois-modes-de-dépouillement">7.9 Trois modes de dépouillement</h3>
+<p>Chaque DEPOUILLEMENT déclare son mode (décision 45). Le responsable scientifique le choisit par type de source et le révise au vu des mesures.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Qui lit en premier</th>
+<th>Qui relit</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lecteur premier</strong></td>
+<td>Le chercheur, en sténo ou à la main</td>
+<td>La machine, en second : elle signale ses divergences avec la lecture humaine</td>
+<td>Sources difficiles ou nouvelles ; formation ; calibration</td>
+</tr>
+<tr>
+<td><strong>Machine première</strong></td>
+<td>La machine (7.1)</td>
+<td>Le chercheur, qui vérifie les champs signalés</td>
+<td>Séries formulaires et lisibles, une fois la machine mesurée sur ce fonds ; sans lecture acte par acte, seulement sous délégation (7.11)</td>
+</tr>
+<tr>
+<td><strong>Échantillonné</strong></td>
+<td>La machine, sauf une part tirée au hasard que le chercheur lit d'abord sans voir la proposition</td>
+<td>Le chercheur</td>
+<td>Gros volumes, avec mesure continue de la qualité</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Part minimale de lecture humaine</strong> (décision 46) : tout fonds traité en « machine première » garde une part lue d'abord par un humain, fixée par le responsable scientifique et consignée dans <code>part_lecture_humaine</code>. Elle sert à mesurer la machine, à calibrer et à former. En mode « lecteur premier », la machine joue le second lecteur du double dépouillement.</p>
+<h3 id="710-travail-hors-ligne-et-reprise">7.10 Travail hors ligne et reprise</h3>
+<p>Le chercheur peut travailler hors de l'outil (décision 47) : en salle de lecture sans réseau, sur papier, sur tablette, dans un tableur.</p>
+<ul>
+<li><strong>Partir</strong> : un dossier de travail s'exporte pour un dépouillement : images ou cotes, folios à faire et lacunes connues, abréviations du projet, actes déjà saisis, notes ouvertes sur ces cibles.</li>
+<li><strong>Revenir</strong> : le dossier se recharge comme un lot de saisie rattaché au dépouillement. Les lignes sténo passent par la même analyse et la même validation (7.8, R18, R19) ; les photos entrent par le dépôt ; les notes deviennent des NOTES (R30).</li>
+<li><strong>Sans perte ni écrasement</strong> : rien n'est fusionné en silence (R24). Si la base a changé entre-temps (acte saisi par un collègue, identification tranchée), l'outil montre le doublon ou le conflit ; tout rattachement reste une proposition.</li>
+</ul>
+<h3 id="711-délégation-mesurée">7.11 Délégation mesurée</h3>
+<p>On ne pourra pas tout relire. Déléguer à la machine est donc légitime, à condition de le faire <strong>en connaissance de cause</strong> (décision 55, R33) : le chercheur doit pouvoir contrôler la connaissance produite, et non être englouti par le volume.</p>
+<ol>
+<li><strong>Mesurer</strong> : un jeu étalon est lu d'abord par des humains, de préférence par deux lecteurs. La machine le lit à son tour ; l'outil calcule son taux d'erreur par champ (nom, date, rôle, lieu…), avec l'effectif et l'intervalle. Le même étalon mesure aussi les lecteurs humains : chacun connaît ses propres limites, et l'on compare la machine à une lecture réelle, non à une perfection supposée.</li>
+<li><strong>Borner</strong> : le responsable scientifique fixe le périmètre (fonds, types d'actes, champs), le seuil d'erreur acceptable par champ et la part de contrôle continu, puis signe la DELEGATION. Hors périmètre, la machine ne fait que proposer.</li>
+<li><strong>Contrôler</strong> : une part tirée au hasard des passages délégués est relue par un humain qui ne voit pas la proposition (mode échantillonné, 7.9). Le taux d'erreur est recalculé en continu.</li>
+<li><strong>Arrêter</strong> : dérive au-delà du seuil, ou changement de modèle : la délégation est suspendue d'office et les passages récents passent « à relire ». La reprise est une nouvelle signature.</li>
+<li><strong>Rendre compte</strong> : chaque passage dit s'il a été lu ou délégué. Une notice, un comptage ou un export indique la part déléguée et l'erreur attendue (6.10) ; le chercheur peut filtrer « lu par un humain seulement » et vérifier si sa conclusion tient sans les données déléguées.</li>
+</ol>
+<h3 id="712-revenir-sur-un-document">7.12 Revenir sur un document</h3>
+<p>On découvre souvent en revenant sur ses pas (décision 56, R34). Relire n'est pas refaire : c'est lire <strong>à l'aune</strong> de la première lecture et des pièces trouvées depuis.</p>
+<ul>
+<li><strong>Rouvrir</strong> : depuis une source, une personne, une note ou une hypothèse, le chercheur ouvre une relecture. C'est un nouveau dépouillement, qui renvoie au précédent et dit pourquoi on relit (pièce nouvelle, hypothèse, question du projet, doute, nouvelle méthode).</li>
+<li><strong>Lire avec la mémoire</strong> : l'image, la transcription et les éléments déjà extraits s'affichent côte à côte, avec tout ce qui s'est passé depuis : pièces nouvelles touchant les mêmes personnes et les mêmes lieux, identifications tranchées, notes, hypothèses et questions qui citent le document. Un mode « à froid » masque la première lecture pour qui veut relire sans être guidé.</li>
+<li><strong>Garder les deux lectures</strong> : corrections par R10, ajouts datés ; la différence entre les lectures est une vue consultable et citable. Une lecture confirmée sans changement est aussi une information.</li>
+<li><strong>Être invité à relire</strong> : l'outil propose une relecture quand une pièce nouvelle, une hypothèse ou une délégation suspendue touche un document, comme une incertitude assumée se réveille (6.5, 6.13). Il propose, il n'impose pas.</li>
+<li><strong>Propager</strong> : ce que la relecture change relance les calculs qui en dépendent (vues, contrôles, comptages, attentes des hypothèses) et signale les conclusions touchées sans les retirer (R28).</li>
+</ul>
 <hr />
 <h2 id="8-implémentation-postgresql-et-python">8. Implémentation : PostgreSQL et Python</h2>
 <h3 id="81-choix-darchitecture">8.1 Choix d'architecture</h3>
 <ul>
 <li><strong>PostgreSQL pour le cœur.</strong> Tout est réifié : une participation est une ligne, qu'une conclusion peut désigner. Une base de graphe n'apporte donc pas d'avantage décisif, car dans Neo4j un lien ne peut pas pointer vers un autre lien et la participation y serait de toute façon un nœud. PostgreSQL garantit l'intégrité transactionnelle de la couche Source.</li>
-<li><strong>Quatre schémas.</strong> <code>saisie</code> (brouillons de la saisie assistée), <code>source</code> (insertion seule), <code>interp</code> (révisable, lieux historiques compris), <code>ref</code> (référentiels, sites compris). Les droits de modification et de suppression sont retirés sur <code>source</code>.</li>
+<li><strong>Cinq schémas.</strong> <code>saisie</code> (brouillons de la saisie assistée), <code>source</code> (insertion seule), <code>interp</code> (révisable, lieux historiques compris), <code>ref</code> (référentiels, sites compris), <code>travail</code> (dépouillements, lacunes, notes de travail, arbitrages, scénarios et délégations ; décisions 39, 43, 49, 54 et 55). Les droits de modification et de suppression sont retirés sur <code>source</code>.</li>
 <li><strong>PostGIS</strong> pour les géométries des sites et des emprises, et <strong>btree_gist</strong> pour interdire les chevauchements de périodes.</li>
 <li><strong>Deux systèmes de coordonnées.</strong> Stockage en WGS 84 (EPSG:4326), pour l'échange avec GeoNames, le World Historical Gazetteer et les fonds de carte. Calculs de distance, de surface, d'intersection et de zones tampons en Lambert‑93 (EPSG:2154) pour la France métropolitaine, par transformation à la volée ou colonne calculée indexée. Un projet hors métropole (outre-mer, étranger) déclare son propre système métrique, par exemple la zone UTM adaptée.</li>
 <li><strong>Vues pour les calculs.</strong> Participants d'un événement, intervalle d'un événement, fiche consolidée ; en vues matérialisées si le volume l'exige.</li>
@@ -2100,7 +2381,7 @@ let role_of_witness sexe = function
 </code></pre>
 <hr />
 <h2 id="9-décisions-et-questions-ouvertes">9. Décisions et questions ouvertes</h2>
-<h3 id="91-décisions-prises-v04-à-v0101">9.1 Décisions prises (v0.4 à v0.10.1)</h3>
+<h3 id="91-décisions-prises-v04-à-v013">9.1 Décisions prises (v0.4 à v0.13)</h3>
 <ol>
 <li><strong>Les lieux forment une quatrième agrégation</strong> (MENTION_LIEU ⇢ LIEU par IDENT_LIEU), pour que la couche Source reste en insertion seule (R10, R13).</li>
 <li><strong>Le factoïde reste à la granularité de l'acte</strong> (R14). La co-présence des participants est l'information essentielle des registres et minutes, et ce choix rejoint l'<em>Event</em> de niveau record de GEDCOM X. Les affirmations fines d'IPIF existent déjà à l'intérieur du factoïde, sous forme de participations, qualités et relations.</li>
@@ -2183,6 +2464,24 @@ let role_of_witness sexe = function
 <li><strong>Statut « reporté »</strong> (v0.10.1, 6.8), repris du World Historical Gazetteer (étude, 5). Une question de la file de décisions peut être mise de côté avec un motif, sans être tranchée. Ce n'est pas une décision, à la différence de l'incertitude assumée (R23).</li>
 <li><strong>Ancrage au format W3C Web Annotation</strong> (v0.10.1, 4.4, 7.6), repris de Recogito Studio (étude, 4). La position d'un PASSAGE et l'ancrage exigé par R19 s'écrivent avec les sélecteurs du W3C : citation du texte avec ses mots voisins, position par caractères, région d'une image IIIF. <code>localisation</code> garde la forme lisible (folio, page, ligne). Les annotations d'un outil conforme, Recogito en tête, s'importent comme propositions rattachées à un passage (R18). Éclaire 9.2‑7 (e) et 9.2‑8.</li>
 <li><strong>Connecteur Wikibase / FactGrid</strong> (v0.10.1), inscrit à la feuille de route après le connecteur Heurist (décision 24 ; étude, 1.2). Chaque valeur d'une PERSONNE active devient une déclaration, avec pour références les SOURCES de ses factoïdes ; la forme écrite du masque va dans la propriété « désigné comme » ; une valeur écartée par une conclusion n'est pas exportée, ou l'est au rang déprécié avec l'argument en note. Les propriétés exactes de FactGrid seront relevées à l'implémentation. Omeka S reste une cible possible, non prioritaire.</li>
+<li><strong>Dépouillement et lacunes</strong> (v0.11, 4.2, 4.4, 6.10), repris de la relecture (<code>docs/relecture-oncle-neveu.md</code>, 2.1). Une couche Travail est créée. DEPOUILLEMENT dit ce qui a été lu (source, plage, types d'actes, méthode, auteur, relecteur, état) ; LACUNE, ce qui ne peut rien dire. Une absence n'a de sens qu'à l'intérieur d'un dépouillement fait, hors de ses lacunes (R29) : cela éclaire 9.2‑10 (b) et les indices négatifs du rapprochement (9.2‑1).</li>
+<li><strong>Comptages à trois étages</strong> (v0.11, 6.10, R29), repris de la relecture (2.3). Tout agrégat est donné avec les identifications certaines, puis probables, puis possibles ; l'incertitude assumée et les valeurs non bornées sont comptées à part. L'incertitude devient un résultat publié, et non un défaut caché.</li>
+<li><strong>Table de tri</strong> (v0.11, 6.9), reprise de la relecture (4.2). Les masques d'un groupe d'homonymes sont rangés en piles, une pile valant une personne et une conclusion commune (R22). La machine propose des piles en « proposé » (R18, R26) ; les contrôles de vraisemblance (6.7) s'exécutent à chaque déplacement. Pas de nouvelle règle.</li>
+<li><strong>Saisie en sténo</strong> (v0.11, 7.8), reprise de la relecture (4.1). Le chercheur tape l'acte en abrégé ; la machine structure le brouillon. La ligne tapée est gardée comme transcription et sert d'ancrage (R19). Elle peut être tapée hors de l'outil et chargée ensuite. Première entrée à tester dans la saisie. Pas de nouvelle règle.</li>
+<li><strong>Notes de travail</strong> (v0.11, 4.4, 6.11, R30), reprises de la relecture (4.3). La NOTE est typée (à vérifier, question, hypothèse, piste), ciblée, et elle se termine (close avec motif, ou promue en conclusion). Elle n'a aucun effet sur les vues ni sur les calculs. R30 interdit le champ « commentaire » fourre-tout : tout texte libre est transcription, argument ou note.</li>
+<li><strong>Doctrine : la machine retire la copie, pas la lecture</strong> (v0.12, 1.1, 7). Le chercheur n'est ni écarté du dépouillement ni dispensé de le faire ; aucune tâche n'est interdite à un humain ; seule est interdite la validation sans lecture. Cinq gestes (lire, relier, juger, chercher, écrire), le jugement restant humain (R18). Repris de <code>docs/travail-du-chercheur.md</code> (A).</li>
+<li><strong>Trois modes de dépouillement</strong> (v0.12, 4.4, 7.9) : lecteur premier (la machine relit en second), machine première, échantillonné ; choisis par le responsable scientifique par type de source (B).</li>
+<li><strong>Part minimale de lecture humaine</strong> (v0.12, 7.9) dans tout fonds traité en « machine première », pour mesurer, calibrer et former (C).</li>
+<li><strong>Travail hors ligne et reprise</strong> (v0.12, 7.10) : dossier de travail exporté, rechargé comme lot de saisie rattaché au dépouillement, sans fusion silencieuse (R24) (D).</li>
+<li><strong>Hypothèse testable</strong> (v0.12, 4.4, 6.13) : attentes (confirmerait, infirmerait) attachées à la note, en requêtes enregistrées si possible (E).</li>
+<li><strong>Bac à sable « et si »</strong> (v0.12, 4.4, 6.13, R31) : SCENARIO privé, recalcul, différence avec la vue de référence ; rien n'en sort sans promotion humaine (F).</li>
+<li><strong>Tableau des curiosités</strong> (v0.12, 6.12) : signaux calculés, avec effectif et étages, sans interprétation, hors file de décisions (G).</li>
+<li><strong>Résultats négatifs conservés</strong> (v0.12, 6.13) : une hypothèse infirmée est close avec ce qui l'infirme, reste consultable et se publie (H).</li>
+<li><strong>Rôles</strong> (v0.12, 1.1, 4.4) : responsable scientifique, chercheur, en formation, agent ; prérogatives du responsable : vue de référence, arbitrage des questions, signature des instantanés, délégation à la machine (I).</li>
+<li><strong>Parcours du chercheur</strong> (v0.12, 1.1) en tête du document (J).</li>
+<li><strong>Questions et hypothèses remontées</strong> (v0.12, 4.4, 6.14, R32), à la demande du porteur du projet : tout participant peut formuler une question de recherche ou une hypothèse et la soumettre au projet dans l'outil ; le responsable scientifique l'arbitre par un ARBITRAGE motivé ; les questions retenues forment le programme du projet ; une question non retenue reste la note de son auteur.</li>
+<li><strong>Délégation mesurée : dominer la machine</strong> (v0.13, 1.1, 4.4, 7.11, R33, R18 précisée), à la demande du porteur du projet. Comme on ne pourra pas tout relire, on délègue à la machine en connaissance de cause : mesure sur un jeu étalon, taux d'erreur connu par champ (et celui des lecteurs humains), périmètre, seuil, contrôle continu, suspension d'office en cas de dérive. Le jugement ne se délègue pas. Les passages délégués restent marqués et comptés à part. Précise la décision 44 : valider sans lire n'est permis que sous une délégation en cours.</li>
+<li><strong>Revenir sur un document</strong> (v0.13, 1.1, 4.4, 7.12, R34), à la demande du porteur du projet. Une relecture est un nouveau dépouillement qui renvoie au précédent ; elle s'affiche avec la première lecture et les pièces nouvelles ; la différence entre les lectures est conservée ; l'outil invite à relire quand une pièce nouvelle touche un document.</li>
 </ol>
 <h3 id="92-questions-ouvertes">9.2 Questions ouvertes</h3>
 <ol>
@@ -2195,7 +2494,7 @@ let role_of_witness sexe = function
 <li><strong>Supports autres que le manuscrit.</strong> La section 7 ne prévoit en entrée que l'image d'un manuscrit (ou un PDF) ; la voix n'y est qu'une aide de lecture de l'utilisateur. Or le corpus visé comprend aussi des <strong>imprimés</strong> (journaux) et des <strong>enregistrements audio et vidéo</strong>, à la fois des témoignages récents (entretiens, avec des personnes vivantes) et des archives sonores anciennes (radio, discours). À instruire : (a) un <strong>type de support</strong> sur le PASSAGE (manuscrit, imprimé, audio, vidéo) qui pilote la chaîne de traitement et le type d'ancrage ; (b) pour l'imprimé, l'OCR et surtout la <strong>segmentation en articles</strong> (colonnes, titres, annonces), l'article devenant l'unité de découpage à la place de l'acte, avec des gabarits d'extraction adaptés à un texte narratif ; (c) le <strong>bruit d'OCR</strong> : garder la confiance par mot et ne pas confondre une erreur de lecture machine avec une graphie d'époque (7.7) ; (d) les <strong>deux dates</strong> d'un article (parution et événement rapporté) ; (e) un <strong>ancrage polymorphe</strong> : positions dans le texte, polygone sur l'image, intervalle de temps dans un enregistrement (et image clé pour la vidéo), R19 restant inchangée sur le principe ; (f) les <strong>locuteurs</strong> : diarisation (qui parle quand), place du narrateur, des personnes évoquées et de l'enquêteur, le locuteur étant à la fois un masque et une source à noter (fiabilité × crédibilité, 2.3) ; (g) le <strong>statut de la transcription d'un enregistrement</strong>, qui est déjà une lecture et non une graphie : version du modèle conservée, correction humaine prévue ; (h) pour la vidéo, d'abord la piste audio, puis éventuellement l'OCR du texte à l'écran ; (i) le <strong>droit</strong> : voix et images de personnes vivantes (RGPD applicable, données potentiellement biométriques, consentement des témoins), droit d'auteur et droits voisins pour la presse et les archives sonores ; extension probable de R21 ; (j) le <strong>périmètre de la première version</strong> : registres paroissiaux d'abord, puis l'imprimé, l'audio ensuite. Aucune décision prise.</li>
 <li><strong>Outils d'annotation externes et données d'entraînement.</strong> Le document ne dit pas si l'annotation s'appuie sur des outils existants ni si les annotations doivent servir à entraîner des modèles (petits modèles en particulier) hors du système. Orientation pressentie, à confirmer : ne pas réinventer les outils, garder la base comme source de vérité des annotations. À instruire : (a) <strong>eScriptorium</strong> (et Kraken) pour l'écriture et la mise en page des manuscrits comme des imprimés, avec un contrat d'import ALTO ou PAGE XML vers les transcriptions et les zones du PASSAGE ; (b) <strong>Label Studio</strong> pour constituer le jeu de référence (les ~50 actes de la feuille de route) avant que l'écran de validation n'existe, et pour annoter audio et vidéo par plages de temps ; un convertisseur vers le brouillon <code>saisie</code> ; (c) l'<strong>écran de validation maison</strong> (7.4) maintenu, car valider, c'est verser dans la couche Source et décider d'identifications (R18 à R20), ce qu'un outil générique ne fait pas ; (d) un <strong>journal des corrections enrichi</strong> : éléments rejetés (exemples négatifs), mode lu ou déduit, version du gabarit, lien avec le LOT_SAISIE ; (e) une <strong>transcription figée</strong> ou versionnée, faute de quoi les ancrages dérivent à chaque correction ; (f) des <strong>exports par adaptateurs</strong> (JSONL, CoNLL, Label Studio, ALTO ou PAGE XML), produits à la demande et non stockés en base ; (g) des <strong>jeux exportés versionnés</strong>, avec un manifeste (actes retenus, état de validation) ; (h) une séparation apprentissage / évaluation <strong>par document ou par registre</strong>, non par acte, pour éviter que des formulaires quasi identiques se retrouvent des deux côtés ; (i) l'application de <strong>R21 à tout export d'entraînement</strong>, à fixer éventuellement par une règle nouvelle (prochain numéro libre) ; (j) le sens de « améliorer les modèles » en 7.4 : la correction humaine sert-elle seulement à évaluer, ou aussi à réentraîner ? Les capacités prêtées à eScriptorium et Label Studio sont à vérifier par un essai sur quelques documents. Élément nouveau (v0.10.1, décision 37) : Recogito Studio, conforme au modèle d'annotation du W3C, est un candidat pour l'annotation manuelle ; ses annotations s'importent comme propositions. Aucune décision prise.</li>
 <li><strong>Articulation avec l'atelier de lieux de prosopo-gw.</strong> L'atelier nettoie les lieux d'une base GeneWeb hors de Chronologia et produit un export « pivot » : <code>lieux</code>, <code>niveaux_lieux</code> (une chaîne de niveaux validés, du plus précis au plus large, avec nature, identifiant INSEE, DicoTopo ou GeoNames, période et coordonnées), <code>ecritures_lieux</code> (les graphies rattachées) et <code>precisions_occurrences</code> (arrondissement désigné par une occurrence). Ses principes rejoignent le modèle : une ancienne commune est un lieu distinct de la commune actuelle, une proposition reste « proposée » tant qu'elle n'est pas validée. À instruire : (a) importer le pivot comme <strong>référentiel</strong> (<code>ref</code>) de lieux et de sites, ou comme lot de <strong>propositions</strong> d'identification MENTION_LIEU ⇢ LIEU_HISTORIQUE, décidées par l'utilisateur dans l'atelier mais versées par un agent (R18) ; (b) la clé de jointure entre une écriture du pivot et une <code>forme_ecrite</code> de MENTION_LIEU (même décodage des <code>_</code>, décision 21) ; (c) la correspondance entre les niveaux (commune, ancienne commune, arrondissement, lieu-dit) et les types de LIEU_HISTORIQUE et de SITE, et entre la période d'un niveau et celle d'un lieu historique ; (d) les licences : DicoTopo est en CC BY-NC-ND, GeoNames en CC BY, le COG en Licence Ouverte ; l'attribution et les restrictions d'usage doivent suivre la donnée jusqu'aux exports et publications ; (e) le réimport d'un pivot révisé, sur le patron du différentiel de lots (décision 16). Élément nouveau (v0.10.1, décision 35) : le Linked Places Format, retenu pour l'échange des lieux, pourrait servir de format à l'export de l'atelier. Aucune décision prise.</li>
-<li><strong>Valeur inconnue ou absence attestée.</strong> Wikibase distingue une valeur précise, une <strong>valeur inconnue</strong> (« il a un père, on ne sait pas qui ») et <strong>aucune valeur</strong> (« il n'a pas d'enfant »). Les sources disent ces deux derniers cas : « de père inconnu », « fils d'un tel et d'une femme non nommée », « mort sans postérité ». Le modèle ne les distingue pas : un conjoint <code>? ?</code> de GeneWeb est ignoré par l'adaptateur (décision 21), et l'information « il y avait un conjoint » se perd. À instruire : (a) garder l'existence attestée d'une personne non nommée, par un masque sans nom ou par une qualité du factoïde ; (b) un factoïde d'absence, lu dans la source, distinct d'une absence de factoïde ; (c) l'effet sur le rapprochement (un masque anonyme ne doit pas recevoir de candidats) et sur les exports (valeur inconnue et absence de valeur de Wikibase) ; (d) le traitement des conjoints <code>? ?</code> au réimport GeneWeb. Aucune décision prise.</li>
+<li><strong>Valeur inconnue ou absence attestée.</strong> Wikibase distingue une valeur précise, une <strong>valeur inconnue</strong> (« il a un père, on ne sait pas qui ») et <strong>aucune valeur</strong> (« il n'a pas d'enfant »). Les sources disent ces deux derniers cas : « de père inconnu », « fils d'un tel et d'une femme non nommée », « mort sans postérité ». Le modèle ne les distingue pas : un conjoint <code>? ?</code> de GeneWeb est ignoré par l'adaptateur (décision 21), et l'information « il y avait un conjoint » se perd. À instruire : (a) garder l'existence attestée d'une personne non nommée, par un masque sans nom ou par une qualité du factoïde ; (b) un factoïde d'absence, lu dans la source, distinct d'une absence de factoïde ; (c) l'effet sur le rapprochement (un masque anonyme ne doit pas recevoir de candidats) et sur les exports (valeur inconnue et absence de valeur de Wikibase) ; (d) le traitement des conjoints <code>? ?</code> au réimport GeneWeb. Élément nouveau (v0.11, décision 39) : une absence n'est attestée qu'à l'intérieur d'un dépouillement fait, hors de ses lacunes ; un factoïde d'absence (b) devra s'y rattacher. Aucune décision prise.</li>
 </ol>
 <hr />
 <h2 id="10-sources">10. Sources</h2>

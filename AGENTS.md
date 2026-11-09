@@ -33,7 +33,7 @@ Source unique : dépôt `prosopo-gw` (`../prosopo-gw`), monorepo `uv` (Python �
 ## Garde-fous
 
 - Bases réelles (`~/code_dev/TOLDOT/xxx_archive_GENEWEB_PROJECTS/...`) : lecture seule, jamais copiées, importées ni versionnées ici ; essais par scripts éphémères hors Git ; aucune donnée nominative dans les logs ni comptes-rendus (agrégats seulement).
-- Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R29.
+- Toute décision de modèle se consigne d'abord dans le document de référence (journal, section concernée, §9). Prochaine règle : R35.
 - `docs/etude-page-claude.html` est généré : `uv run --no-project --with markdown python tools/build_page.py`.
 - TDD ; vérifications : `uv run python -m pytest -q` et `uv run mypy` (0 erreur).
 - Pas de `git add -A` ni de push sans accord explicite.
@@ -58,3 +58,11 @@ Source unique : dépôt `prosopo-gw` (`../prosopo-gw`), monorepo `uv` (Python �
    - avec l'étape « Lieux » : Linked Places Format et candidats de lieux venus du WHG, de GeoNames et de Wikidata (35) ;
    - avec la saisie assistée : ancrage au format W3C Web Annotation, import d'annotations Recogito (37) ;
    - après le connecteur Heurist : connecteur Wikibase / FactGrid (38).
+9. **Travail du chercheur (décisions 39 à 43, v0.11, `docs/relecture-oncle-neveu.md`)** :
+   - avec la saisie : saisie en sténo, première entrée à tester (42, §7.8) ; DEPOUILLEMENT et LACUNE (39) ;
+   - avec l'écran de validation : table de tri des homonymes (41, §6.9) ; carnet de notes et R30 (43, §6.11) ;
+   - avec les exports et les analyses : comptages à trois étages et R29 (40, §6.10).
+10. **Le chercheur et le responsable scientifique (décisions 44 à 54, v0.12, `docs/travail-du-chercheur.md`)** :
+   - avec la saisie : modes de dépouillement et part de lecture humaine (45, 46, §7.9) ; travail hors ligne et reprise (47, §7.10) ;
+   - avec les écrans : rôles (52), questions remontées et arbitrage, R32 (54, §6.14) ; hypothèses testables, bac à sable, R31 (48, 49, 51, §6.13) ; tableau des curiosités (50, §6.12).
+11. **Dominer la machine, revenir sur ses pas (décisions 55 et 56, v0.13)** : avec la saisie, délégation mesurée sur jeu étalon, seuil et suspension d'office, R33 (§7.11) ; relecture d'un document avec la première lecture et les pièces nouvelles, R34 (§7.12).
