@@ -9,7 +9,15 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from chronologia.etalon._csv import Ligne, ValeurInvalide, charger, choix, entier, entier_ou_vide, texte
+from chronologia.etalon._csv import (
+    Ligne,
+    ValeurInvalide,
+    charger,
+    choix,
+    entier,
+    entier_ou_vide,
+    texte,
+)
 
 COLONNES_INVENTAIRE = (
     "commune", "service", "type", "annee_debut", "annee_fin", "cote", "disponibilite",

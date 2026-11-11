@@ -1,0 +1,20 @@
+schema_version: 1
+kind: acte
+commune: Villefictive
+type_acte: naissance
+annee: 1875
+reference: {cote: "9 E 999/1", vue: 12, rang: 4}
+date_acte: "le six mars mil huit cent soixante quinze"
+date_evenement: "hier à dix heures du soir"
+lieu: Villefictive
+personnes:
+  - {rang: 1, role: officier, nom: Imaginaire, prenoms: Anatole, profession: maire}
+  - {rang: 2, role: declarant, nom: Fictif, prenoms: Jean Bapt., age: "trente deux ans", profession: cordonnier, domicile: Villefictive}
+  - {rang: 3, role: sujet, sexe: masculin, prenoms: Paul Désiré, nom: Fictif}
+  - {rang: 4, role: mere, nom: Inventée, prenoms: {illisible: partiel, lu: "Mar"}, profession: {absent: true}}
+  - {rang: 5, role: temoin, nom: Chimère, prenoms: Louis, age: "quarante ans", profession: {illisible: true}}
+liens:
+  - {de: 2, vers: 3, nature: pere}
+  - {de: 4, vers: 3, nature: mere}
+mentions_marginales: []
+meta: {lecteur: L1, lecture: premiere, date_saisie: "2026-12-01", prerempli_par_modele: false, source: etalon, illisible: false}

@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chronologia.local/schemas/etalon/acte/1",
+  "title": "Fiche d'acte de l'étalon (projet Hesdin-Lanchères)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "commune",
+    "annee",
+    "reference",
+    "meta",
+    "type_acte",
+    "personnes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "acte"
+    },
+    "commune": {
+      "type": "string",
+      "minLength": 1
+    },
+    "annee": {
+      "type": "integer"
+    },
+    "type_acte": {
+      "enum": [
+        "naissance",
+        "mariage",
+        "deces"
+      ]
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cote"
+      ],
+      "properties": {
+        "cote": {
+          "type": "string"
+        },
+        "vue": {
+          "type": "integer"
+        },
+        "rang": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "date_acte": {
+      "$ref": "#/$defs/valeur"
+    },
+    "date_evenement": {
+      "$ref": "#/$defs/valeur"
+    },
+    "lieu": {
+      "$ref": "#/$defs/valeur"
+    },
+    "personnes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/personne"
+      }
+    },
+    "liens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "de",
+          "vers",
+          "nature"
+        ],
+        "properties": {
+          "de": {
+            "type": "integer"
+          },
+          "vers": {
+            "type": "integer"
+          },
+          "nature": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mentions_marginales": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/valeur"
+      }
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    }
+  },
+  "$defs": {
+    "valeur": {
+      "description": "Valeur transcrite telle qu'écrite (R13), ou son état de lecture.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "illisible": {
+              "const": true
+            }
+          },
+          "required": [
+            "illisible"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "illisible": {
+              "const": "partiel"
+            },
+            "lu": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "illisible",
+            "lu"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "absent": {
+              "const": true
+            }
+          },
+          "required": [
+            "absent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "date_saisie"
+      ],
+      "properties": {
+        "lecteur": {
+          "type": "string"
+        },
+        "lecture": {
+          "enum": [
+            "premiere",
+            "seconde"
+          ]
+        },
+        "date_saisie": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "prerempli_par_modele": {
+          "type": "boolean"
+        },
+        "source": {
+          "enum": [
+            "etalon",
+            "socface",
+            "machine"
+          ]
+        },
+        "illisible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "personne": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rang",
+        "role"
+      ],
+      "properties": {
+        "rang": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Rang de première mention dans le texte : clé d'appariement."
+        },
+        "role": {
+          "enum": [
+            "sujet",
+            "pere",
+            "mere",
+            "epoux",
+            "epouse",
+            "temoin",
+            "declarant",
+            "officier",
+            "autre"
+          ]
+        },
+        "nom": {
+          "$ref": "#/$defs/valeur"
+        },
+        "prenoms": {
+          "$ref": "#/$defs/valeur"
+        },
+        "sexe": {
+          "$ref": "#/$defs/valeur"
+        },
+        "age": {
+          "$ref": "#/$defs/valeur"
+        },
+        "profession": {
+          "$ref": "#/$defs/valeur"
+        },
+        "domicile": {
+          "$ref": "#/$defs/valeur"
+        },
+        "lieu_naissance": {
+          "$ref": "#/$defs/valeur"
+        }
+      }
+    }
+  }
+}

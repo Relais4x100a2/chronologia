@@ -1,0 +1,10 @@
+schema_version: 1
+kind: page_recensement
+commune: Villefictive
+annee: 1872
+reference: {cote: "6 M 999", vue: 3, page: 1}
+lignes:
+  - {ligne: 1, menage: "1", ordre: "1", nom: Fictif, prenoms: Jean, age_ou_annee: "45", lieu_naissance: Villefictive, nationalite: française, profession: cordonnier, position_menage: chef, patron: null}
+  - {ligne: 2, menage: "1", ordre: "2", nom: Inventée, prenoms: {illisible: partiel, lu: "Mar"}, age_ou_annee: "40", profession: {absent: true}, position_menage: sa femme, patron: null}
+  - {ligne: 3, menage: "2", ordre: "1", nom: Chimère, prenoms: Louis, age_ou_annee: {illisible: true}, profession: marin, position_menage: chef, patron: null}
+meta: {lecture: premiere, date_saisie: "2026-12-03", source: etalon}

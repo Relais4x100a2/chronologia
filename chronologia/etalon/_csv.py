@@ -3,9 +3,7 @@
 import csv
 from collections.abc import Callable, Collection, Mapping, Sequence
 from pathlib import Path
-from typing import TypeVar
 
-T = TypeVar("T")
 Ligne = Mapping[str, str]
 
 
@@ -45,7 +43,7 @@ def entier_ou_vide(ligne: Ligne, colonne: str) -> int | None:
     return entier(ligne, colonne)
 
 
-def charger(
+def charger[T](
     chemin: Path, colonnes: Sequence[str], construire: Callable[[Ligne], T]
 ) -> tuple[list[T], list[str]]:
     """Lit ``chemin`` (UTF-8, en-tête) et construit un objet par ligne valide.

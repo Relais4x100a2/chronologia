@@ -1,0 +1,8 @@
+schema_version: 1
+kind: acte
+commune: Villefictive
+type_acte: deces
+annee: 1880
+reference: {cote: "9 E 999/2", vue: 7, rang: 11}
+personnes: []
+meta: {lecteur: L1, lecture: premiere, date_saisie: "2026-12-04", source: etalon, illisible: true}

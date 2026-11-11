@@ -1,0 +1,15 @@
+schema_version: 1
+kind: acte
+commune: Villefictive
+type_acte: mariage
+annee: 1890
+reference: {cote: "9 E 999/3", vue: 40, rang: 2}
+date_acte: "le onze novembre mil huit cent quatre vingt dix"
+personnes:
+  - {rang: 1, role: officier, nom: Imaginaire, prenoms: Anatole}
+  - {rang: 2, role: epoux, nom: Fictif, prenoms: Paul, age: "vingt six ans", profession: marin}
+  - {rang: 3, role: epouse, nom: Songe, prenoms: Rose, age: "vingt ans", profession: couturière}
+liens:
+  - {de: 2, vers: 3, nature: conjoint}
+mentions_marginales: ["divorce prononcé"]
+meta: {lecteur: L1, lecture: premiere, date_saisie: "2026-12-02", source: etalon}

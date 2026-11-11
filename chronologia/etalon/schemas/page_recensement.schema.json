@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chronologia.local/schemas/etalon/page_recensement/1",
+  "title": "Fiche de page de liste nominative de l'étalon (projet Hesdin-Lanchères)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "commune",
+    "annee",
+    "reference",
+    "meta",
+    "lignes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "page_recensement"
+    },
+    "commune": {
+      "type": "string",
+      "minLength": 1
+    },
+    "annee": {
+      "type": "integer"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cote"
+      ],
+      "properties": {
+        "cote": {
+          "type": "string"
+        },
+        "vue": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "lignes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ligne"
+      }
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    }
+  },
+  "$defs": {
+    "valeur": {
+      "description": "Valeur transcrite telle qu'écrite (R13), ou son état de lecture.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "illisible": {
+              "const": true
+            }
+          },
+          "required": [
+            "illisible"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "illisible": {
+              "const": "partiel"
+            },
+            "lu": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "illisible",
+            "lu"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "absent": {
+              "const": true
+            }
+          },
+          "required": [
+            "absent"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "date_saisie"
+      ],
+      "properties": {
+        "lecteur": {
+          "type": "string"
+        },
+        "lecture": {
+          "enum": [
+            "premiere",
+            "seconde"
+          ]
+        },
+        "date_saisie": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "prerempli_par_modele": {
+          "type": "boolean"
+        },
+        "source": {
+          "enum": [
+            "etalon",
+            "socface",
+            "machine"
+          ]
+        },
+        "illisible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ligne": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ligne"
+      ],
+      "properties": {
+        "ligne": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Position sur la page : clé d'appariement."
+        },
+        "menage": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ordre": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nom": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prenoms": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "age_ou_annee": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lieu_naissance": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nationalite": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "profession": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "position_menage": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "patron": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/valeur"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
