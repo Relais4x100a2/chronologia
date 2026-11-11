@@ -3,10 +3,10 @@ name = "chronologia"
 version = "0.0.0"
 description = "Chronologia : modèle événement–masque–factoïde et connecteurs d'import"
 requires-python = ">=3.12"
-dependencies = ["geneweb-py"]
+dependencies = ["geneweb-py", "pyyaml>=6", "jsonschema>=4.21", "jiwer>=3.0"]
 
 [dependency-groups]
-dev = ["pytest>=8", "mypy>=1.10"]
+dev = ["pytest>=8", "mypy>=1.10", "types-PyYAML", "types-jsonschema"]
 
 # Le parseur GeneWeb vit dans le dépôt prosopo-gw (source unique), en dépendance locale.
 [tool.uv.sources]
@@ -22,3 +22,7 @@ testpaths = ["tests"]
 [tool.mypy]
 strict = true
 files = ["chronologia"]
+
+[[tool.mypy.overrides]]
+module = ["jiwer", "jiwer.*"]
+ignore_missing_imports = true
