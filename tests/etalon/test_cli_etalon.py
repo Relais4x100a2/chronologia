@@ -236,3 +236,61 @@ def test_sortie_existante_lien_vers_depot_refusee(tmp_path, depot, capsys):
     assert cli.main(_tirer_args(lien)) == 2
     assert "données dans le dépôt" in capsys.readouterr().err
     assert list(cible.iterdir()) == []
+
+
+def test_mesures_champs_publie_les_inventes(tmp_path):
+    def inventer(nom, fiche):
+        fiche["lignes"][0]["patron"] = "Imaginaire"
+
+    etalon = _fiches(tmp_path / "e", ["page_recensement.yaml"])
+    autre = _fiches(tmp_path / "a", ["page_recensement.yaml"], "machine", inventer)
+    code, sortie = _mesurer(tmp_path, etalon, autre)
+    assert code == 0
+    lignes = {r["champ"]: r for r in _lire_csv(sortie / "Villefictive" / "machine" / "mesures_champs.csv")}
+    assert lignes["ligne.patron"]["inventes"] == "1"
+
+
+@pytest.mark.parametrize("commune", ["../../evasion", "/absolu", "a/b", ".."])
+def test_commune_de_fiche_ne_sert_pas_de_chemin(tmp_path, capsys, commune):
+    def deplacer(nom, fiche):
+        fiche["commune"] = commune
+
+    etalon = _fiches(tmp_path / "x" / "y" / "e", ["acte_naissance.yaml"], modifier=deplacer)
+    autre = _fiches(tmp_path / "x" / "y" / "a", ["acte_naissance.yaml"], "machine", deplacer)
+    code, sortie = _mesurer(tmp_path / "x" / "y", etalon, autre)
+    assert code == 2
+    assert "/commune : commune_invalide" in capsys.readouterr().err
+    assert not (tmp_path / "evasion").exists() and not sortie.exists()
+
+
+def test_seconde_lecture_textes_sur_fiches_relues_seulement(tmp_path):
+    def relire(nom, fiche):
+        fiche["meta"]["lecture"] = "seconde"
+
+    etalon = _fiches(tmp_path / "e", ["acte_naissance.yaml", "acte_mariage.yaml"])
+    seconde = _fiches(tmp_path / "s", ["acte_naissance.yaml"], modifier=relire)
+    te, ts = tmp_path / "te", tmp_path / "ts"
+    te.mkdir()
+    ts.mkdir()
+    for nom in ("acte_naissance", "acte_mariage"):
+        (te / f"{nom}.txt").write_text("abc", encoding="utf-8")
+    (ts / "acte_naissance.txt").write_text("abc", encoding="utf-8")
+    code, sortie = _mesurer(
+        tmp_path, etalon, seconde, "seconde_lecture", "--textes-etalon", str(te), "--textes-autre", str(ts)
+    )
+    assert code == 0
+    lignes = _lire_csv(sortie / "Villefictive" / "seconde_lecture" / "mesures_texte.csv")
+    (total,) = [r for r in lignes if r["type"] == "*"]
+    assert total["n_unites"] == "1" and total["editions_car"] == "0"
+
+
+def test_tirage_existant_non_ecrase(tmp_path, capsys):
+    sortie = tmp_path / "t"
+    assert cli.main(_tirer_args(sortie)) == 0
+    avant = (sortie / "tirage.csv").read_bytes()
+    args = _tirer_args(sortie)
+    args[args.index("--graine") + 1] = "43"
+    assert cli.main(args) == 2
+    assert "tirage_existant" in capsys.readouterr().err
+    assert (sortie / "tirage.csv").read_bytes() == avant
+    assert cli.main([*args, "--remplacer"]) == 0

@@ -48,6 +48,8 @@ from chronologia.etalon.tirage import (
 
 # Un code d'erreur maison : minuscules ASCII, chiffres, ponctuation simple ; jamais une valeur lue.
 _CODE = re.compile(r"[a-z0-9_ :;,/.-]+")
+# Une commune sert de nom de dossier : lettres (accents compris), chiffres, espace, apostrophe, tiret.
+_COMMUNE = re.compile(r"[^\W_][\w' -]*")
 
 
 def _erreur(message: str) -> int:
@@ -130,6 +132,8 @@ def _tirer(args: argparse.Namespace) -> int:
         repartition=_charger_repartition(args.repartition) if args.repartition else None,
         n_pilote_actes=args.pilote_actes,
     )
+    if verifier_hors_depot(sortie / "tirage.csv").exists() and not args.remplacer:
+        return _erreur("tirage_existant : un tirage ne se refait pas avec une autre graine (--remplacer pour forcer)")
     t = tirer(cadre, remontee, plan, args.graine)
     seconde = tirer_seconde_lecture(t, args.graine_seconde)
     ecrire_tirage(t, sortie)
@@ -149,6 +153,7 @@ def _tirer(args: argparse.Namespace) -> int:
     print(f"page pilote : {t.page_pilote[0]} p. {t.page_pilote[1]}")
     print(f"strates vides : {', '.join('/'.join(s) for s in t.strates_vides) or 'aucune'}")
     print(f"annees absentes : {', '.join(map(str, t.annees_absentes)) or 'aucune'}")
+    print(f"denombrements vides : {', '.join(map(str, t.denombrements_vides)) or 'aucun'}")
     return 0
 
 
@@ -162,6 +167,9 @@ def _lire_fiches(dossier: Path) -> tuple[dict[str, dict[str, Json]], list[str]]:
         fiche, e = charger_fiche(verifier_hors_depot(chemin))
         if fiche is not None:
             e = valider_fiche(fiche, chemin.name)
+            commune = fiche.get("commune")
+            if not e and not (isinstance(commune, str) and _COMMUNE.fullmatch(commune)):
+                e = [f"{chemin.name} : /commune : commune_invalide"]
         erreurs += e
         if fiche is not None and not e:
             fiches[chemin.stem] = fiche
@@ -226,6 +234,7 @@ def _mesurer(args: argparse.Namespace) -> int:
             illisible=_illisible(fiche),
         )
         for nom, fiche in sorted(etalon.items())
+        if not (seconde and nom not in autre)  # seconde lecture : fiches relues seulement
         if (ref_texte := _lire_texte(textes_etalon, nom)) is not None
     ]
     for commune, liste in sorted(comparaisons.items()):
@@ -280,6 +289,7 @@ def ajouter_sous_commandes(sous: Any) -> None:
     tir.add_argument("--graine-seconde", type=int, required=True)
     tir.add_argument("--repartition", type=Path, default=None, help="CSV type,tranche,n")
     tir.add_argument("--sortie", type=Path, required=True)
+    tir.add_argument("--remplacer", action="store_true", help="écraser un tirage existant (à motiver au registre)")
     _periode(tir)
     tir.set_defaults(action=_protege(_tirer))
 

@@ -227,3 +227,19 @@ def test_ecrire_tirage_refuse_le_depot():
     with pytest.raises(DonneesDansLeDepot):
         ecrire_tirage(_tirer(), racine_depot() / "tirage_interdit")
     assert not (racine_depot() / "tirage_interdit").exists()
+
+
+def test_type_absent_du_cadre_et_denombrements_vides_declares(tmp_path):
+    lignes = CADRE.read_text(encoding="utf-8").splitlines()
+    garde = [
+        lg for lg in lignes
+        if ",mariage," not in lg and not lg.startswith("Villefictive,recensement,1876,")
+    ]  # fmt: skip
+    garde = [lg.replace("recensement,1881,6,", "recensement,1881,0,") for lg in garde]
+    cadre = tmp_path / "cadre.csv"
+    cadre.write_text("\n".join(garde) + "\n", encoding="utf-8")
+    t = _tirer(cadre=cadre)
+    assert ("mariage", "1872-1881") in t.strates_vides
+    assert t.annees_absentes == list(range(1872, 1912))
+    assert t.denombrements_vides == [1876, 1881]
+    assert t.denombrements_tires == [a for a in ANNEES_RECENSEMENT if a not in (1876, 1881)]

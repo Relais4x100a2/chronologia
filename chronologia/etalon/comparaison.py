@@ -24,6 +24,7 @@ class CompteChamp:
     fn: int = 0
     partiels: int = 0
     illisibles: int = 0
+    inventes: int = 0  # texte donné là où l'étalon est non applicable (hors précision)
 
     @property
     def precision(self) -> float | None:
@@ -93,6 +94,8 @@ def _decompter(compte: CompteChamp, etalon: Json, autre: Json) -> None:
         compte.illisibles += 1
     elif etat == "absent" and donne is not None:
         compte.fp += 1
+    elif etat == "non_applicable" and donne is not None:
+        compte.inventes += 1
 
 
 def _structure(fiche: Mapping[str, Json]) -> tuple[str, str, str]:
@@ -183,6 +186,7 @@ def cumuler(comparaisons: Iterable[Comparaison]) -> Comparaison:
             t = total.champ(nom)
             t.vp, t.fp, t.fn = t.vp + x.vp, t.fp + x.fp, t.fn + x.fn
             t.partiels, t.illisibles = t.partiels + x.partiels, t.illisibles + x.illisibles
+            t.inventes += x.inventes
         total.roles_corrects += c.roles_corrects
         total.personnes_appariees += c.personnes_appariees
         total.personnes_manquantes += c.personnes_manquantes

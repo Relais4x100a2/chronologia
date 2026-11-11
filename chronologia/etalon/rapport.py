@@ -32,9 +32,9 @@ def _ecrire(chemin: Path, colonnes: Sequence[str], lignes: Iterable[Sequence[obj
 def ecrire_mesures_champs(c: Comparaison, chemin: Path) -> None:
     _ecrire(
         chemin,
-        ("commune", "source", "champ", "vp", "fp", "fn", "partiels", "illisibles", "precision", "rappel"),
+        ("commune", "source", "champ", "vp", "fp", "fn", "partiels", "illisibles", "inventes", "precision", "rappel"),
         (
-            (c.commune, c.source, nom, x.vp, x.fp, x.fn, x.partiels, x.illisibles, _taux(x.precision), _taux(x.rappel))
+            (c.commune, c.source, nom, x.vp, x.fp, x.fn, x.partiels, x.illisibles, x.inventes, _taux(x.precision), _taux(x.rappel))
             for nom, x in sorted(c.champs.items())
         ),
     )

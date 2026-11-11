@@ -24,6 +24,8 @@ type Unite = tuple[str, int, int]  # (type, annee, rang)
 
 TYPES_ETAT_CIVIL = ("naissance", "mariage", "deces")
 TYPES_CADRE = (*TYPES_ETAT_CIVIL, "recensement")
+# Dénombrements généraux de la période : un dénombrement attendu sans page est déclaré (R24).
+ANNEES_RECENSEMENT = (1872, 1876, 1881, 1886, 1891, 1896, 1901, 1906, 1911)
 COLONNES_CADRE = ("commune", "type", "annee", "nb_unites", "cote")
 COLONNES_CANDIDATS = ("commune", "type", "annee", "rang", "cote")
 COLONNES_TIRAGE = ("commune", "categorie", "type", "annee", "rang", "cote")
@@ -69,6 +71,8 @@ class Tirage:
     empreintes: dict[str, str]
     strates_vides: list[Strate]
     annees_absentes: list[int]
+    denombrements_tires: list[int] = field(default_factory=list)
+    denombrements_vides: list[int] = field(default_factory=list)
     version: str = field(default="1")
 
 
@@ -251,9 +255,8 @@ def tirer(cadre: Path, candidats_remontee: Path | None, plan: PlanTirage, graine
     tires.append(tire("pilote_recensement", pilote_page))
 
     # 3. Actes : strates (type, tranche) hors année pilote.
-    types_presents = sorted({lc.type for lc in etat_civil})
     strates: dict[Strate, list[Unite]] = {
-        (t, f"{d}-{f}"): [] for t in types_presents for d, f in tranches(plan.periode, plan.largeur_tranche)
+        (t, f"{d}-{f}"): [] for t in TYPES_ETAT_CIVIL for d, f in tranches(plan.periode, plan.largeur_tranche)
     }
     for annee, unites in par_annee.items():
         if annee == annee_pilote:
@@ -282,8 +285,10 @@ def tirer(cadre: Path, candidats_remontee: Path | None, plan: PlanTirage, graine
     annees_absentes = sorted(
         a
         for a in range(plan.periode[0], plan.periode[1] + 1)
-        if any(not any(u[0] == t for u in par_annee.get(a, [])) for t in types_presents)
+        if any(not any(u[0] == t for u in par_annee.get(a, [])) for t in TYPES_ETAT_CIVIL)
     )
+    attendus = {a for a in ANNEES_RECENSEMENT if plan.periode[0] <= a <= plan.periode[1]}
+    attendus |= {lc.annee for lc in lignes if lc.type == "recensement"}
     return Tirage(
         tires=tires,
         annee_pilote=annee_pilote,
@@ -292,6 +297,8 @@ def tirer(cadre: Path, candidats_remontee: Path | None, plan: PlanTirage, graine
         empreintes=_empreintes(cadre, candidats_remontee, plan),
         strates_vides=sorted(s for s, e in effectifs.items() if e == 0),
         annees_absentes=annees_absentes,
+        denombrements_tires=sorted(pages),
+        denombrements_vides=sorted(attendus - set(pages)),
     )
 
 

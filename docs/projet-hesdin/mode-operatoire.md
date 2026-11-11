@@ -37,10 +37,13 @@ Ce document décrit l'enchaînement des commandes pour une commune (Hesdin, Lanc
 
 ## Règle des graines
 
-Les graines sont **fixées et notées avant tout tirage, et jamais choisies après coup**. Relancer un tirage avec une autre graine parce que le premier « ne plaît pas » invalide l'échantillon. Un tirage se rejoue à l'identique avec les mêmes fichiers et les mêmes graines ; `tirage.meta.json` garde les empreintes de ce qui a servi.
+Les graines sont **fixées et notées avant tout tirage, et jamais choisies après coup**. Relancer un tirage avec une autre graine parce que le premier « ne plaît pas » invalide l'échantillon. Un tirage se rejoue à l'identique avec les mêmes fichiers et les mêmes graines ; `tirage.meta.json` garde les empreintes de ce qui a servi. `etalon-tirer` refuse d'écraser un `tirage.csv` existant ; `--remplacer` ne sert qu'à corriger une erreur de fichier d'entrée, motivée au registre.
 
 ## Lecture des résultats
 
 - Chaque CSV de mesures commence par : `# taux sur l'échantillon tiré, non redressés ; voir tirage.meta.json` (R29).
 - Une fiche de l'étalon sans pendant compte en faux négatif ; une fiche en trop, en faux positif ; leur nombre est affiché.
+- La colonne `inventes` compte les textes donnés là où l'étalon ne prévoit rien (champ non applicable) : hors précision, mais publiés.
+- En seconde lecture, l'accord et les mesures de texte ne portent que sur les fiches relues.
+- `tirage.meta.json` déclare les strates vides, les années sans acte d'un type et les dénombrements attendus sans page (`denombrements_vides`).
 - Les sorties ne contiennent que des comptes et des taux : aucun nom, aucune cote, aucun texte transcrit.

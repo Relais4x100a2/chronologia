@@ -185,3 +185,18 @@ def test_aucun_texte_dans_le_resultat():
     _personne(autre, 2)["nom"] = "ZZSENTINELLE"
     assert "ZZSENTINELLE" not in repr(comparer_fiches(etalon, autre))
     assert "ZZSENTINELLE" not in repr(comparer_lectures(etalon, autre))
+
+
+def test_valeur_inventee_dans_champ_non_applicable_comptee_a_part():
+    etalon = _fiche()
+    autre = _machine(etalon)
+    del _personne(etalon, 1)["profession"]
+    _personne(autre, 1)["profession"] = "inventeur"
+    x = comparer_fiches(etalon, autre).champs["personne.profession"]
+    assert x.inventes == 1 and x.fp == 0
+    recensement = _fiche("page_recensement.yaml")
+    autre = _machine(recensement)
+    autre["lignes"][0]["patron"] = "Imaginaire"
+    c = comparer_fiches(recensement, autre)
+    assert c.champs["ligne.patron"].inventes == 1
+    assert cumuler([c, c]).champs["ligne.patron"].inventes == 2
