@@ -1,0 +1,7 @@
+commune,service,type,annee_debut,annee_fin,cote,disponibilite,nb_vues,estimation_unites,socface,remarques,motif_lacune
+Villefictive,AD00,naissances,1872,1881,9 E 999/1,en_ligne,240,310,,COTE-REMARQUE-SECRETE,
+Villefictive,AD00,mariages,1872,1881,9 E 999/2,en_ligne,80,90,,,
+Villefictive,AD00,nmd,1882,1891,9 E 999/3,salle_lecture,,,,,
+Villefictive,AD00,deces,1902,1911,,absent,,,,,registres restés en mairie
+Villefictive,AD00,recensement,1872,1872,6 M 999,en_ligne,40,1000,oui,,
+Villefictive,AD00,tables_decennales,1872,1911,5 MI 999,en_ligne,60,,,,
