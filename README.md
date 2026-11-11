@@ -43,12 +43,26 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 | ✅ | Service d'import : idempotence par empreinte SHA-256, réimport avec application du différentiel, tout-ou-rien |
 | ✅ | Rapprochement d'homonymes entre bases par faisceau d'indices : propositions « possible » ou « probable », jamais « certain », à valider par l'humain (R26) |
 | ✅ | Ligne de commande : `uv run python -m chronologia importer \| info-lot \| rechercher \| rapprocher` |
+| ✅ | Outillage du jeu étalon (projet Hesdin-Lanchères) : inventaire des sources, tirage stratifié rejouable, mesures CER/WER et par champ, accord entre deux lectures ; commandes `etalon-inventaire \| etalon-tirer \| etalon-mesurer` |
+| 🚧 | Projet Hesdin-Lanchères : inventaire des registres, conventions de transcription à valider, pilote puis transcription de l'étalon |
 | 🚧 | Socle exécutable : schéma SQL complet, tests automatiques des règles, rejeu des scénarios du document |
 | 🚧 | Validation des propositions d'identification et calibration du barème |
 | ⏳ | Lieux : normalisation des mentions, articulation avec l'atelier de lieux de prosopo-gw |
 | ⏳ | Saisie assistée par modèles de langage, évaluée sur ~50 actes annotés à la main |
 | ⏳ | Écrans : validation et rattachements d'abord |
 | ⏳ | Couche Travail : dépouillements, notes, questions du projet, délégation mesurée, relecture (décisions 39 à 56) |
+
+## Terrain d'épreuve : le projet Hesdin-Lanchères 1872-1911
+
+Plutôt que de valider le modèle sur des exemples choisis, on le confronte à une vraie étude d'histoire sociale, sur du volume. Le projet repose sur un **double comparatif** : dans le Pas-de-Calais, **Hesdin** (étude complète) face à **Saint-Omer** (témoin) ; dans la Somme, **Lanchères** (étude complète) face à **Saint-Valery-sur-Somme** (témoin). Deux questions : la démographie de ces communes et la reproduction sociale.
+
+Le premier chantier pose la condition de toute délégation à la machine (R33) : un **jeu étalon** transcrit à la main, contre lequel on mesure la transcription automatique, Socface et une seconde lecture humaine.
+
+- `etalon-inventaire` valide l'inventaire des registres d'une commune, avec ses lacunes motivées ;
+- `etalon-tirer` tire l'échantillon (strates par type d'acte et par décennie, pilotes, pages de recensement, remontée avant 1872) ; les deux graines sont obligatoires et notées avant tout tirage ;
+- `etalon-mesurer` produit les taux d'erreur par champ, par rôle et sur le texte (CER, WER), ou l'accord entre deux lectures.
+
+Garde-fous : les données réelles restent **hors du dépôt** (toute commande refuse un chemin qui s'y trouve) ; les mesures ne contiennent que des comptes et des taux, jamais un nom ; une omission ne peut pas améliorer un score ; chaque taux rappelle qu'il porte sur l'échantillon tiré (R29). Détails : [note de conception](docs/superpowers/specs/2026-11-11-projet-hesdin-design.md), [mode opératoire](docs/projet-hesdin/mode-operatoire.md), [conventions de transcription](docs/projet-hesdin/conventions-transcription.md) (proposition à valider).
 
 ## Dépendance : le dépôt prosopo-gw
 
@@ -99,8 +113,10 @@ uv run pytest
 | `docs/etude-*.md` | Études d'autres logiciels (Heurist ; nodegoat, Arches, ResearchSpace ; cinq autres) et ce que le modèle leur emprunte. |
 | `docs/relecture-oncle-neveu.md`, `docs/travail-du-chercheur.md` | Relecture critique du modèle et vision du travail du chercheur, d'où viennent les décisions 39 à 56. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`). |
+| `docs/projet-hesdin/` | Projet Hesdin-Lanchères : conventions de transcription (à valider) et mode opératoire du jeu étalon. |
+| `docs/superpowers/` | Notes de conception (`specs/`) et plans d'implémentation (`plans/`). |
 | `docs/img/` | Illustrations du README (voir crédits). |
-| `chronologia/` | Code : modèle, adaptateur d'import GeneWeb, persistance, rapprochement d'homonymes, ligne de commande. |
+| `chronologia/` | Code : modèle, adaptateur d'import GeneWeb, persistance, rapprochement d'homonymes, outillage du jeu étalon (`etalon/`), ligne de commande. |
 | `maquettes/design/` | Les cinq écrans de la maquette (dépôt et lecture à voix haute, validation d'un acte, rattachements, conflit de date, conflit de lieu). |
 | `tests/` | Tests automatiques. |
 | `tools/` | Script de génération de la page. |

@@ -5,7 +5,8 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 ## Contexte pour les agents
 
 - `AGENTS.md` : état exact du projet, commandes, garde-fous et feuille de route de reprise. À lire en premier.
-- CLI : `uv run python -m chronologia importer | info-lot | rechercher | rapprocher` (détails dans `AGENTS.md`).
+- CLI : `uv run python -m chronologia importer | info-lot | rechercher | rapprocher | etalon-inventaire | etalon-tirer | etalon-mesurer` (détails dans `AGENTS.md`).
+- Projet Hesdin-Lanchères (jeu étalon) : `docs/projet-hesdin/` ; données réelles toujours hors du dépôt.
 
 ## Source de vérité
 
@@ -30,7 +31,7 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 
 ## Prochaine étape (section 9 et feuille de route)
 
-Fait : import de vraies bases GeneWeb (SQLite immuable), identifications MASQUE → PERSONNE, rapprochement d'homonymes (état détaillé dans `AGENTS.md`).
+Fait : import de vraies bases GeneWeb (SQLite immuable), identifications MASQUE → PERSONNE, rapprochement d'homonymes, outillage du jeu étalon du projet Hesdin-Lanchères (état détaillé dans `AGENTS.md`).
 
 1. Validation des propositions d'identification (écran ou commande), calibration du barème v1.
 2. Rendre le socle exécutable en PostgreSQL : schéma SQL complet + tests automatiques des règles + rejeu des scénarios du document (baptême aux deux dates, Pierre Martin, chapelle de 1709).
