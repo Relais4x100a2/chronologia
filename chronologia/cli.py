@@ -1,12 +1,14 @@
-"""Ligne de commande : ``python -m chronologia importer | info-lot | rechercher | rapprocher``."""
+"""Ligne de commande : ``python -m chronologia importer | info-lot | rechercher | rapprocher``,
+plus ``etalon-inventaire | etalon-tirer | etalon-mesurer`` (projet Hesdin, ``chronologia.etalon``)."""
 
 import argparse
 import sqlite3
 import sys
+from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
-from typing import List, Optional, Sequence, Set
 
+from chronologia.etalon.commandes import ajouter_sous_commandes
 from chronologia.persistence.requetes import (
     rechercher_par_intervalle,
     rechercher_par_lieu,
@@ -27,7 +29,7 @@ def _erreur(message: str) -> int:
     return 2
 
 
-def _ouvrir_existante(base: Path) -> Optional[sqlite3.Connection]:
+def _ouvrir_existante(base: Path) -> sqlite3.Connection | None:
     if not base.exists():
         return None
     con = sqlite3.connect(base)
@@ -110,7 +112,7 @@ def _rechercher(args: argparse.Namespace) -> int:
     if con is None:
         return _erreur(f"base introuvable : {args.base}")
     try:
-        selections: List[Set[int]] = []
+        selections: list[set[int]] = []
         if args.personne is not None:
             selections.append({f.id for f in rechercher_par_personne(con, args.personne)})
         if args.lieu is not None:
@@ -190,10 +192,12 @@ def _parseur() -> argparse.ArgumentParser:
         "--intra-base", action="store_true", help="comparer aussi au sein d'une même base"
     )
     rap.set_defaults(action=_rapprocher)
+
+    ajouter_sous_commandes(sous)
     return p
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     args = _parseur().parse_args(argv)
     return int(args.action(args))
 
