@@ -22,6 +22,8 @@ Ce document décrit l'enchaînement des commandes pour une commune (Hesdin, Lanc
 └── mesures/                    # CSV d'agrégats produits par etalon-mesurer
 ```
 
+Les fiches et les textes se nomment d'après le tirage, jamais d'après une personne : `<type>_<annee>_<rang>.yaml` (et `.txt`). Les messages d'erreur citent ce nom.
+
 ## Ordre des commandes
 
 1. **Inventaire** — valider les fichiers de la commune :
@@ -46,4 +48,6 @@ Les graines sont **fixées et notées avant tout tirage, et jamais choisies apr�
 - La colonne `inventes` compte les textes donnés là où l'étalon ne prévoit rien (champ non applicable) : hors précision, mais publiés.
 - En seconde lecture, l'accord et les mesures de texte ne portent que sur les fiches relues.
 - `tirage.meta.json` déclare les strates vides, les années sans acte d'un type et les dénombrements attendus sans page (`denombrements_vides`).
-- Les sorties ne contiennent que des comptes et des taux : aucun nom, aucune cote, aucun texte transcrit.
+- Les CSV de mesures et les messages ne contiennent que des comptes, des taux et des codes : aucun nom, aucune cote, aucun texte transcrit. `tirage.csv` et `seconde_lecture.csv` portent les cotes : ce sont des fichiers de travail, hors dépôt.
+- Une hypothèse de texte absente compte comme une suppression totale ; leur nombre est affiché.
+- Les champs comparés sont ceux des personnes ou des lignes, plus `date_acte`, `date_evenement` et `lieu` ; les `liens` et `mentions_marginales` ne sont pas mesurés à ce stade.

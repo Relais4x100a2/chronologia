@@ -210,6 +210,13 @@ def _mesurer(args: argparse.Namespace) -> int:
         return 2
     seconde = args.source == "seconde_lecture"
     sans_pendant = len(set(etalon) ^ set(autre))
+    communes_differentes = sorted(
+        nom for nom in set(etalon) & set(autre) if etalon[nom].get("commune") != autre[nom].get("commune")
+    )
+    if communes_differentes:
+        for nom in communes_differentes:
+            _erreur(f"{nom} : commune_differente")
+        return 2
     comparaisons: dict[str, list[Comparaison]] = {}
     accords: dict[str, Accord] = {}
     for nom in sorted(set(etalon) | set(autre)):
@@ -223,6 +230,11 @@ def _mesurer(args: argparse.Namespace) -> int:
         c = comparer_fiches(ref, hyp)
         c.source = args.source
         comparaisons.setdefault(c.commune, []).append(c)
+    paires_noms = [
+        nom
+        for nom in sorted(etalon)
+        if not (seconde and nom not in autre) and _lire_texte(textes_etalon, nom) is not None
+    ]
     paires = [
         PaireTexte(
             commune=str(fiche.get("commune")),
@@ -248,8 +260,14 @@ def _mesurer(args: argparse.Namespace) -> int:
         ecrire_mesures_texte(
             [x for x in lignes if x.commune == commune], sortie / commune / args.source / "mesures_texte.csv"
         )
-    print(f"fiches etalon : {len(etalon)} ; fiches comparees : {len(autre)} ; sans pendant : {sans_pendant}")
+    if seconde:
+        print(f"paires de lectures : {len(set(etalon) & set(autre))}")
+        print(f"secondes lectures sans premiere : {len(set(autre) - set(etalon))}")
+    else:
+        print(f"fiches etalon : {len(etalon)} ; fiches comparees : {len(autre)} ; sans pendant : {sans_pendant}")
     print(f"textes mesures : {len(paires)}")
+    sans_hypothese = sum(1 for nom in paires_noms if _lire_texte(textes_autre, nom) is None)
+    print(f"textes sans hypothese (comptes en suppression) : {sans_hypothese}")
     return 0
 
 

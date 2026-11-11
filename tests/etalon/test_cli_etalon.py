@@ -294,3 +294,41 @@ def test_tirage_existant_non_ecrase(tmp_path, capsys):
     assert "tirage_existant" in capsys.readouterr().err
     assert (sortie / "tirage.csv").read_bytes() == avant
     assert cli.main([*args, "--remplacer"]) == 0
+
+
+def test_hypotheses_de_texte_absentes_declarees(tmp_path, capsys):
+    etalon = _fiches(tmp_path / "e", ["acte_naissance.yaml", "acte_mariage.yaml"])
+    autre = _fiches(tmp_path / "a", ["acte_naissance.yaml", "acte_mariage.yaml"], source="machine")
+    te, ta = tmp_path / "te", tmp_path / "ta"
+    te.mkdir()
+    ta.mkdir()
+    for nom in ("acte_naissance", "acte_mariage"):
+        (te / f"{nom}.txt").write_text("abc", encoding="utf-8")
+    (ta / "acte_naissance.txt").write_text("abc", encoding="utf-8")
+    code, _ = _mesurer(tmp_path, etalon, autre, "machine", "--textes-etalon", str(te), "--textes-autre", str(ta))
+    assert code == 0
+    assert "textes sans hypothese (comptes en suppression) : 1" in capsys.readouterr().out
+
+
+def test_seconde_lecture_declare_paires_et_orphelines(tmp_path, capsys):
+    def relire(nom, fiche):
+        fiche["meta"]["lecture"] = "seconde"
+
+    etalon = _fiches(tmp_path / "e", ["acte_naissance.yaml", "acte_mariage.yaml"])
+    seconde = _fiches(tmp_path / "s", ["acte_naissance.yaml", "page_recensement.yaml"], modifier=relire)
+    code, _ = _mesurer(tmp_path, etalon, seconde, "seconde_lecture")
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "paires de lectures : 1" in out and "secondes lectures sans premiere : 1" in out
+
+
+def test_fiches_appariees_de_communes_differentes_refusees(tmp_path, capsys):
+    def ailleurs(nom, fiche):
+        fiche["commune"] = "Autreville"
+
+    etalon = _fiches(tmp_path / "e", ["acte_naissance.yaml"])
+    autre = _fiches(tmp_path / "a", ["acte_naissance.yaml"], "machine", ailleurs)
+    code, sortie = _mesurer(tmp_path, etalon, autre)
+    assert code == 2
+    assert "acte_naissance : commune_differente" in capsys.readouterr().err
+    assert not sortie.exists()
