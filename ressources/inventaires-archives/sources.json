@@ -1,0 +1,26 @@
+{
+  "commentaire": "Jeux suivis par tools/maj_inventaires.py. Les colonnes sont un contrat : si data.gouv.fr les change, la mise à jour s'arrête et attend un humain.",
+  "sources": [
+    {
+      "cle": "an",
+      "fichier": "an.csv.gz",
+      "jeu_id": "6a4be490401803d7002d01d9",
+      "motif_titre": "inventaires.*Archives.?nationales",
+      "colonnes": ["fran_ir", "titre", "cotes", "intitulé", "dates", "date_debut", "date_fin", "producteur", "documents_numerisés", "url_slv", "fichier_xml"]
+    },
+    {
+      "cle": "ad",
+      "fichier": "ad.csv.gz",
+      "jeu_id": "6aaa72e824ad794c370ddca4",
+      "motif_titre": "inventaires.*departementales",
+      "colonnes": ["_departement", "titre", "cotes", "intitule", "dates", "_date_debut", "_date_fin", "producteur", "index_sujet", "_theme", "_commune", "_insee", "index_personne", "index_organisation", "index_famille", "index_lieu", "index_typologie", "index_occupation", "index_fonction", "fichier"]
+    },
+    {
+      "cle": "ac",
+      "fichier": "ac.csv.gz",
+      "jeu_id": "6aaa6ddf12e738a21e4fe96a",
+      "motif_titre": "inventaires.*communales",
+      "colonnes": ["_departement", "_commune", "_insee", "titre", "cotes", "intitule", "dates", "_date_debut", "_date_fin", "producteur", "index_sujet", "_theme", "index_personne", "index_organisation", "index_famille", "index_lieu", "index_typologie", "index_occupation", "index_fonction", "fichier"]
+    }
+  ]
+}

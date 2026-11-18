@@ -1,0 +1,59 @@
+# Mise à jour des listes d'inventaires d'archives (data.gouv.fr, Licence Ouverte 2.0).
+# Les jeux sont annoncés « annuels » ; une vérification mensuelle ne coûte qu'un appel
+# d'API par jeu quand rien n'a changé. Une nouvelle version ouvre une demande de fusion :
+# la machine propose, un humain relit et fusionne (R18). Un refus de l'outil (colonnes
+# changées, baisse forte du nombre de lignes) fait échouer le job, visible dans Actions (R24).
+name: inventaires-archives
+
+on:
+  schedule:
+    - cron: "23 5 7 * *"  # le 7 de chaque mois, 5 h 23 UTC
+  workflow_dispatch:
+    inputs:
+      accepter_baisse:
+        description: "Accepter une baisse de plus de 20 % du nombre de lignes"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: inventaires-archives
+  cancel-in-progress: false
+
+jobs:
+  mettre-a-jour:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Télécharger les nouvelles versions
+        run: |
+          if [ "${{ inputs.accepter_baisse }}" = "true" ]; then
+            python3 tools/maj_inventaires.py --accepter-baisse
+          else
+            python3 tools/maj_inventaires.py
+          fi
+      - name: Contrôler les copies (lecture complète)
+        run: |
+          pip install --quiet pytest
+          python3 -m pytest -q tests/ressources
+      - name: Proposer une demande de fusion
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: maj/inventaires-archives
+          delete-branch: true
+          add-paths: ressources/inventaires-archives/*
+          commit-message: "data(inventaires): nouvelles versions des listes d'inventaires d'archives"
+          title: "data(inventaires): nouvelles versions des listes d'inventaires d'archives"
+          body: |
+            Mise à jour automatique depuis data.gouv.fr (`tools/maj_inventaires.py`).
+
+            À relire avant fusion : le diff de `ressources/inventaires-archives/manifeste.json`
+            (ressource, date de modification, nombre de lignes). Les colonnes ont été contrôlées
+            par l'outil et les tests `tests/ressources` sont passés sur les nouvelles copies.

@@ -1,5 +1,6 @@
 """Ligne de commande : ``python -m chronologia importer | info-lot | rechercher | rapprocher``,
-plus ``etalon-inventaire | etalon-tirer | etalon-mesurer`` (projet Hesdin, ``chronologia.etalon``)."""
+plus ``etalon-inventaire | etalon-tirer | etalon-mesurer`` (projet Hesdin, ``chronologia.etalon``)
+et ``sources-reperer`` (inventaires d'archives, ``chronologia.ressources``)."""
 
 import argparse
 import sqlite3
@@ -15,6 +16,7 @@ from chronologia.persistence.requetes import (
     rechercher_par_personne,
 )
 from chronologia.persistence.schema import creer_schema
+from chronologia.ressources.commandes import ajouter_sous_commande as ajouter_reperage
 from chronologia.services.importation import importer_fichier_geneweb
 from chronologia.services.rapprochement import proposer_rapprochements
 
@@ -194,6 +196,7 @@ def _parseur() -> argparse.ArgumentParser:
     rap.set_defaults(action=_rapprocher)
 
     ajouter_sous_commandes(sous)
+    ajouter_reperage(sous)
     return p
 
 
