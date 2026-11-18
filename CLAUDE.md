@@ -5,13 +5,14 @@ Système à la croisée de la prosopographie, de la généalogie et de l'analyse
 ## Contexte pour les agents
 
 - `AGENTS.md` : état exact du projet, commandes, garde-fous et feuille de route de reprise. À lire en premier.
-- CLI : `uv run python -m chronologia importer | info-lot | rechercher | rapprocher | etalon-inventaire | etalon-tirer | etalon-mesurer` (détails dans `AGENTS.md`).
+- CLI : `uv run python -m chronologia importer | info-lot | rechercher | rapprocher | etalon-inventaire | etalon-tirer | etalon-mesurer | sources-reperer` (détails dans `AGENTS.md`).
 - Projet Hesdin-Lanchères (jeu étalon) : `docs/projet-hesdin/` ; données réelles toujours hors du dépôt.
 
 ## Source de vérité
 
 - `docs/modele-evenement-masque-factoide.md` : le document de référence (version 0.13.1). Toute décision de modèle s'y consigne d'abord : ligne dans le « Journal des versions », section concernée, puis section 9 (décisions et questions ouvertes).
 - `docs/etude-page-claude.html` est **généré** : ne pas l'éditer à la main. `python3 tools/build_page.py` le régénère.
+- `ressources/inventaires-archives/` : listes d'inventaires d'archives (AN, AD, AC ; data.gouv.fr), **mises à jour par `tools/maj_inventaires.py`** et un workflow mensuel : ne pas éditer à la main. Ressource de repérage, pas une décision de modèle.
 - `docs/geneweb/` : références du format GeneWeb (`.gw`, wikitext), à consulter pour le connecteur d'import. Documentation externe, pas une décision de modèle.
 - `maquettes/design/` : copie des cinq écrans de la maquette (format `.dc.html` du canevas Design de claude.ai). Ils ne s'affichent que dans ce canevas ; ici, c'est une archive de référence.
 

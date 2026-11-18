@@ -44,6 +44,7 @@ Quatre agrégations symétriques, toutes par identification révisable : `PASSAG
 | ✅ | Rapprochement d'homonymes entre bases par faisceau d'indices : propositions « possible » ou « probable », jamais « certain », à valider par l'humain (R26) |
 | ✅ | Ligne de commande : `uv run python -m chronologia importer \| info-lot \| rechercher \| rapprocher` |
 | ✅ | Outillage du jeu étalon (projet Hesdin-Lanchères) : inventaire des sources, tirage stratifié rejouable, mesures CER/WER et par champ, accord entre deux lectures ; commandes `etalon-inventaire \| etalon-tirer \| etalon-mesurer` |
+| ✅ | Repérage des sources dans les listes d'inventaires d'archives (Archives nationales, archives départementales et communales sur FranceArchives ; data.gouv.fr), copiées dans `ressources/` et mises à jour chaque mois par une demande de fusion automatique ; commande `sources-reperer` |
 | 🚧 | Projet Hesdin-Lanchères : inventaire des registres, conventions de transcription à valider, pilote puis transcription de l'étalon |
 | 🚧 | Socle exécutable : schéma SQL complet, tests automatiques des règles, rejeu des scénarios du document |
 | 🚧 | Validation des propositions d'identification et calibration du barème |
@@ -61,6 +62,8 @@ Le premier chantier pose la condition de toute délégation à la machine (R33) 
 - `etalon-inventaire` valide l'inventaire des registres d'une commune, avec ses lacunes motivées ;
 - `etalon-tirer` tire l'échantillon (strates par type d'acte et par décennie, pilotes, pages de recensement, remontée avant 1872) ; les deux graines sont obligatoires et notées avant tout tirage ;
 - `etalon-mesurer` produit les taux d'erreur par champ, par rôle et sur le texte (CER, WER), ou l'accord entre deux lectures.
+
+Pour l'inventaire, `sources-reperer` interroge les listes d'inventaires publiées en données ouvertes (ex. `--lieu Hesdin --de 1872 --a 1911` fait ressortir les études notariales 4 E 81 et 4 E 82 de Hesdin aux AD62). Voir [`ressources/inventaires-archives/`](ressources/inventaires-archives/README.md), limites comprises.
 
 Garde-fous : les données réelles restent **hors du dépôt** (toute commande refuse un chemin qui s'y trouve) ; les mesures ne contiennent que des comptes et des taux, jamais un nom ; une omission ne peut pas améliorer un score ; chaque taux rappelle qu'il porte sur l'échantillon tiré (R29). Détails : [note de conception](docs/superpowers/specs/2026-11-11-projet-hesdin-design.md), [mode opératoire](docs/projet-hesdin/mode-operatoire.md), [conventions de transcription](docs/projet-hesdin/conventions-transcription.md) (proposition à valider).
 
@@ -113,13 +116,14 @@ uv run pytest
 | `docs/etude-*.md` | Études d'autres logiciels (Heurist ; nodegoat, Arches, ResearchSpace ; cinq autres) et ce que le modèle leur emprunte. |
 | `docs/relecture-oncle-neveu.md`, `docs/travail-du-chercheur.md` | Relecture critique du modèle et vision du travail du chercheur, d'où viennent les décisions 39 à 56. |
 | `docs/geneweb/` | Références du format GeneWeb (`gwFormat.md`, `genewWikitext.md`). |
+| `ressources/inventaires-archives/` | Listes d'inventaires d'archives (data.gouv.fr, Licence Ouverte 2.0), copiées et mises à jour automatiquement (`tools/maj_inventaires.py`, workflow mensuel). |
 | `docs/projet-hesdin/` | Projet Hesdin-Lanchères : conventions de transcription (à valider) et mode opératoire du jeu étalon. |
 | `docs/superpowers/` | Notes de conception (`specs/`) et plans d'implémentation (`plans/`). |
 | `docs/img/` | Illustrations du README (voir crédits). |
 | `chronologia/` | Code : modèle, adaptateur d'import GeneWeb, persistance, rapprochement d'homonymes, outillage du jeu étalon (`etalon/`), ligne de commande. |
 | `maquettes/design/` | Les cinq écrans de la maquette (dépôt et lecture à voix haute, validation d'un acte, rattachements, conflit de date, conflit de lieu). |
 | `tests/` | Tests automatiques. |
-| `tools/` | Script de génération de la page. |
+| `tools/` | Script de génération de la page ; mise à jour des listes d'inventaires (`maj_inventaires.py`). |
 | `CLAUDE.md` | Contexte du projet pour Claude Code. |
 
 Régénérer la page : `uv run --no-project --with markdown python tools/build_page.py`.

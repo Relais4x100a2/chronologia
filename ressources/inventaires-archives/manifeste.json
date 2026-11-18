@@ -1,0 +1,52 @@
+{
+  "jeux": [
+    {
+      "cle": "an",
+      "fichier": "an.csv.gz",
+      "jeu_id": "6a4be490401803d7002d01d9",
+      "jeu_titre": "Liste des inventaires des Archives nationales publiés en ligne",
+      "jeu_page": "https://www.data.gouv.fr/datasets/liste-des-inventaires-des-archives-nationales-publies-en-ligne",
+      "licence": "lov2",
+      "ressource_id": "c486d8ae-30ca-4084-8ac4-b5f0ff8d172d",
+      "ressource_titre": "liste_inventaires_Archives_nationales_SLV.csv",
+      "ressource_url": "https://static.data.gouv.fr/resources/liste-des-inventaires-des-archives-nationales-publies-en-ligne/20261109-160321/liste-inventaires-archivesnationales-slv.csv",
+      "ressource_modifiee": "2026-11-09T16:03:25.967000+00:00",
+      "sha1": "5345d48306360b5d716c4d7a4079c5399666a476",
+      "sha256": "e63c9d53e174e6577299c55da4f6240e4e3ce45ebfe4f1d335dec43184f569c1",
+      "octets": 18596395,
+      "lignes": 31001
+    },
+    {
+      "cle": "ad",
+      "fichier": "ad.csv.gz",
+      "jeu_id": "6aaa72e824ad794c370ddca4",
+      "jeu_titre": "Liste des inventaires d'archives départementales sur FranceArchives",
+      "jeu_page": "https://www.data.gouv.fr/datasets/liste-des-inventaires-darchives-departementales-sur-francearchives",
+      "licence": "lov2",
+      "ressource_id": "5a62f18c-5da3-4f5e-8299-a4edfea7df2a",
+      "ressource_titre": "FRAD_inventaires_archivesdepartementales_FranceArchives.csv",
+      "ressource_url": "https://static.data.gouv.fr/resources/liste-des-inventaires-darchives-departementales-sur-francearchives/20261108-120716/frad-liste-inventaires-francearchives.csv",
+      "ressource_modifiee": "2026-11-08T12:07:20.630000+00:00",
+      "sha1": "2fe96a17815a56b9cb2acfb04a1346f7d124daf6",
+      "sha256": "37f49b7bad8e8d31d2b3a6a7f489382eb469f51d6b2167ed15d655ab6a1f925d",
+      "octets": 37060735,
+      "lignes": 56298
+    },
+    {
+      "cle": "ac",
+      "fichier": "ac.csv.gz",
+      "jeu_id": "6aaa6ddf12e738a21e4fe96a",
+      "jeu_titre": "Liste des inventaires d'archives communales sur FranceArchives",
+      "jeu_page": "https://www.data.gouv.fr/datasets/liste-des-inventaires-darchives-communales-sur-francearchives",
+      "licence": "lov2",
+      "ressource_id": "c2753e49-39bc-415c-b57f-c3c0dc80f3e8",
+      "ressource_titre": "FRAC_inventaires_archivescommunales_FranceArchives.csv",
+      "ressource_url": "https://static.data.gouv.fr/resources/liste-des-inventaires-darchives-communales-sur-francearchives/20261108-121613/frac-liste-inventaires-francearchives.csv",
+      "ressource_modifiee": "2026-11-08T12:16:13.699000+00:00",
+      "sha1": "85b7bcac077d5d51a68c369b6592d1df94067faf",
+      "sha256": "d64b08409b2ec2614226b8b0fd2eb476bd2fd58253e851aa0af7fd4af2db7bdb",
+      "octets": 2557814,
+      "lignes": 4042
+    }
+  ]
+}
